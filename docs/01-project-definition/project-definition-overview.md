@@ -1,4 +1,4 @@
-﻿# Project Definition Overview
+# Project Definition Overview
 > Status: Draft
 ## Purpose
 This document provides an overview of the Project Definition phase for OmniDesk AI.
@@ -26,6 +26,10 @@ Detailed SDLC planning and execution practices will be documented separately whe
 | Assumptions and Constraints | Records conditions and limitations |
 | Project Risks | Identifies threats to project success |
 | Project Success Criteria | Defines how project success will be evaluated |
+## Phase Diagrams
+- [Stakeholder Ecosystem Diagram](./stakeholder-ecosystem-diagram.md)
+- [Project Scope Boundary Diagram](./scope-boundary-diagram.md)
+- [Project Context Diagram](./project-context-diagram.md)
 ## Phase Outputs
 The Project Definition phase produces:
 - A shared understanding of the product concept
@@ -41,4 +45,3 @@ The outputs of Project Definition will be used as inputs for Requirements Engine
 Requirements Engineering will transform the project goals and scope into detailed, testable, and traceable functional and non-functional requirements.
 ## Phase Status
 The Project Definition documentation is currently in draft form and must be reviewed for consistency before it is considered complete and approved.
-
