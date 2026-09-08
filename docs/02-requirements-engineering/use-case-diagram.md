@@ -1,62 +1,28 @@
-﻿# Use Case Diagram
+# Use Case Diagram
 
 > Status: Draft
 
 ## Purpose
 
-This Mermaid diagram provides a visual overview of the main actors and use cases of OmniDesk AI.
+This document presents the UML-style Use Case Diagram for OmniDesk AI.
 
-```mermaid
-flowchart TD
-User[Primary User]
-Gmail[Gmail Provider]
-Telegram[Telegram Provider]
-AI[AI Service]
+The diagram is authored in PlantUML and displayed in this Markdown file as an SVG image.
 
-subgraph OmniDeskAI[OmniDesk AI]
-UC1[UC-001 Create and authenticate account]
-UC2[UC-002 Connect Gmail account]
-UC3[UC-003 Connect Telegram account]
-UC4[UC-004 Browse unified workspace]
-UC5[UC-005 Search and filter communication]
-UC6[UC-006 Synchronize provider communication]
-UC7[UC-007 Request conversation summary]
-UC8[UC-008 Generate editable reply suggestion]
-UC9[UC-009 Disconnect external account]
-UC10[UC-010 Handle unavailable AI service]
-UC11[UC-011 Handle provider synchronization failure]
-Rule[AI never sends content autonomously]
-end
+## Diagram
 
-User --> UC1
-User --> UC2
-User --> UC3
-User --> UC4
-User --> UC5
-User --> UC7
-User --> UC8
-User --> UC9
-User --> UC10
-
-Gmail --> UC2
-Gmail --> UC6
-Telegram --> UC3
-Telegram --> UC6
-AI --> UC7
-AI --> UC8
-
-UC6 -.-> UC11
-UC7 -.-> UC10
-UC8 -.-> Rule
-```
+![OmniDesk AI Use Case Diagram](https://www.plantuml.com/plantuml/svg/RLJRRjim37tNLn1vJu7ragOlGzCMAFAqeka-W9DfMuWikReapORz-oZPJfMiJnR9SqYHXzQz3-X2xBJGL0S85fngsW2LSYI3iaRuhJ8zEkoWHxd5XZRXe0bI64sZgG3u5YkxLwQ16hKd8L06ws3subI7xW0_FRaPeC-7AVZSeTBmuknELMCukwRu6sbgKlOJoEITKAirRCZjbAGSNgsdm0DVkd4scWes1oFXZVjhnYJ98SIn4vZzw8nw8hzb_Wp-283eIQBdoACZ30J8QJ26banGCZkavDnXwEhnsmd56iEfXsxEW9TV0O-TdcAlIko3itl-HgDgHHNihTjwreL6x7M9tH0wsUOxrqe7SY1jrp6LRyxAZfIR4mfFf7NMgDy4_JZlBrcBalLAxv5yOA3PaVCP1pvsIVGHVrlYdycGIzEZIWNybRUfrmUci3I-gB8iMK_Aot5IzC7T63oVwftuAqJQBPZFlsSv2kEoDAvAuxeqRahZjZIMfN4dnA3hbBoq5k8evLJkpB4GlB1JZUDnAVAAJX1XBCze-1zjdUEhzRmPXrUbSGTUH1xUU-JVrOkOxkTefsW_R6gVD4HzaKeOOct0awdyaSchR8tjRFJwS24u1Ada_uKNudCn1dLhxZPoJK17q78nJPLW4L1dPOBQ4TIQTpLVf8ky7PnKIEjSx9E0YdNcXwB2W4NbUpxnO_GF)
 
 ## Diagram Notes
 
-- The Primary User initiates the main workspace and AI interactions.
-- Gmail and Telegram are the initial external providers.
-- The AI Service supports summaries and editable reply suggestions.
-- AI-generated content remains under user control.
-- Autonomous AI message sending is explicitly prohibited.
-- Provider synchronization failures must not corrupt existing data.
+- Primary User is the main human actor.
+- Gmail Provider and Telegram Provider are external communication systems.
+- AI Service is an external system used for summaries and editable reply suggestions.
+- Background Sync Trigger represents scheduled or system-triggered synchronization.
+- AI service unavailability and provider synchronization failure are alternative flows.
+- AI-generated content requires user review and approval.
+- AI must never send content autonomously.
+- Message sending remains outside the current MVP commitment.
 
+## Source
 
+The editable PlantUML source is available in [use-case-diagram.puml](./diagrams/use-case-diagram.puml).
