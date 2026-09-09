@@ -8,12 +8,12 @@ This PlantUML activity diagram shows how OmniDesk AI requirements move from stak
 
 ## Diagram
 
-![Requirements Lifecycle Diagram](https://www.plantuml.com/plantuml/svg/ZPAnJWCn44HxVyMMYHH-81Ga4GqILIH4lR77P1N7TcpVmV7rx1r89DT0vVFkczbPdJUrSMdTEPWcBO3sk7HIS4PibPx5mmusm9W9C-idfmtn0-dzX6CA3eKYuEgzMMyZX-4JL6tAM95DiRR2eauhukYeI3sDt2EyH93lecsIL3HrOuftLwLo5UHNesPuApmoQbfXko9j-BRFHNgsmrpvgWIegngqjbG4TQArG9OhhipPMkJ6qMfd51LXRUuw2Ux6b7Gh2pv8qDbqvbRaGy4zUi7xPDvp4CSwzZQBU5fiSowfXtjOKZiYqc90NHgYzKx3X376hGP1WovYcfXnH9qJMd_9FzE27hEm-j_4ivsJVwr3T61xefRe7uiXEl7wHb8s6_tMv_G5)
+![Requirements Lifecycle Diagram](https://www.plantuml.com/plantuml/svg/XL91JiCm4Bpx5NjCfVA1za2Bk21ngWISj_Q4hkhQndPImklPf4MqvS0fpixixCpQgr8vr-xWJPNgGHjyT99nGAY5dgM57Qo7CHFDB9wS0j8EfFzxxA9to1G0LvPciGxiXozGiJ5XJZQ6KZEBAis9WwCiPJ_o7j5A0BLTi5MYDareYE7kefGlZFpsg1ZUCuyS5IsmNPOwdEHJbfxjSDlvfWnGLzHegJ4BoiJM0bakk11dQv4g1wl8s9I55NpenBihKT9K5hmLhxFfm3NBvzAOZ0IkXcYnGIyuJcDwzk9O3Lox8fAMcdLAEVPmzpEgEmHg1fIPOaJR3Dxh2LvjDY6UgfDm-Qkbo4iwJ_7wkR6hDoSjsx_S_oBf_E2aFIUZuqxqXJIlfqXw1JyIOm0fP_kwCLsh7nTwxLEtdynA5VMrVGC0)
 
 ## Notes
 
 - Requirements may be refined when validation produces new information.
-- Revisions update the related artifacts and traceability matrix before validation repeats.
+- Revisions update related artifacts and the traceability matrix before validation repeats.
 - Unresolved product decisions remain explicitly documented.
 - This lifecycle supports iterative and incremental development.
 
