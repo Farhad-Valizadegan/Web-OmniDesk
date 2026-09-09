@@ -1,0 +1,20 @@
+@startuml
+title OmniDesk AI Project Context
+
+left to right direction
+skinparam componentStyle rectangle
+
+actor "Primary User" as User
+actor "Project Owner and Developer" as Owner
+rectangle "Gmail Provider" as Gmail
+rectangle "Telegram Provider" as Telegram
+rectangle "AI Service" as AI
+rectangle "OmniDesk AI" as System
+
+User --> System : workspace actions
+Owner --> System : development and operations
+System <--> Gmail : account and communication data
+System <--> Telegram : account and communication data
+System --> AI : approved request context
+AI --> System : summary or editable suggestion
+@enduml
