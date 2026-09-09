@@ -1,0 +1,20 @@
+@startuml
+title Requirements Lifecycle
+
+start
+:Identify stakeholder needs;
+:Analyze scope, constraints, and risks;
+:Define functional and non-functional requirements;
+:Define integrations, security, and privacy requirements;
+:Write user stories and use cases;
+:Define acceptance criteria;
+:Build requirements traceability matrix;
+:Review and validate requirements;
+if (Approved?) then (yes)
+  :Baseline requirements;
+else (no)
+  :Revise requirements;
+  back to :Review and validate requirements;
+endif
+stop
+@enduml
