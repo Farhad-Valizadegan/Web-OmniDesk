@@ -1,0 +1,37 @@
+@startuml
+title Provider Synchronization Sequence Diagram
+
+actor "Primary User" as User
+participant "OmniDesk AI" as System
+participant "Synchronization Service" as Sync
+participant "Provider Connector" as Connector
+participant "Gmail or Telegram API" as Provider
+database "Communication Store" as Store
+database "Synchronization Log" as Log
+
+User -> System : request synchronization
+System -> Sync : start synchronization
+Sync -> Connector : fetch provider data
+Connector -> Provider : request communication data
+
+alt provider request succeeds
+  Provider --> Connector : provider data
+  Connector -> Sync : validate and normalize records
+
+  loop for each normalized record
+    Sync -> Store : upsert using provider identifiers
+    Store --> Sync : inserted, updated, or duplicate ignored
+  end
+
+  Sync -> Log : record successful synchronization
+  Sync --> System : synchronization status
+  System --> User : display updated status
+else provider request fails
+  Provider --> Connector : error response
+  Connector --> Sync : report classified failure
+  Sync -> Log : record safe diagnostic event
+  Sync --> System : failure status
+  System --> User : display failure status
+end
+
+@enduml
