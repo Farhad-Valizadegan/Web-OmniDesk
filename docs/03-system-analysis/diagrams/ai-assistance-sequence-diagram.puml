@@ -1,0 +1,32 @@
+@startuml
+title AI Assistance Sequence Diagram
+
+actor "Primary User" as User
+participant "OmniDesk AI" as System
+participant "AI Assistance Service" as Assist
+participant "AI Service Provider" as AI
+database "Communication Store" as Store
+
+User -> System : request summary or reply suggestion
+System -> Store : retrieve selected conversation
+Store --> System : conversation data
+System -> Assist : create approved AI request
+Assist -> AI : send minimized conversation context
+
+alt AI request succeeds
+  AI --> Assist : summary or reply suggestion
+  Assist --> System : AI-generated result
+  System --> User : display result for review
+  User -> System : edit, accept, or discard result
+else AI request fails
+  AI --> Assist : failure response
+  Assist --> System : AI unavailable status
+  System --> User : display failure without blocking core features
+end
+
+note over User,System
+AI output never sends content autonomously.
+Message sending requires explicit user approval.
+end note
+
+@enduml
