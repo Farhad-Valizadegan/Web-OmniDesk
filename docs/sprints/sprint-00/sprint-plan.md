@@ -1,32 +1,16 @@
 # Sprint 00 Plan - Engineering Preparation
 
-
-
 > Status: Draft
-
-
 
 ## Sprint Goal
 
-
-
 Prepare a reliable and repeatable development environment for OmniDesk AI.
-
-
 
 Sprint 00 does not implement product features. It prepares the repository, tools, environment, quality checks, and workflow required for implementation.
 
-
-
 ## Related Milestone
 
-
-
-```text
-
-M0 - Engineering Foundation
-
-
+**M0 - Engineering Foundation**
 
 ## Sprint Scope
 
