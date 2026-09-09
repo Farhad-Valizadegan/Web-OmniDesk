@@ -1,0 +1,47 @@
+@startuml
+title OmniDesk AI Data Flow Diagram
+
+left to right direction
+skinparam componentStyle rectangle
+
+actor "Primary User" as User
+rectangle "Gmail Provider" as Gmail
+rectangle "Telegram Provider" as Telegram
+rectangle "AI Service" as AI
+rectangle "Background Sync Trigger" as Sync
+
+rectangle "Authentication and Connection Management" as Auth
+rectangle "Synchronization and Normalization" as Normalize
+rectangle "Unified Communication Workspace" as Workspace
+rectangle "Search and Local Organization" as Search
+rectangle "AI Assistance" as Assist
+
+database "Connection Store" as Connections
+database "Communication Store" as Communications
+database "Synchronization and Audit Log" as Logs
+
+User --> Auth : credentials and account actions
+Auth --> Connections : connection information
+Connections --> Auth : connection status
+
+Gmail --> Normalize : provider communication data
+Telegram --> Normalize : provider communication data
+Sync --> Normalize : synchronization trigger
+Connections --> Normalize : active connections
+Normalize --> Communications : normalized communication data
+Normalize --> Logs : synchronization events
+
+User --> Workspace : browse and organize
+Workspace --> Communications : read communication data
+Workspace --> Search : search and filter request
+Search --> Communications : query communication data
+Search --> Workspace : matching results
+
+User --> Assist : request summary or suggestion
+Assist --> Communications : selected conversation context
+Assist --> AI : approved request context
+AI --> Assist : summary or editable suggestion
+Assist --> Workspace : user-reviewable result
+
+Workspace --> User : messages, status, and results
+@enduml
