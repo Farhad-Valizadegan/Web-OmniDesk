@@ -1,4 +1,4 @@
-﻿# System Boundary and Context Analysis
+# System Boundary and Context Analysis
 
 > Status: Draft
 
@@ -6,120 +6,17 @@
 
 This document defines the system boundary and external context of OmniDesk AI.
 
-It identifies which responsibilities belong to OmniDesk AI and which responsibilities remain outside the system.
+## Diagram
 
-## System Boundary
+![System Boundary and Context Analysis](https://www.plantuml.com/plantuml/svg/ZPHDRXin38NtEWNXlIyG54MS52YyQGCuGTUCXXaB7abJYUFKBNBtKfmVQxnfTnRvwKdlKUFxp9Xuy9rXnnt1uPAPF3p48JIOBe2XWSSOc7unx09sb-oowUYDWICarnuP6fV8iel1v9CBFIRqOAFlOw301xw8QW4mj1qPj1mJR9wIyqN-9LFQ06RzOHOCDbyzkWwUKZoxPaAqL3FFr55RJbjXSxKcTtiuK3exIuhizdNp0UsfJSMmk0yMdiLMEucLGir-zy5zeNmIYQclSVqnK9ysy56iEuib5OqGfHIJ-wsLyGvIMUsQJKXs8Oo1PYKb_h0YowMEAOP9JWy8CNdiwWE-JHLQxNq9xirH0-yndNAFKo0_vjNQnrvwCczPpy7fqdoOCYxORZ-h3RXJVvDbkZONMI6M0m57RsOSyQS25ej5nLeP0rS9c6N6_-16iS8ilWMKP-Y7C0-YGSQhu7-m-XnkkNoJFe_FnLoPM-lpR2HsbRtsD47DjBZgUta20adkYNuE94bFJUNsDMF7Rz98TIMI1wyVbdnar3Z6Lnba7kI2MMEgzEeR3ZAnRQApetVTaIWF7Pjx2etyDVm5)
 
-OmniDesk AI is a provider-agnostic unified communication workspace.
+## Notes
 
-The system is responsible for:
+- The system boundary separates OmniDesk AI responsibilities from external provider and AI services.
+- Provider data is normalized before it reaches the unified workspace.
+- AI output remains user-reviewable.
+- Autonomous AI sending is prohibited.
 
-- User authentication and authorization
+## PlantUML Source
 
-- Managing provider connections
-
-- Synchronizing supported communication data
-
-- Normalizing provider data
-
-- Displaying a unified workspace
-
-- Searching and organizing communication
-
-- Requesting AI summaries and reply suggestions
-
-- Protecting user data and connection information
-
-- Reporting synchronization and integration status
-
-The system is not responsible for:
-
-- Operating Gmail or Telegram
-
-- Controlling external provider policies
-
-- Training or owning the AI model
-
-- Guaranteeing external provider availability
-
-- Sending messages autonomously
-
-- Implementing future providers in the current MVP
-
-## System Context Diagram
-
-```mermaid
-
-flowchart LR
-
-User[Primary User]
-
-Gmail[Gmail Provider]
-
-Telegram[Telegram Provider]
-
-AI[AI Service]
-
-Sync[Background Sync Trigger]
-
-System[OmniDesk AI]
-
-User -->|authentication and workspace actions| System
-
-Gmail -->|communication data and provider status| System
-
-Telegram -->|communication data and provider status| System
-
-Sync -->|synchronization trigger| System
-
-System -->|approved AI request context| AI
-
-AI -->|summary or editable suggestion| System
-
-System -->|messages, status, and AI results| User
-
-```
-
-## External Actors and Systems
-
-| External Entity | Relationship with OmniDesk AI |
-|---|---|
-| Primary User | Uses the workspace and controls user-initiated actions |
-| Gmail Provider | Supplies supported Gmail communication data |
-| Telegram Provider | Supplies supported Telegram communication data |
-| AI Service | Produces user-requested summaries or reply suggestions |
-| Background Sync Trigger | Starts scheduled or system-triggered synchronization |
-
-## Context Assumptions
-
-1. The user must authenticate before accessing protected data.
-2. Gmail and Telegram are the initial supported providers.
-3. External provider data is treated as untrusted input.
-4. AI processing occurs only for approved and user-requested features.
-5. AI-generated content requires user review.
-6. AI must never send content autonomously.
-7. Provider failures must not corrupt previously synchronized data.
-8. Future providers are outside the current MVP commitment.
-
-## Boundary Decisions
-
-| Decision | Analysis Result |
-|---|---|
-| Provider ownership | External providers remain responsible for their own accounts and services |
-| Communication storage | OmniDesk AI stores only the minimum data required by supported features |
-| AI responsibility | AI provides assistance; the user remains responsible for final decisions |
-| Synchronization responsibility | OmniDesk AI retrieves, validates, maps, and stores supported data |
-| External sending | Remains unresolved and is not part of autonomous AI behavior |
-| Future integrations | Must use the provider integration boundary |
-
-## Relationship to Later Analysis
-
-This system boundary will provide input for:
-
-- Domain Model
-- Data Flow Diagram
-- Synchronization Workflow
-- Provider Connection State Diagram
-- Sequence Diagrams
-- System Design
-
+The editable PlantUML source is available in [system-boundary-and-context-analysis.puml](./diagrams/system-boundary-and-context-analysis.puml).
