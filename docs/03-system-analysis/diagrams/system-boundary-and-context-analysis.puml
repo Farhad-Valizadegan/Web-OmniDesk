@@ -1,0 +1,33 @@
+@startuml
+title System Boundary and Context Analysis
+
+left to right direction
+skinparam componentStyle rectangle
+
+actor "Primary User" as User
+rectangle "Gmail Provider" as Gmail
+rectangle "Telegram Provider" as Telegram
+rectangle "AI Service" as AI
+rectangle "Background Sync Trigger" as Sync
+
+rectangle "OmniDesk AI" as System {
+  rectangle "Authentication and authorization" as Auth
+  rectangle "Provider connections" as Conn
+  rectangle "Synchronization and normalization" as Normalize
+  rectangle "Unified workspace" as Workspace
+  rectangle "AI assistance" as Assist
+}
+
+User --> Auth : authenticate
+User --> Workspace : workspace actions
+Gmail <--> Conn : account connection
+Telegram <--> Conn : account connection
+Gmail --> Normalize : communication data
+Telegram --> Normalize : communication data
+Sync --> Normalize : synchronization trigger
+Normalize --> Workspace : normalized data
+Workspace --> Assist : approved AI request
+Assist --> AI : approved context
+AI --> Assist : summary or editable suggestion
+Assist --> Workspace : user-reviewable result
+@enduml
