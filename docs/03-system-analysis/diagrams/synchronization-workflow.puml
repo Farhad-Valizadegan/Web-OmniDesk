@@ -1,0 +1,31 @@
+@startuml
+title OmniDesk AI Synchronization Workflow
+
+start
+
+:Receive synchronization trigger;
+:Load active provider connections;
+:Request communication data from provider;
+
+if (Provider response valid?) then (yes)
+  :Validate external data;
+  :Map data to internal communication model;
+  :Check provider and message identifiers;
+
+  if (Duplicate record?) then (yes)
+    :Skip duplicate record;
+  else (no)
+    :Store normalized communication data;
+  endif
+
+  :Record successful synchronization;
+  :Update provider synchronization status;
+else (no)
+  :Classify integration or synchronization failure;
+  :Preserve previously synchronized data;
+  :Record safe diagnostic event;
+  :Report failure status to the user;
+endif
+
+stop
+@enduml
