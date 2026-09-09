@@ -1,0 +1,24 @@
+@startuml
+title Main User Workflow
+
+start
+:Open OmniDesk AI;
+if (Authenticated?) then (yes)
+else (no)
+  :Authenticate;
+endif
+:View unified workspace;
+:Search or filter communication;
+if (AI assistance requested?) then (yes)
+  :Send approved context to AI Service;
+  if (AI available?) then (yes)
+    :Display summary or editable reply suggestion;
+    :Review and edit AI output;
+  else (no)
+    :Display AI unavailable status;
+  endif
+else (no)
+endif
+:Continue core communication workflow;
+stop
+@enduml
