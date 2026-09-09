@@ -9,14 +9,18 @@ start
 :Write user stories and use cases;
 :Define acceptance criteria;
 :Build requirements traceability matrix;
-:Review and validate requirements;
-if (Approved?) then (yes)
-  :Baseline requirements;
-else (no)
-  :Revise requirements;
-  :Update related requirements artifacts;
-  :Update requirements traceability matrix;
-  back to :Review and validate requirements;
-endif
+
+repeat
+  :Review and validate requirements;
+  if (Approved?) then (yes)
+    break
+  else (no)
+    :Revise requirements;
+    :Update related requirements artifacts;
+    :Update requirements traceability matrix;
+  endif
+repeat while (Validation required?) is (yes)
+
+:Baseline requirements;
 stop
 @enduml
