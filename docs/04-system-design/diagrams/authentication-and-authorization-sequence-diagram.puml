@@ -1,0 +1,66 @@
+@startuml
+title Authentication and Authorization Sequence Diagram
+
+actor "Primary User" as User
+participant "React Web Client" as Client
+participant "Laravel REST API" as API
+participant "Authentication Service" as Auth
+participant "Authorization Service" as Authorization
+database "PostgreSQL" as DB
+
+User -> Client : submit registration or login data
+Client -> API : send authentication request
+
+alt registration
+  API -> Auth : validate registration data
+  Auth -> DB : create user account
+  DB --> Auth : account created
+  Auth --> API : registration result
+  API --> Client : account created
+else login
+  API -> Auth : verify credentials
+  Auth -> DB : retrieve user account
+  DB --> Auth : account data
+
+  alt credentials valid
+    Auth --> API : authenticated session
+    API --> Client : authentication success
+    Client --> User : display protected workspace
+  else credentials invalid
+    Auth --> API : authentication failure
+    API --> Client : authentication error
+    Client --> User : display error
+  end
+end
+
+User -> Client : request protected resource
+Client -> API : request with session
+API -> Auth : verify session
+
+alt session valid
+  Auth --> API : authenticated user
+  API -> Authorization : check resource ownership
+  Authorization -> DB : verify user ownership
+  DB --> Authorization : ownership result
+
+  alt access permitted
+    Authorization --> API : access granted
+    API --> Client : return user-owned data
+    Client --> User : display resource
+  else access denied
+    Authorization --> API : access denied
+    API --> Client : forbidden response
+    Client --> User : display access error
+  end
+else session invalid
+  Auth --> API : unauthenticated
+  API --> Client : authentication required
+  Client --> User : request sign-in
+end
+
+note over Auth,Authorization
+Authentication confirms identity.
+Authorization confirms permission and resource ownership.
+end note
+
+@enduml
