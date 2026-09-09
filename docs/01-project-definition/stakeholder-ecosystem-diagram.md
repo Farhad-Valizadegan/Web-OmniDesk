@@ -4,28 +4,11 @@
 
 ## Purpose
 
-This Mermaid diagram shows the main stakeholders, external providers, and supporting services surrounding OmniDesk AI.
+This PlantUML diagram shows the main stakeholders, external providers, and supporting services surrounding OmniDesk AI.
 
-```mermaid
-flowchart TD
-Owner[Project Owner and Developer]
-User[Primary User]
-Reviewers[Technical Reviewers and Recruiters]
-Gmail[Gmail Provider]
-Telegram[Telegram Provider]
-AI[AI Service]
-Future[Future Providers]
+## Diagram
 
-OmniDesk[OmniDesk AI]
-
-Owner --> OmniDesk
-User --> OmniDesk
-Reviewers -. evaluate .-> OmniDesk
-Gmail <--> OmniDesk
-Telegram <--> OmniDesk
-OmniDesk <--> AI
-Future -. future integration .-> OmniDesk
-```
+![Stakeholder Ecosystem Diagram](https://www.plantuml.com/plantuml/svg/TP91Ri8m44NtFiM8FHm0LGWaseeLYD03Z9m1fd7io9uaulPrx132eZlx_pTZpxUtGT1BMnibB8QW4Apexan97Zwr2uyWL2j3Lm5nuFbs5oZPanPsLeMAROCUQz2kRfmbAuKyOfi1G7ipf52Byx0uUQxHF-0da5y0XhHucUut5i2nj_5Oj2NigIFZcf5D-XE-aBvRrcZWJ1rJJpwaaZDftxB4RQgPJ3NT1HRVDRA1U5p7vTWxINFcGePkmqXls5ETaxi35EGxrfIGtM5kVhNIUfgQv4jbSOuTQyjx2bMiJaIH0n_IWULoC-vX3MsW0BtpLMXGayfHlH6kjpc9CeSNr2kWDv0wD2qAgL7v6DmSpHhOoZ1eUjwvFyNoFnBpMCSP0iS_PVNKVhNQZ8D7-veNynPRicNyW7y0)
 
 ## Notes
 
@@ -33,3 +16,7 @@ Future -. future integration .-> OmniDesk
 - Gmail and Telegram are the initial providers.
 - AI is an assisting external service.
 - Future providers are outside the current MVP commitment.
+
+## PlantUML Source
+
+The editable PlantUML source is available in [stakeholder-ecosystem-diagram.puml](./diagrams/stakeholder-ecosystem-diagram.puml).
