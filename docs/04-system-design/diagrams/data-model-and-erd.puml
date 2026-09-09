@@ -1,0 +1,124 @@
+@startuml
+title OmniDesk AI Data Model and ERD
+
+hide methods
+hide stereotypes
+skinparam linetype ortho
+
+entity "USERS" as Users {
+  * id : bigint <<PK>>
+  --
+  * email : varchar <<UK>>
+  * password_hash : varchar
+  * created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "PROVIDERS" as Providers {
+  * id : bigint <<PK>>
+  --
+  * name : varchar <<UK>>
+  * type : varchar <<UK>>
+}
+
+entity "PROVIDER_ACCOUNTS" as ProviderAccounts {
+  * id : bigint <<PK>>
+  --
+  * user_id : bigint <<FK>>
+  * provider_id : bigint <<FK>>
+  * external_account_id : varchar
+  * connection_status : varchar
+  * access_token : encrypted
+  refresh_token : encrypted
+  token_expires_at : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "CONVERSATIONS" as Conversations {
+  * id : bigint <<PK>>
+  --
+  * provider_account_id : bigint <<FK>>
+  * external_conversation_id : varchar
+  subject : varchar
+  last_activity_at : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "MESSAGES" as Messages {
+  * id : bigint <<PK>>
+  --
+  * conversation_id : bigint <<FK>>
+  * provider_message_id : varchar
+  sender : varchar
+  recipients : text
+  content : text
+  sent_at : timestamp
+  created_at : timestamp
+}
+
+entity "LABELS" as Labels {
+  * id : bigint <<PK>>
+  --
+  * user_id : bigint <<FK>>
+  * name : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "CONVERSATION_LABELS" as ConversationLabels {
+  * conversation_id : bigint <<PK, FK>>
+  * label_id : bigint <<PK, FK>>
+}
+
+entity "SYNCHRONIZATIONS" as Synchronizations {
+  * id : bigint <<PK>>
+  --
+  * provider_account_id : bigint <<FK>>
+  * status : varchar
+  started_at : timestamp
+  completed_at : timestamp
+  failure_category : varchar
+  created_at : timestamp
+}
+
+entity "AI_SUGGESTIONS" as AISuggestions {
+  * id : bigint <<PK>>
+  --
+  * user_id : bigint <<FK>>
+  * conversation_id : bigint <<FK>>
+  * type : varchar
+  * status : varchar
+  content : text
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+Users ||--o{ ProviderAccounts : owns
+Providers ||--o{ ProviderAccounts : supports
+ProviderAccounts ||--o{ Conversations : contains
+Conversations ||--|{ Messages : contains
+Users ||--o{ Labels : defines
+Conversations ||--o{ ConversationLabels : has
+Labels ||--o{ ConversationLabels : organizes
+ProviderAccounts ||--o{ Synchronizations : records
+Users ||--o{ AISuggestions : creates
+Conversations ||--o{ AISuggestions : informs
+
+note right of ProviderAccounts
+Tokens are encrypted and must never
+be returned to the frontend.
+end note
+
+note right of Messages
+A provider account and provider message
+identifier prevent duplicate records.
+end note
+
+note bottom of AISuggestions
+AI suggestions remain user-controlled.
+They do not authorize autonomous sending.
+end note
+
+@enduml
