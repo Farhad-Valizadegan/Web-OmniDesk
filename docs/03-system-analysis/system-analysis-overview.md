@@ -38,18 +38,18 @@ The System Analysis phase includes:
 10. Identifying business rules and constraints
 11. Identifying ambiguity, conflicts, and missing information
 12. Validating the analysis against approved requirements
-## Planned Analysis Artifacts
-The following artifacts may be created when they improve understanding:
-- System Context Diagram
-- Domain Model
-- Process and Workflow Diagrams
-- Data Flow Diagram
-- State Diagrams
-- Sequence Diagrams
-- Business Rules Catalog
-- System Boundary Definition
-- Analysis Decisions and Open Questions
-All diagrams will be created in Mermaid format.
+## Analysis Artifacts
+The following analysis artifacts have been created:
+- [System Boundary and Context Analysis](system-boundary-and-context-analysis.md)
+- [Domain Model](domain-model.md)
+- [Data Flow Diagram](data-flow-diagram.md)
+- [Synchronization Workflow](synchronization-workflow.md)
+- [Provider Connection State Diagram](provider-connection-state-diagram.md)
+- [Provider Synchronization Sequence Diagram](provider-synchronization-sequence-diagram.md)
+- [AI Assistance Sequence Diagram](ai-assistance-sequence-diagram.md)
+- [Business Rules Catalog](business-rules-catalog.md)
+- [Analysis Decisions and Open Questions](analysis-decisions-and-open-questions.md)
+All diagrams are created in PlantUML format, with editable source files stored in the diagrams directory.
 ## Analysis Scope
 The initial analysis focuses on:
 - User authentication and account access
