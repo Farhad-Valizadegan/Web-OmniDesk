@@ -1,0 +1,88 @@
+@startuml
+title Provider Integration Sequence Diagram
+
+actor "Primary User" as User
+participant "React Web Client" as Client
+participant "Laravel REST API" as API
+participant "Provider Integration Boundary" as Boundary
+participant "Gmail or Telegram Connector" as Connector
+participant "External Provider" as Provider
+database "Connection Store" as Store
+participant "Synchronization Service" as Sync
+
+User -> Client : select provider connection
+Client -> API : request authorization
+API -> Boundary : start provider authorization
+Boundary -> Connector : create authorization request
+Connector -> Provider : request authorization URL
+
+alt authorization request succeeds
+  Provider --> Connector : authorization URL
+  Connector --> Boundary : authorization URL
+  Boundary --> API : authorization URL
+  API --> Client : redirect information
+  Client --> User : display provider authorization
+
+  User -> Provider : authorize OmniDesk AI
+  Provider --> Client : authorization callback
+  Client -> API : submit callback data
+  API -> Boundary : process callback
+  Boundary -> Connector : validate callback
+  Connector -> Provider : exchange authorization code
+
+  alt authorization succeeds
+    Provider --> Connector : provider credentials
+    Connector -> Store : securely store connection
+    Store --> Connector : connection stored
+    Connector --> Boundary : connection established
+    Boundary --> API : connection status
+    API --> Client : display connected status
+    Client --> User : show provider connection
+  else authorization fails
+    Provider --> Connector : authorization error
+    Connector --> Boundary : classified authorization failure
+    Boundary --> API : connection failure status
+    API --> Client : display connection failure
+    Client --> User : show provider error
+  end
+else authorization request fails
+  Provider --> Connector : provider error
+  Connector --> Boundary : classified provider failure
+  Boundary --> API : integration failure status
+  API --> Client : display failure
+  Client --> User : show provider error
+end
+
+User -> Client : request synchronization
+Client -> API : synchronization request
+API -> Sync : start synchronization
+Sync -> Boundary : request provider data
+Boundary -> Connector : fetch communication data
+Connector -> Provider : request communication data
+
+alt provider request succeeds
+  Provider --> Connector : provider data
+  Connector --> Boundary : provider data
+  Boundary --> Sync : provider data for validation
+  Sync --> API : synchronization status
+  API --> Client : display synchronization status
+else provider request fails
+  Provider --> Connector : error response
+  Connector --> Boundary : classified provider failure
+  Boundary --> Sync : synchronization failure
+  Sync --> API : failure status
+  API --> Client : display failure
+  Client --> User : show synchronization error
+end
+
+note over Boundary,Connector
+Provider-specific authorization and API behavior
+remain behind the integration boundary.
+end note
+
+note over Store
+Provider credentials and tokens are never returned
+to the frontend or exposed in logs.
+end note
+
+@enduml
