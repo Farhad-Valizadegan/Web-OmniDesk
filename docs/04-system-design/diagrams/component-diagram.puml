@@ -1,0 +1,65 @@
+@startuml
+title OmniDesk AI Component Diagram
+
+left to right direction
+skinparam componentStyle rectangle
+
+package "Presentation" {
+  component "React Web Client" as Client
+}
+
+package "Application Services" {
+  component "REST API" as API
+  component "Authentication Service" as Auth
+  component "Workspace Service" as Workspace
+  component "Synchronization Service" as Sync
+  component "AI Assistance Service" as AIService
+}
+
+package "Integration Boundary" {
+  component "Gmail Connector" as Gmail
+  component "Telegram Connector" as Telegram
+  component "AI Provider Adapter" as AIAdapter
+}
+
+package "Persistence" {
+  component "User Repository" as UserRepo
+  component "Communication Repository" as CommunicationRepo
+  component "Connection Repository" as ConnectionRepo
+  component "Synchronization Repository" as SyncRepo
+}
+
+database "PostgreSQL" as DB
+database "Redis" as Redis
+component "Gmail API" as GmailAPI
+component "Telegram API" as TelegramAPI
+component "Selected AI Provider" as ExternalAI
+
+Client --> API
+API --> Auth
+API --> Workspace
+API --> Sync
+API --> AIService
+
+Auth --> UserRepo
+Auth --> ConnectionRepo
+Workspace --> CommunicationRepo
+Workspace --> Redis
+Sync --> Gmail
+Sync --> Telegram
+Sync --> CommunicationRepo
+Sync --> SyncRepo
+Sync --> Redis
+AIService --> CommunicationRepo
+AIService --> AIAdapter
+
+Gmail --> GmailAPI
+Telegram --> TelegramAPI
+AIAdapter --> ExternalAI
+
+UserRepo --> DB
+CommunicationRepo --> DB
+ConnectionRepo --> DB
+SyncRepo --> DB
+
+@enduml
