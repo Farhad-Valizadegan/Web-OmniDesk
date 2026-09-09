@@ -1,0 +1,44 @@
+@startuml
+title OmniDesk AI Error Handling Workflow
+
+start
+
+:Receive error or failed operation;
+:Classify error source and severity;
+
+if (Authentication or authorization error?) then (yes)
+  :Reject the request;
+  :Return safe authentication or forbidden response;
+  :Record safe security event;
+elseif (Provider integration error?) then (yes)
+  :Identify affected provider and connection;
+  :Preserve existing synchronized data;
+  :Record classified provider failure;
+  :Report provider status to the user;
+elseif (Synchronization error?) then (yes)
+  :Stop the failed synchronization operation;
+  :Preserve previously synchronized data;
+  :Record safe diagnostic event;
+  :Report synchronization failure;
+  :Allow retry where appropriate;
+elseif (AI service error?) then (yes)
+  :Record AI failure category;
+  :Report AI unavailable status;
+  :Keep core communication features available;
+  :Allow retry where appropriate;
+else (unknown or unexpected error)
+  :Record safe diagnostic event;
+  :Return a generic error response;
+  :Avoid exposing internal details;
+endif
+
+:Monitor and reassess the failure;
+stop
+
+note right
+Error logs must not contain passwords,
+tokens, session secrets, or unnecessary
+communication content.
+end note
+
+@enduml
