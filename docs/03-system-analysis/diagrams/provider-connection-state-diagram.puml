@@ -1,0 +1,41 @@
+@startuml
+title Provider Connection State Diagram
+
+[*] --> Disconnected
+
+Disconnected --> Connecting : user starts connection
+Connecting --> Connected : authorization succeeds
+Connecting --> ConnectionFailed : authorization fails
+
+Connected --> Synchronizing : synchronization starts
+Synchronizing --> Connected : synchronization succeeds
+Synchronizing --> SyncFailed : synchronization fails
+
+SyncFailed --> Synchronizing : retry requested
+SyncFailed --> Connected : failure acknowledged
+
+Connected --> Expired : credentials expire
+Expired --> Connecting : reconnect requested
+
+Connected --> Disconnecting : user requests disconnection
+Expired --> Disconnecting : user requests disconnection
+ConnectionFailed --> Disconnected : cancel or reset
+Disconnecting --> Disconnected : connection invalidated
+
+state Connected {
+  Connected : provider account is active
+}
+
+state Synchronizing {
+  Synchronizing : provider data is being retrieved and normalized
+}
+
+state SyncFailed {
+  SyncFailed : existing data remains available
+}
+
+state Expired {
+  Expired : provider authorization is no longer valid
+}
+
+@enduml
