@@ -1,6 +1,7 @@
 # Sprint 01 Plan - Backend and Frontend Foundation
 
-> Status: Draft
+> Status: Completed
+> Completed: 2026-09-10
 
 ## Sprint Goal
 
@@ -224,10 +225,10 @@ A version tag may be created after the M0 outcome is complete and the release cr
 | S01-003 | CI provider configuration | To be finalized |
 | S01-004 | PHP formatting tool | To be finalized |
 | S01-005 | Frontend routing library | To be finalized |
-| S01-006 | Sprint completion date | Not yet determined |
+| S01-006 | Sprint completion date | Completed: 2026-09-10 |
 
 ## Sprint Status
 
-Sprint 01 has not yet been completed.
+Sprint 01 has been completed.
 
-Completion will be recorded after the acceptance criteria and verification commands have passed.
+Completion was recorded after the acceptance criteria and verification commands passed.
