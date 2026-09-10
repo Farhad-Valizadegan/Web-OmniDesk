@@ -1,0 +1,29 @@
+@startuml
+title OmniDesk AI Requirements Traceability
+
+left to right direction
+skinparam componentStyle rectangle
+
+rectangle "Approved Requirements" as Requirements
+rectangle "System Design Artifacts" as Design
+rectangle "Product Backlog Items" as Backlog
+rectangle "Sprint Tasks" as Tasks
+rectangle "Implementation" as Implementation
+rectangle "Automated Tests" as Tests
+rectangle "Release Evidence" as Evidence
+
+Requirements --> Design : guide
+Requirements --> Backlog : become work
+Design --> Backlog : define solution
+Backlog --> Tasks : selected for sprint
+Tasks --> Implementation : produce code
+Implementation --> Tests : verified by
+Tests --> Evidence : provide proof
+Implementation --> Evidence : reviewed increment
+
+note bottom of Evidence
+Traceability connects project intent
+to implementation and verification.
+end note
+
+@enduml
