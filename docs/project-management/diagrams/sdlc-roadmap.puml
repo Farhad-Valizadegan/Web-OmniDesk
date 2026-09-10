@@ -1,0 +1,30 @@
+@startuml
+title OmniDesk AI SDLC Roadmap
+
+left to right direction
+skinparam componentStyle rectangle
+
+rectangle "1. Project Definition" as Definition
+rectangle "2. Requirements Engineering" as Requirements
+rectangle "3. System Analysis" as Analysis
+rectangle "4. System Design" as Design
+rectangle "5. Implementation" as Implementation
+rectangle "6. Testing" as Testing
+rectangle "7. Deployment" as Deployment
+rectangle "8. Maintenance and Evolution" as Maintenance
+
+Definition --> Requirements
+Requirements --> Analysis
+Analysis --> Design
+Design --> Implementation
+Implementation --> Testing
+Testing --> Deployment
+Deployment --> Maintenance
+
+note bottom of Design
+Agile milestones and sprints
+organize execution across
+the SDLC phases.
+end note
+
+@enduml
