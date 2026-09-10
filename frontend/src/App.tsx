@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import './App.css'
+import Workspace from './components/Workspace'
 import {
   getCurrentUser,
   getHealth,
@@ -149,22 +150,13 @@ function App() {
           )}
         </div>
 
-        <div className="auth-card">
+        <div className={user ? 'workspace-wrapper' : 'auth-card'}>
           {user ? (
-            <div className="authenticated-panel">
-              <p className="eyebrow">Authenticated</p>
-              <h2>Welcome, {user.name}</h2>
-              <p className="user-email">{user.email}</p>
-
-              <button
-                type="button"
-                className="primary-button"
-                onClick={() => void handleLogout()}
-                disabled={authLoading}
-              >
-                {authLoading ? 'Logging out...' : 'Log out'}
-              </button>
-            </div>
+            <Workspace
+              user={user}
+              isLoading={authLoading}
+              onLogout={() => void handleLogout()}
+            />
           ) : (
             <>
               <div className="auth-tabs" role="tablist">
