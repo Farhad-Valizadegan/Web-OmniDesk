@@ -48,3 +48,6 @@ The project uses Semantic Versioning:
 
 ```text
 MAJOR.MINOR.PATCH
+## PlantUML Source
+
+The editable source is available in [milestone-sprint-release-relationship.puml](./diagrams/milestone-sprint-release-relationship.puml).
