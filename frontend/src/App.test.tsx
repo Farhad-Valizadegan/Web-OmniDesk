@@ -186,4 +186,25 @@ describe('App', () => {
       await screen.findByRole('button', { name: 'Log in' }),
     ).toBeInTheDocument()
   })
+
+  test('displays the authenticated workspace', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    render(<App />)
+
+    expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
+    expect(
+      screen.getByText('Your communication workspace is ready'),
+    ).toBeInTheDocument()
+  })
 })
