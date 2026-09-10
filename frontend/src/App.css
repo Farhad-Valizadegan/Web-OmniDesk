@@ -19,7 +19,7 @@
   padding: 3rem;
   border: 1px solid #cbd5e1;
   border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, 0.12);
   text-align: center;
 }
@@ -47,7 +47,8 @@ h1 {
   line-height: 1.7;
 }
 
-.status-card {
+.status-card,
+.auth-card {
   margin-top: 2.5rem;
   padding: 1.5rem;
   border-radius: 1rem;
@@ -55,7 +56,8 @@ h1 {
   text-align: left;
 }
 
-.status-card h2 {
+.status-card h2,
+.auth-card h2 {
   margin: 0 0 1rem;
   font-size: 1.15rem;
 }
@@ -77,9 +79,112 @@ h1 {
   background: #dcfce7;
 }
 
-.failure {
+.failure,
+.form-error {
   color: #991b1b;
   background: #fee2e2;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 0.75rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.auth-tabs button.active {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+}
+
+.auth-heading p,
+.user-email {
+  margin: 0;
+  color: #64748b;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+}
+
+.auth-form input:focus {
+  border-color: #2563eb;
+  outline: 2px solid rgba(37, 99, 235, 0.2);
+}
+
+.form-error {
+  margin: 0;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+}
+
+.primary-button {
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.primary-button:hover {
+  background: #1d4ed8;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.authenticated-panel {
+  text-align: center;
+}
+
+.authenticated-panel .eyebrow {
+  margin-bottom: 0.5rem;
+}
+
+.authenticated-panel h2 {
+  margin-bottom: 0.4rem;
+}
+
+.authenticated-panel .primary-button {
+  width: 100%;
+  margin-top: 1.5rem;
 }
 
 @media (max-width: 640px) {
