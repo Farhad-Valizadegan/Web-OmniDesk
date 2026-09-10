@@ -1,0 +1,30 @@
+@startuml
+title OmniDesk AI Release Pipeline
+
+left to right direction
+skinparam componentStyle rectangle
+
+rectangle "Sprint Increment" as Increment
+rectangle "Integration" as Integration
+rectangle "Automated Testing" as Testing
+rectangle "Security and Quality Review" as Review
+rectangle "Release Decision" as Decision
+rectangle "Versioned Release" as Release
+rectangle "Correction and Rework" as Rework
+
+Increment --> Integration
+Integration --> Testing
+Testing --> Review
+Review --> Decision
+
+Decision --> Release : criteria satisfied
+Decision --> Rework : criteria not satisfied
+
+Rework --> Integration
+
+note bottom of Release
+A version tag is created only
+after release approval.
+end note
+
+@enduml
