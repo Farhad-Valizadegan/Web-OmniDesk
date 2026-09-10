@@ -1,0 +1,30 @@
+@startuml
+title OmniDesk AI Backlog Refinement Workflow
+
+left to right direction
+skinparam componentStyle rectangle
+
+rectangle "Raw Backlog Item" as Raw
+rectangle "Clarify Description" as Clarify
+rectangle "Define Acceptance Criteria" as Criteria
+rectangle "Identify Dependencies" as Dependencies
+rectangle "Estimate and Prioritize" as Estimate
+rectangle "Ready for Sprint" as Ready
+rectangle "Defer or Rework" as Defer
+
+Raw --> Clarify
+Clarify --> Criteria
+Criteria --> Dependencies
+Dependencies --> Estimate
+
+Estimate --> Ready : sufficiently refined
+Estimate --> Defer : incomplete or lower priority
+
+Defer --> Clarify : refine later
+
+note bottom of Ready
+A backlog item is selected for
+a sprint only after review.
+end note
+
+@enduml
