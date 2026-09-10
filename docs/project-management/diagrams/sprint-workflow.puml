@@ -1,0 +1,33 @@
+@startuml
+title OmniDesk AI Sprint Workflow
+
+start
+
+:Review approved milestone outcome;
+:Refine product backlog;
+:Select sprint backlog items;
+:Define sprint goal;
+:Define acceptance criteria;
+:Break items into implementation tasks;
+:Implement selected work;
+:Run automated tests;
+:Run quality and security checks;
+
+if (All acceptance criteria satisfied?) then (yes)
+  :Review sprint increment;
+  :Record sprint completion;
+else (no)
+  :Return incomplete work for correction;
+  :Update sprint backlog;
+endif
+
+stop
+
+note right
+A sprint produces a reviewable increment.
+
+A sprint does not automatically
+create a release.
+end note
+
+@enduml
