@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-
-type HealthResponse = {
-  status: string
-  service: string
-}
+import { getHealth, type HealthResponse } from './lib/api'
 
 function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null)
@@ -17,13 +13,7 @@ function App() {
         setIsLoading(true)
         setError(null)
 
-        const response = await fetch('/api/health')
-
-        if (!response.ok) {
-          throw new Error('The backend returned an unsuccessful response.')
-        }
-
-        const data = (await response.json()) as HealthResponse
+        const data = await getHealth()
         setHealth(data)
       } catch {
         setHealth(null)
