@@ -1,0 +1,76 @@
+@startuml
+title OmniDesk AI Milestone, Sprint, and Release Relationship
+
+left to right direction
+skinparam componentStyle rectangle
+
+rectangle "Product Backlog" as Backlog
+rectangle "Sprint Planning" as Planning
+
+package "Milestones" {
+  rectangle "M0\nEngineering Foundation" as M0
+  rectangle "M1\nAuthentication and Workspace" as M1
+  rectangle "M2\nGmail Integration" as M2
+  rectangle "M3\nUnified Inbox" as M3
+  rectangle "M4\nTelegram Integration" as M4
+  rectangle "M5\nAI-Assisted Communication" as M5
+  rectangle "M6\nProduction Hardening" as M6
+}
+
+package "Sprints" {
+  rectangle "Sprint 00" as S00
+  rectangle "Sprint 01" as S01
+  rectangle "Sprint 02" as S02
+  rectangle "Sprint 03" as S03
+  rectangle "Sprint 04" as S04
+  rectangle "Sprint 05" as S05
+  rectangle "Sprint 06" as S06
+  rectangle "Sprint 07" as S07
+  rectangle "Sprint 08" as S08
+}
+
+rectangle "Release Review" as Review
+rectangle "Versioned Release" as Release
+
+Backlog --> Planning : select items
+Planning --> S00 : assign work
+Planning --> S01 : assign work
+Planning --> S02 : assign work
+Planning --> S03 : assign work
+Planning --> S04 : assign work
+Planning --> S05 : assign work
+Planning --> S06 : assign work
+Planning --> S07 : assign work
+Planning --> S08 : assign work
+
+S00 --> M0 : contributes to
+S01 --> M0 : contributes to
+S02 --> M1 : contributes to
+S03 --> M1 : contributes to
+S03 --> M3 : contributes to
+S04 --> M2 : contributes to
+S05 --> M2 : contributes to
+S05 --> M3 : contributes to
+S06 --> M4 : contributes to
+S07 --> M5 : contributes to
+S08 --> M6 : contributes to
+
+M0 --> Review : outcome review
+M1 --> Review : outcome review
+M2 --> Review : outcome review
+M3 --> Review : outcome review
+M4 --> Review : outcome review
+M5 --> Review : outcome review
+M6 --> Review : outcome review
+
+Review --> Release : if release criteria pass
+
+note right of Release
+A sprint does not automatically
+create a release.
+
+A milestone may contribute to
+one or more releases.
+end note
+
+@enduml
