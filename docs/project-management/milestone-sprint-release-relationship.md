@@ -6,6 +6,10 @@
 
 This document explains how product backlog items, sprints, milestones, and releases relate to one another in OmniDesk AI.
 
+## Diagram
+
+![Milestone, Sprint, and Release Relationship](./diagrams/milestone-sprint-release-relationship.svg)
+
 ## Relationship Model
 
 - The product backlog contains planned work items.

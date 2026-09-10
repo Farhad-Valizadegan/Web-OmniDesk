@@ -33,6 +33,7 @@ rectangle "Release Review" as Review
 rectangle "Versioned Release" as Release
 
 Backlog --> Planning : select items
+
 Planning --> S00 : assign work
 Planning --> S01 : assign work
 Planning --> S02 : assign work
@@ -63,7 +64,7 @@ M4 --> Review : outcome review
 M5 --> Review : outcome review
 M6 --> Review : outcome review
 
-Review --> Release : if release criteria pass
+Review --> Release : release criteria pass
 
 note right of Release
 A sprint does not automatically
