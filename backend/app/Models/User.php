@@ -18,17 +18,17 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Get the user's conversations.
-     */
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class);
     }
 
+    public function providerConnections(): HasMany
+    {
+        return $this->hasMany(ProviderConnection::class);
+    }
+
     /**
-     * Get the attributes that should be cast.
-     *
      * @return array<string, string>
      */
     protected function casts(): array

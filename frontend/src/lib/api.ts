@@ -19,6 +19,25 @@ export type AuthResponse = {
 export type CurrentUserResponse = {
   user: AuthUser
 }
+export type GmailConnection = {
+  id: number
+  provider: string
+  provider_account_id: string | null
+  account_email: string | null
+  status: string
+  scopes: string[] | null
+  token_expires_at: string | null
+}
+
+export type GmailStatusResponse = {
+  connected: boolean
+  connection: GmailConnection | null
+}
+
+export type GmailAuthorizationResponse = {
+  authorization_url: string
+  expires_in: number
+}
 
 export type Message = {
   id: number
@@ -232,4 +251,19 @@ export async function getConversationMessages(
   return request<PaginatedResponse<Message>>(
     `/api/conversations/${conversationId}/messages?per_page=${perPage}`,
   )
+}
+export async function getGmailStatus(): Promise<GmailStatusResponse> {
+  return request<GmailStatusResponse>('/api/integrations/gmail')
+}
+
+export async function startGmailAuthorization(): Promise<GmailAuthorizationResponse> {
+  return request<GmailAuthorizationResponse>(
+    '/api/integrations/gmail/authorize',
+  )
+}
+
+export async function disconnectGmail(): Promise<void> {
+  await request<void>('/api/integrations/gmail', {
+    method: 'DELETE',
+  })
 }

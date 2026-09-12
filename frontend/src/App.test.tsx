@@ -10,6 +10,7 @@ import App from './App'
 import {
   getConversationMessages,
   getConversations,
+  getGmailStatus,
   getCurrentUser,
   getHealth,
   loginUser,
@@ -23,6 +24,7 @@ import {
 vi.mock('./lib/api', () => ({
   getConversationMessages: vi.fn(),
   getConversations: vi.fn(),
+  getGmailStatus: vi.fn(),
   getCurrentUser: vi.fn(),
   getHealth: vi.fn(),
   loginUser: vi.fn(),
@@ -32,6 +34,7 @@ vi.mock('./lib/api', () => ({
 
 const getConversationMessagesMock = vi.mocked(getConversationMessages)
 const getConversationsMock = vi.mocked(getConversations)
+const getGmailStatusMock = vi.mocked(getGmailStatus)
 const getHealthMock = vi.mocked(getHealth)
 const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
@@ -72,6 +75,11 @@ describe('App', () => {
     getCurrentUserMock.mockRejectedValue(new Error('Unauthenticated'))
 
     getConversationsMock.mockResolvedValue(emptyPagination<Conversation>())
+
+    getGmailStatusMock.mockResolvedValue({
+      connected: false,
+      connection: null,
+    })
 
     getConversationMessagesMock.mockResolvedValue(
       emptyPagination<Message>(),
