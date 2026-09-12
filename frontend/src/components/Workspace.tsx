@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import GmailConnectionPanel from './GmailConnectionPanel'
 import {
   getConversationMessages,
   getConversations,
@@ -174,6 +175,8 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
 
             <span className="workspace-status">Ready</span>
           </div>
+
+          <GmailConnectionPanel />
 
           <div className="inbox-toolbar">
             <form className="inbox-search" onSubmit={handleSearchSubmit}>

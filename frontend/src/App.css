@@ -462,3 +462,46 @@
     grid-template-columns: 1fr;
   }
 }
+.gmail-panel {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid #d8e0ec;
+  border-radius: 0.75rem;
+  background: #ffffff;
+}
+
+.gmail-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gmail-panel h3 {
+  margin: 0;
+}
+
+.connection-badge {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.gmail-disconnected,
+.gmail-connected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gmail-status {
+  color: #475569;
+}
+
+.gmail-error {
+  color: #b91c1c;
+}
