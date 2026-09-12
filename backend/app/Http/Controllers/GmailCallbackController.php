@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProviderConnection;
+use App\Services\GoogleOAuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Services\GoogleOAuthService;
 use Throwable;
 
 class GmailCallbackController extends Controller
@@ -63,10 +63,26 @@ class GmailCallbackController extends Controller
             ], 502);
         }
 
+        try {
+            $identity = $this->googleOAuthService
+                ->accountIdentity($token);
+        } catch (Throwable) {
+            return response()->json([
+                'message' => 'The Gmail account identity could not be retrieved.',
+                'error' => 'gmail_account_identity_failed',
+            ], 502);
+        }
+
         $connection = ProviderConnection::firstOrNew([
             'user_id' => $stateData['user_id'],
             'provider' => 'gmail',
         ]);
+
+        $connection->provider_account_id =
+            $identity['provider_account_id'];
+
+        $connection->account_email =
+            $identity['account_email'];
 
         $connection->access_token = $token['access_token'];
 
@@ -99,6 +115,8 @@ class GmailCallbackController extends Controller
             'connection' => [
                 'id' => $connection->id,
                 'provider' => $connection->provider,
+                'provider_account_id' =>
+                    $connection->provider_account_id,
                 'account_email' => $connection->account_email,
                 'status' => $connection->status,
                 'scopes' => $connection->scopes,

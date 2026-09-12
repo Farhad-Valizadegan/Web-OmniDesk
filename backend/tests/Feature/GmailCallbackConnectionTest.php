@@ -58,6 +58,15 @@ class GmailCallbackConnectionTest extends TestCase
                     'scope' => 'openid email',
                 ];
             }
+
+            public function accountIdentity(array $token): array
+            {
+                return [
+                    'provider_account_id' => 'google-account-123',
+                    'account_email' => 'person@example.com',
+                    'account_name' => 'Example Person',
+                ];
+            }
         };
 
         $this->app->instance(GoogleOAuthService::class, $fakeService);
@@ -75,6 +84,14 @@ class GmailCallbackConnectionTest extends TestCase
                 'Gmail authorization completed.'
             )
             ->assertJsonPath('connection.provider', 'gmail')
+            ->assertJsonPath(
+                'connection.provider_account_id',
+                'google-account-123'
+            )
+            ->assertJsonPath(
+                'connection.account_email',
+                'person@example.com'
+            )
             ->assertJsonPath('connection.status', 'connected')
             ->assertJsonMissing(['access_token' => 'stored-access-token'])
             ->assertJsonMissing(['refresh_token' => 'stored-refresh-token']);
@@ -83,6 +100,14 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->assertNotNull($connection);
         $this->assertSame($user->id, $connection->user_id);
+        $this->assertSame(
+            'google-account-123',
+            $connection->provider_account_id
+        );
+        $this->assertSame(
+            'person@example.com',
+            $connection->account_email
+        );
         $this->assertSame('stored-access-token', $connection->access_token);
         $this->assertSame('stored-refresh-token', $connection->refresh_token);
         $this->assertSame(['openid', 'email'], $connection->scopes);
@@ -141,6 +166,58 @@ class GmailCallbackConnectionTest extends TestCase
             )
             ->assertJsonMissing([
                 'message' => 'Sensitive provider token exchange detail',
+            ]);
+
+        $this->assertDatabaseCount('provider_connections', 0);
+    }
+    public function test_identity_failure_does_not_create_connection(): void
+    {
+        $user = User::factory()->create();
+        $state = 'identity-failure-state';
+
+        Cache::put(
+            GmailAuthorizationController::stateCacheKey($state),
+            ['user_id' => $user->id],
+            now()->addMinutes(10)
+        );
+
+        $fakeService = new class extends GoogleOAuthService
+        {
+            public function createClient(): GoogleClient
+            {
+                return new GoogleClient();
+            }
+
+            public function exchangeCode(string $code): array
+            {
+                return [
+                    'access_token' => 'temporary-access-token',
+                    'expires_in' => 3600,
+                ];
+            }
+
+            public function accountIdentity(array $token): array
+            {
+                throw new \RuntimeException(
+                    'Sensitive account identity provider detail'
+                );
+            }
+        };
+
+        $this->app->instance(GoogleOAuthService::class, $fakeService);
+
+        $this->getJson(
+            '/api/integrations/gmail/callback?state='
+            . $state
+            . '&code=test-code'
+        )
+            ->assertStatus(502)
+            ->assertJsonPath(
+                'error',
+                'gmail_account_identity_failed'
+            )
+            ->assertJsonMissing([
+                'message' => 'Sensitive account identity provider detail',
             ]);
 
         $this->assertDatabaseCount('provider_connections', 0);
