@@ -95,10 +95,10 @@ class GmailCallbackTest extends TestCase
             . $state
             . '&code=test-code'
         )
-            ->assertStatus(501)
+            ->assertStatus(502)
             ->assertJsonPath(
-                'message',
-                'OAuth state validated. Token exchange is pending.'
+                'error',
+                'gmail_token_exchange_failed'
             );
 
         $this->assertNull(

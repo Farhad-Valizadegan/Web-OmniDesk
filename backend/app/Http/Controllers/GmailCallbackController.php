@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProviderConnection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Services\GoogleOAuthService;
+use Throwable;
 
 class GmailCallbackController extends Controller
 {
+    public function __construct(
+        private readonly GoogleOAuthService $googleOAuthService
+    ) {
+    }
+
     public function callback(Request $request): JsonResponse
     {
         $state = $request->string('state')->toString();
@@ -44,8 +52,58 @@ class GmailCallbackController extends Controller
             ], 422);
         }
 
+        try {
+            $token = $this->googleOAuthService->exchangeCode(
+                $request->string('code')->toString()
+            );
+        } catch (Throwable) {
+            return response()->json([
+                'message' => 'Gmail authorization could not be completed.',
+                'error' => 'gmail_token_exchange_failed',
+            ], 502);
+        }
+
+        $connection = ProviderConnection::firstOrNew([
+            'user_id' => $stateData['user_id'],
+            'provider' => 'gmail',
+        ]);
+
+        $connection->access_token = $token['access_token'];
+
+        if (
+            isset($token['refresh_token'])
+            && is_string($token['refresh_token'])
+            && $token['refresh_token'] !== ''
+        ) {
+            $connection->refresh_token = $token['refresh_token'];
+        }
+
+        $expiresIn = isset($token['expires_in'])
+            ? max(1, (int) $token['expires_in'])
+            : 3600;
+
+        $scopeString = isset($token['scope'])
+            && is_string($token['scope'])
+            ? trim($token['scope'])
+            : '';
+
+        $connection->token_expires_at = now()->addSeconds($expiresIn);
+        $connection->scopes = $scopeString === ''
+            ? config('services.google.scopes', [])
+            : preg_split('/\s+/', $scopeString);
+        $connection->status = 'connected';
+        $connection->save();
+
         return response()->json([
-            'message' => 'OAuth state validated. Token exchange is pending.',
-        ], 501);
+            'message' => 'Gmail authorization completed.',
+            'connection' => [
+                'id' => $connection->id,
+                'provider' => $connection->provider,
+                'account_email' => $connection->account_email,
+                'status' => $connection->status,
+                'scopes' => $connection->scopes,
+                'token_expires_at' => $connection->token_expires_at,
+            ],
+        ]);
     }
 }
