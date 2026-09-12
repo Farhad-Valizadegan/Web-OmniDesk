@@ -20,6 +20,57 @@ export type CurrentUserResponse = {
   user: AuthUser
 }
 
+export type Message = {
+  id: number
+  conversation_id: number
+  provider: string
+  provider_message_id: string | null
+  sender_name: string
+  sender_address: string | null
+  recipient_name: string | null
+  recipient_address: string | null
+  subject: string | null
+  body: string
+  sent_at: string
+  is_read: boolean
+  metadata: Record<string, unknown> | null
+}
+
+export type Conversation = {
+  id: number
+  user_id: number
+  provider: string
+  provider_conversation_id: string | null
+  subject: string | null
+  status: string
+  is_read: boolean
+  last_message_at: string | null
+  labels: string[] | null
+  latest_message?: Message | null
+  created_at: string
+  updated_at: string
+}
+
+export type PaginatedResponse<T> = {
+  current_page: number
+  data: T[]
+  first_page_url: string
+  from: number | null
+  last_page: number
+  last_page_url: string
+  links: Array<{
+    url: string | null
+    label: string
+    active: boolean
+  }>
+  next_page_url: string | null
+  path: string
+  per_page: number
+  prev_page_url: string | null
+  to: number | null
+  total: number
+}
+
 const tokenStorageKey = 'omni_desk_auth_token'
 
 export function getStoredToken(): string | null {
@@ -128,4 +179,57 @@ export async function logoutUser(): Promise<void> {
   } finally {
     clearStoredToken()
   }
+}
+
+export async function getConversations(params: {
+  search?: string
+  status?: string
+  is_read?: boolean
+  label?: string
+  per_page?: number
+} = {}): Promise<PaginatedResponse<Conversation>> {
+  const searchParams = new URLSearchParams()
+
+  if (params.search) {
+    searchParams.set('search', params.search)
+  }
+
+  if (params.status) {
+    searchParams.set('status', params.status)
+  }
+
+  if (params.is_read !== undefined) {
+    searchParams.set('is_read', params.is_read ? '1' : '0')
+  }
+
+  if (params.label) {
+    searchParams.set('label', params.label)
+  }
+
+  if (params.per_page !== undefined) {
+    searchParams.set('per_page', String(params.per_page))
+  }
+
+  const query = searchParams.toString()
+
+  return request<PaginatedResponse<Conversation>>(
+    `/api/conversations${query ? `?${query}` : ''}`,
+  )
+}
+
+export async function getConversation(
+  conversationId: number,
+): Promise<{ conversation: Conversation }> {
+  return request<{ conversation: Conversation }>(
+    `/api/conversations/${conversationId}`,
+  )
+}
+
+export async function getConversationMessages(
+  conversationId: number,
+  perPage = 50,
+): Promise<PaginatedResponse<Message>> {
+  return request<PaginatedResponse<Message>>(
+    `/api/conversations/${conversationId}/messages?per_page=${perPage}`,
+  )
 }
