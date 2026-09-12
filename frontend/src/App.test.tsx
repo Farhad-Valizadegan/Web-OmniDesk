@@ -8,14 +8,21 @@ import {
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import App from './App'
 import {
+  getConversationMessages,
+  getConversations,
   getCurrentUser,
   getHealth,
   loginUser,
   logoutUser,
   registerUser,
+  type Conversation,
+  type Message,
+  type PaginatedResponse,
 } from './lib/api'
 
 vi.mock('./lib/api', () => ({
+  getConversationMessages: vi.fn(),
+  getConversations: vi.fn(),
   getCurrentUser: vi.fn(),
   getHealth: vi.fn(),
   loginUser: vi.fn(),
@@ -23,11 +30,31 @@ vi.mock('./lib/api', () => ({
   registerUser: vi.fn(),
 }))
 
+const getConversationMessagesMock = vi.mocked(getConversationMessages)
+const getConversationsMock = vi.mocked(getConversations)
 const getHealthMock = vi.mocked(getHealth)
 const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
 const registerUserMock = vi.mocked(registerUser)
+
+function emptyPagination<T>(): PaginatedResponse<T> {
+  return {
+    current_page: 1,
+    data: [],
+    first_page_url: '/api/test?page=1',
+    from: null,
+    last_page: 1,
+    last_page_url: '/api/test?page=1',
+    links: [],
+    next_page_url: null,
+    path: '/api/test',
+    per_page: 50,
+    prev_page_url: null,
+    to: null,
+    total: 0,
+  }
+}
 
 afterEach(() => {
   cleanup()
@@ -43,6 +70,12 @@ describe('App', () => {
     })
 
     getCurrentUserMock.mockRejectedValue(new Error('Unauthenticated'))
+
+    getConversationsMock.mockResolvedValue(emptyPagination<Conversation>())
+
+    getConversationMessagesMock.mockResolvedValue(
+      emptyPagination<Message>(),
+    )
   })
 
   test('displays a successful backend connection', async () => {
@@ -187,7 +220,7 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  test('displays the authenticated workspace', async () => {
+  test('displays an empty authenticated workspace', async () => {
     sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
 
     getCurrentUserMock.mockResolvedValue({
@@ -203,8 +236,134 @@ describe('App', () => {
     expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
+    expect(screen.getByText('No conversations found')).toBeInTheDocument()
+  })
+
+  test('displays conversations and messages in the workspace', async () => {
+    const conversation: Conversation = {
+      id: 1,
+      user_id: 1,
+      provider: 'fixture',
+      provider_conversation_id: 'conversation-1',
+      subject: 'Project Alpha planning',
+      status: 'open',
+      is_read: false,
+      last_message_at: '2026-09-12T10:00:00.000Z',
+      labels: ['work', 'important'],
+      created_at: '2026-09-12T09:00:00.000Z',
+      updated_at: '2026-09-12T10:00:00.000Z',
+      latest_message: {
+        id: 2,
+        conversation_id: 1,
+        provider: 'fixture',
+        provider_message_id: 'message-2',
+        sender_name: 'Project Manager',
+        sender_address: 'manager@example.com',
+        recipient_name: 'Freddie',
+        recipient_address: 'freddie@example.com',
+        subject: 'Project Alpha planning',
+        body: 'The updated plan is ready for review.',
+        sent_at: '2026-09-12T10:00:00.000Z',
+        is_read: false,
+        metadata: {},
+      },
+    }
+
+    const message: Message = {
+      id: 2,
+      conversation_id: 1,
+      provider: 'fixture',
+      provider_message_id: 'message-2',
+      sender_name: 'Project Manager',
+      sender_address: 'manager@example.com',
+      recipient_name: 'Freddie',
+      recipient_address: 'freddie@example.com',
+      subject: 'Project Alpha planning',
+      body: 'The updated plan is ready for review.',
+      sent_at: '2026-09-12T10:00:00.000Z',
+      is_read: false,
+      metadata: {},
+    }
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    getConversationsMock.mockResolvedValue({
+      ...emptyPagination<Conversation>(),
+      data: [conversation],
+      from: 1,
+      to: 1,
+      total: 1,
+    })
+
+    getConversationMessagesMock.mockResolvedValue({
+      ...emptyPagination<Message>(),
+      data: [message],
+      from: 1,
+      to: 1,
+      total: 1,
+    })
+
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    render(<App />)
+
     expect(
-      screen.getByText('Your communication workspace is ready'),
+      (await screen.findAllByText('Project Alpha planning')).length,
+    ).toBeGreaterThanOrEqual(1)
+
+    expect(
+      (await screen.findAllByText('The updated plan is ready for review.')).length,
+    ).toBeGreaterThanOrEqual(1)
+
+    expect(
+      screen.getByText('Project Manager'),
     ).toBeInTheDocument()
+
+    expect(
+      getConversationsMock,
+    ).toHaveBeenCalledWith({
+      search: undefined,
+      is_read: undefined,
+      per_page: 50,
+    })
+
+    expect(getConversationMessagesMock).toHaveBeenCalledWith(1)
+  })
+
+  test('searches conversations from the workspace', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    render(<App />)
+
+    await screen.findByText('Welcome, Freddie')
+
+    fireEvent.change(screen.getByLabelText('Search conversations'), {
+      target: { value: 'Project' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }))
+
+    await waitFor(() => {
+      expect(getConversationsMock).toHaveBeenLastCalledWith({
+        search: 'Project',
+        is_read: undefined,
+        per_page: 50,
+      })
+    })
   })
 })
