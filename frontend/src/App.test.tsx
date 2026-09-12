@@ -236,7 +236,7 @@ describe('App', () => {
     expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
+    expect(await screen.findByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
     expect(screen.getByText('No conversations found')).toBeInTheDocument()
   })
 
@@ -323,7 +323,7 @@ describe('App', () => {
     ).toBeGreaterThanOrEqual(1)
 
     expect(
-      screen.getByText('Project Manager'),
+      await screen.findByText('Project Manager'),
     ).toBeInTheDocument()
 
     expect(
@@ -334,7 +334,9 @@ describe('App', () => {
       per_page: 50,
     })
 
-    expect(getConversationMessagesMock).toHaveBeenCalledWith(1)
+    await waitFor(() => {
+      expect(getConversationMessagesMock).toHaveBeenCalledWith(1)
+    })
   })
 
   test('searches conversations from the workspace', async () => {
