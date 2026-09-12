@@ -123,7 +123,7 @@ Includes:
 | Milestone | Sprints | Main Result |
 |---|---|---|
 | M0 - Engineering Foundation | Sprint 0 and Sprint 1 | Development foundation |
-| M1 - Authentication and Workspace Foundation | Sprint 2 and Sprint 3 | Secure workspace foundation |
+| M1 - Authentication and Workspace Foundation | Sprint 02 | Secure workspace foundation |
 | M2 - Gmail Integration | Sprint 4 and Sprint 5 | Gmail connection and synchronization |
 | M3 - Unified Inbox | Sprint 3 and Sprint 5 | Unified communication workspace |
 | M4 - Telegram Integration | Sprint 6 | Telegram connection and synchronization |
@@ -150,7 +150,7 @@ Implements the database foundation, registration, login, logout, sessions, authe
 
 Implements the initial workspace, conversation list, conversation details, message display, search, filtering, labels, and tags.
 
-Sprint 3 contributes to both M1 and M3.
+Sprint 3 contributes to M3.
 
 ### M2 Sprint Structure
 

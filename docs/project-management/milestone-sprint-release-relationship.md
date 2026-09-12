@@ -28,7 +28,7 @@ This document explains how product backlog items, sprints, milestones, and relea
 | Milestone | Contributing Sprints | Outcome |
 |---|---|---|
 | M0 | Sprint 00 and Sprint 01 | Engineering foundation |
-| M1 | Sprint 02 and Sprint 03 | Authentication and workspace foundation |
+| M1 | Sprint 02 | Authentication and workspace foundation |
 | M2 | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
 | M3 | Sprint 03 and Sprint 05 | Unified communication workspace |
 | M4 | Sprint 06 | Telegram connection and synchronization |
