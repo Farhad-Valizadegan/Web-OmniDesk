@@ -49,4 +49,31 @@ class GoogleOAuthService
 
         return $client->createAuthUrl();
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function exchangeCode(string $code): array
+    {
+        if ($code === '') {
+            throw new RuntimeException('OAuth authorization code cannot be empty.');
+        }
+
+        $token = $this->createClient()
+            ->fetchAccessTokenWithAuthCode($code);
+
+        if (
+            ! is_array($token)
+            || isset($token['error'])
+            || ! isset($token['access_token'])
+            || ! is_string($token['access_token'])
+            || $token['access_token'] === ''
+        ) {
+            throw new RuntimeException(
+                'Google authorization token exchange failed.'
+            );
+        }
+
+        return $token;
+    }
 }
