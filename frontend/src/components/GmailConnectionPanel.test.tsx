@@ -4,6 +4,7 @@ import GmailConnectionPanel from './GmailConnectionPanel'
 import {
   disconnectGmail,
   getGmailStatus,
+  startGmailAuthorization,
   type GmailStatusResponse,
 } from '../lib/api'
 
@@ -15,10 +16,14 @@ vi.mock('../lib/api', () => ({
 
 const getGmailStatusMock = vi.mocked(getGmailStatus)
 const disconnectGmailMock = vi.mocked(disconnectGmail)
+const startGmailAuthorizationMock = vi.mocked(
+  startGmailAuthorization,
+)
 
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  vi.unstubAllGlobals()
 })
 
 describe('GmailConnectionPanel', () => {
@@ -63,9 +68,7 @@ describe('GmailConnectionPanel', () => {
       await screen.findByText('person@example.com'),
     ).toBeInTheDocument()
 
-    expect(
-      screen.getByText('Connected'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Connected')).toBeInTheDocument()
 
     expect(
       screen.getByRole('button', { name: 'Disconnect Gmail' }),
@@ -112,14 +115,41 @@ describe('GmailConnectionPanel', () => {
 
     render(<GmailConnectionPanel />)
 
-    expect(
-      await screen.findByRole('alert'),
-    ).toHaveTextContent(
+    expect(await screen.findByRole('alert')).toHaveTextContent(
       'Gmail connection status could not be loaded.',
     )
 
     expect(
       screen.getByRole('button', { name: 'Retry' }),
     ).toBeInTheDocument()
+  })
+
+  test('starts Gmail authorization and redirects to Google', async () => {
+    const locationAssign = vi.fn()
+
+    vi.stubGlobal('location', {
+      assign: locationAssign,
+    })
+
+    startGmailAuthorizationMock.mockResolvedValue({
+      authorization_url:
+        'https://accounts.google.com/o/oauth2/auth?state=test',
+      expires_in: 600,
+    })
+
+    render(<GmailConnectionPanel />)
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Connect Gmail',
+      }),
+    )
+
+    await waitFor(() => {
+      expect(startGmailAuthorizationMock).toHaveBeenCalledTimes(1)
+      expect(locationAssign).toHaveBeenCalledWith(
+        'https://accounts.google.com/o/oauth2/auth?state=test',
+      )
+    })
   })
 })
