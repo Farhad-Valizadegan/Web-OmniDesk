@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Google\Client as GoogleClient;
+use Google\Service\Oauth2;
 use RuntimeException;
 
 class GoogleOAuthService
@@ -75,5 +76,57 @@ class GoogleOAuthService
         }
 
         return $token;
+    }
+
+    /**
+     * @param array<string, mixed> $token
+     * @return array{
+     *     provider_account_id: string,
+     *     account_email: string,
+     *     account_name: string|null
+     * }
+     */
+    public function accountIdentity(array $token): array
+    {
+        if (
+            ! isset($token['access_token'])
+            || ! is_string($token['access_token'])
+            || $token['access_token'] === ''
+        ) {
+            throw new RuntimeException(
+                'Google access token is missing.'
+            );
+        }
+
+        $client = $this->createClient();
+        $client->setAccessToken($token);
+
+        $userInfo = (new Oauth2($client))
+            ->userinfo
+            ->get();
+
+        $providerAccountId = $userInfo->getId();
+        $accountEmail = $userInfo->getEmail();
+
+        if (
+            ! is_string($providerAccountId)
+            || $providerAccountId === ''
+            || ! is_string($accountEmail)
+            || $accountEmail === ''
+        ) {
+            throw new RuntimeException(
+                'Google account identity is incomplete.'
+            );
+        }
+
+        $accountName = $userInfo->getName();
+
+        return [
+            'provider_account_id' => $providerAccountId,
+            'account_email' => $accountEmail,
+            'account_name' => is_string($accountName)
+                ? $accountName
+                : null,
+        ];
     }
 }
