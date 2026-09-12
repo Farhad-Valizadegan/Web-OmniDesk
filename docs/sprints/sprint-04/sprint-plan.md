@@ -65,7 +65,7 @@ Sprint 04 shall:
 - Credentials are never returned in API responses.
 - Credentials are never written to logs.
 - Gmail scopes use least privilege.
-- All integration endpoints require authentication.
+- Authorization initiation and connection management require authentication; the OAuth callback is protected by validated state bound to the initiating user.
 - Provider connections enforce user ownership.
 - Provider errors do not reveal sensitive details.
 - No secrets are committed to Git.
@@ -93,7 +93,7 @@ Sprint 04 shall:
 - A valid Gmail connection is associated with the authenticated user.
 - The Gmail account identity is retrieved and normalized.
 - Credentials are encrypted and hidden from responses.
-- Unauthenticated users are rejected.
+- Unauthenticated users cannot start authorization or manage connections, and callbacks without valid user-bound OAuth state are rejected.
 - Users cannot access another user's connection.
 - A user can disconnect Gmail.
 - Provider errors are handled safely.
