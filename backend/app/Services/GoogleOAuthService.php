@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Services;
+
+use Google\Client as GoogleClient;
+use RuntimeException;
+
+class GoogleOAuthService
+{
+    public function createClient(): GoogleClient
+    {
+        $clientId = config('services.google.client_id');
+        $clientSecret = config('services.google.client_secret');
+        $redirectUri = config('services.google.redirect_uri');
+        $scopes = config('services.google.scopes', []);
+
+        if (! is_string($clientId) || $clientId === '') {
+            throw new RuntimeException('Google OAuth client ID is not configured.');
+        }
+
+        if (! is_string($clientSecret) || $clientSecret === '') {
+            throw new RuntimeException('Google OAuth client secret is not configured.');
+        }
+
+        if (! is_string($redirectUri) || $redirectUri === '') {
+            throw new RuntimeException('Google OAuth redirect URI is not configured.');
+        }
+
+        $client = new GoogleClient();
+
+        $client->setClientId($clientId);
+        $client->setClientSecret($clientSecret);
+        $client->setRedirectUri($redirectUri);
+        $client->setAccessType('offline');
+        $client->setPrompt('consent');
+        $client->setScopes($scopes);
+
+        return $client;
+    }
+
+    public function authorizationUrl(string $state): string
+    {
+        if ($state === '') {
+            throw new RuntimeException('OAuth state cannot be empty.');
+        }
+
+        $client = $this->createClient();
+        $client->setState($state);
+
+        return $client->createAuthUrl();
+    }
+}
