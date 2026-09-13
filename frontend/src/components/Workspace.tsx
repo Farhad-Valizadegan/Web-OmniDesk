@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import GmailConnectionPanel from './GmailConnectionPanel'
 import {
   getConversationMessages,
@@ -406,8 +406,8 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                         conversation.labels.length > 0 && (
                           <span className="conversation-labels">
                             {conversation.labels.map((label) => (
-                              <span className="label" key={label}>
-                                {label}
+                              <span className="label" key={formatGmailLabel(label)}>
+                                {formatGmailLabel(label)}
                               </span>
                             ))}
                           </span>
@@ -484,7 +484,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                                 </time>
                               </div>
 
-                              <p className="message-body">{message.body}</p>
+                              <p className="message-body">{renderMessageBody(message.body)}</p>
 
                               {(message.metadata?.attachments?.length ?? 0) > 0 && (
                                 <div className="message-attachments" aria-label="Attachments">

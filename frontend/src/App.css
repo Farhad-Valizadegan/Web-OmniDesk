@@ -1465,3 +1465,29 @@ button:disabled {
 [data-theme="dark"] .conversation-pagination {
   color: #cbd5e1;
 }
+.message-body {
+  overflow-wrap: anywhere;
+}
+
+.message-body a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.message-body a:hover {
+  color: #1d4ed8;
+}
+
+.conversation-preview {
+  overflow-wrap: anywhere;
+}
+
+[data-theme="dark"] .message-body a {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .message-body a:hover {
+  color: #bfdbfe;
+}
