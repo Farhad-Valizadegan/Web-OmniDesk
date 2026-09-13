@@ -1673,3 +1673,12 @@ button:disabled {
   width: 100% !important;
   max-width: none !important;
 }
+/* Match conversation panel height */
+.inbox-layout {
+  align-items: stretch !important;
+}
+
+.inbox-layout > .conversation-detail {
+  align-self: stretch !important;
+  height: auto !important;
+}
