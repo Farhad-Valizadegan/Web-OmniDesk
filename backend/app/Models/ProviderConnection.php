@@ -20,6 +20,7 @@ class ProviderConnection extends Model
         'access_token',
         'refresh_token',
         'token_expires_at',
+        'history_id',
         'scopes',
         'status',
     ];
