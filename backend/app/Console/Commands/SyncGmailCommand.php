@@ -38,16 +38,29 @@ class SyncGmailCommand extends Command
 
         foreach ($connections as $connection) {
             try {
-                $result = $syncService->sync(
-                    $connection->user,
-                    $maxResults
-                );
+                $threadsProcessed = 0;
+                $messagesProcessed = 0;
+                $pageToken = null;
+
+                do {
+                    $result = $pageToken === null
+                        ? $syncService->sync($connection->user, $maxResults)
+                        : $syncService->sync(
+                            $connection->user,
+                            $maxResults,
+                            $pageToken
+                        );
+
+                    $threadsProcessed += $result['threads_processed'];
+                    $messagesProcessed += $result['messages_processed'];
+                    $pageToken = $result['next_page_token'];
+                } while (is_string($pageToken) && $pageToken !== '');
 
                 $this->info(sprintf(
                     'User %d: %d threads and %d messages synchronized.',
                     $connection->user_id,
-                    $result['threads_processed'],
-                    $result['messages_processed'],
+                    $threadsProcessed,
+                    $messagesProcessed,
                 ));
             } catch (Throwable $exception) {
                 $exitCode = self::FAILURE;
