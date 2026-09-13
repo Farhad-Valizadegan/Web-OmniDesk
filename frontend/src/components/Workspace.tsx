@@ -19,6 +19,13 @@ type WorkspaceProps = {
 }
 
 type ReadFilter = 'all' | 'read' | 'unread'
+type ConversationPagination = {
+  current_page: number
+  last_page: number
+  from: number | null
+  to: number | null
+  total: number
+}
 type Theme = 'light' | 'dark'
 
 function formatDate(value: string | null): string {
@@ -58,6 +65,14 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [readFilter, setReadFilter] = useState<ReadFilter>('all')
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState<ConversationPagination>({
+    current_page: 1,
+    last_page: 1,
+    from: null,
+    to: null,
+    total: 0,
+  })
   const [isInboxLoading, setIsInboxLoading] = useState(true)
   const [isMessagesLoading, setIsMessagesLoading] = useState(false)
   const [inboxError, setInboxError] = useState<string | null>(null)
@@ -77,10 +92,18 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
         search: search || undefined,
         is_read:
           readFilter === 'all' ? undefined : readFilter === 'read',
-        per_page: 50,
+        per_page: 15,
+        page,
       })
 
       setConversations(response.data)
+      setPagination({
+        current_page: response.current_page,
+        last_page: response.last_page,
+        from: response.from,
+        to: response.to,
+        total: response.total,
+      })
 
       setSelectedConversation((current) => {
         if (!current) {
@@ -100,7 +123,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
     } finally {
       setIsInboxLoading(false)
     }
-  }, [readFilter, search])
+  }, [page, readFilter, search])
 
   const loadMessages = useCallback(async (conversationId: number) => {
     try {
@@ -135,6 +158,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setPage(1)
     setSearch(searchInput.trim())
   }
 
@@ -248,9 +272,10 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
               <select
                 id="read-filter"
                 value={readFilter}
-                onChange={(event) =>
+                onChange={(event) => {
+                  setPage(1)
                   setReadFilter(event.target.value as ReadFilter)
-                }
+                }}
               >
                 <option value="all">All messages</option>
                 <option value="read">Read only</option>
@@ -445,6 +470,41 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
               </section>
             </div>
           )}
+
+            {pagination.last_page > 1 && (
+              <nav className="conversation-pagination" aria-label="Conversation pages">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={isInboxLoading || pagination.current_page === 1}
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {pagination.current_page} of {pagination.last_page}
+                  {' · '}
+                  Showing {pagination.from ?? 0}-{pagination.to ?? 0} of {pagination.total}
+                </span>
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() =>
+                    setPage((current) =>
+                      Math.min(pagination.last_page, current + 1),
+                    )
+                  }
+                  disabled={
+                    isInboxLoading ||
+                    pagination.current_page === pagination.last_page
+                  }
+                >
+                  Next
+                </button>
+              </nav>
+            )}
         </main>
       </div>
     </section>
