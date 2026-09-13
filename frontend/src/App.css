@@ -564,10 +564,10 @@ button:disabled {
 }
 
 .app {
-  width: min(1180px, 100%);
+  width: min(1440px, 100%);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 2rem clamp(1rem, 4vw, 3rem);
+  padding: 1.5rem clamp(0.75rem, 2vw, 2rem);
 }
 
 .hero {
