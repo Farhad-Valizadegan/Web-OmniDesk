@@ -18,7 +18,6 @@ import {
   loginUser,
   logoutUser,
   registerUser,
-  syncGmailPage,
   type Conversation,
   type Message,
   type PaginatedResponse,
@@ -46,7 +45,6 @@ const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
 const registerUserMock = vi.mocked(registerUser)
-const syncGmailPageMock = vi.mocked(syncGmailPage)
 
 function emptyPagination<T>(): PaginatedResponse<T> {
   return {
