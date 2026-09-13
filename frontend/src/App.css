@@ -1025,3 +1025,27 @@ button:disabled {
     gap: 0.5rem;
   }
 }
+
+/* Keep conversation text inside its card */
+.conversation-item-heading {
+  min-width: 0;
+}
+
+.conversation-item-heading strong {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.conversation-preview {
+  display: -webkit-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
