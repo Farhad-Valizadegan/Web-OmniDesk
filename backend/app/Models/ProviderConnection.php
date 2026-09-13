@@ -22,6 +22,9 @@ class ProviderConnection extends Model
         'refresh_token',
         'token_expires_at',
         'history_id',
+        'gmail_sync_page_token',
+        'gmail_sync_snapshot_history_id',
+        'gmail_sync_completed',
         'scopes',
         'status',
     ];
@@ -38,6 +41,7 @@ class ProviderConnection extends Model
             'refresh_token' => 'encrypted',
             'token_expires_at' => 'datetime',
             'scopes' => 'array',
+            'gmail_sync_completed' => 'boolean',
         ];
     }
 
