@@ -498,6 +498,13 @@
   gap: 1rem;
 }
 
+.gmail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
 .gmail-status {
   color: #475569;
 }
