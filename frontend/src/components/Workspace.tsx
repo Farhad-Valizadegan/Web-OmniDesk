@@ -209,7 +209,10 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
             <span className="workspace-status">Ready</span>
           </div>
 
-          <GmailConnectionPanel onSynchronized={loadConversations} />
+          <GmailConnectionPanel
+            onSynchronized={loadConversations}
+            onDisconnected={loadConversations}
+          />
 
           <div className="inbox-toolbar">
             <form className="inbox-search" onSubmit={handleSearchSubmit}>

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\ProviderConnection;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -79,6 +81,14 @@ class GmailIntegrationTest extends TestCase
             ->for($user)
             ->create();
 
+        $conversation = Conversation::factory()
+            ->for($user)
+            ->create(['provider' => 'gmail']);
+
+        Message::factory()
+            ->for($conversation)
+            ->create(['provider' => 'gmail']);
+
         $this->actingAs($user, 'sanctum')
             ->deleteJson('/api/integrations/gmail')
             ->assertNoContent();
@@ -86,6 +96,14 @@ class GmailIntegrationTest extends TestCase
         $this->assertDatabaseMissing('provider_connections', [
             'user_id' => $user->id,
             'provider' => 'gmail',
+        ]);
+
+        $this->assertDatabaseMissing('conversations', [
+            'id' => $conversation->id,
+        ]);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id' => $conversation->id,
         ]);
     }
 

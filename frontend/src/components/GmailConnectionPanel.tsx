@@ -9,10 +9,12 @@ import {
 
 type GmailConnectionPanelProps = {
   onSynchronized?: () => void | Promise<void>
+  onDisconnected?: () => void | Promise<void>
 }
 
 function GmailConnectionPanel({
   onSynchronized,
+  onDisconnected,
 }: GmailConnectionPanelProps) {
   const [status, setStatus] = useState<GmailStatusResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -84,6 +86,8 @@ function GmailConnectionPanel({
         connected: false,
         connection: null,
       })
+
+      await onDisconnected?.()
     } catch {
       setError('Gmail could not be disconnected.')
     } finally {

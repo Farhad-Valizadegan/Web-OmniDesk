@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\ProviderConnection;
 use App\Services\GmailMessageSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class GmailIntegrationController extends Controller
@@ -71,10 +74,24 @@ class GmailIntegrationController extends Controller
 
     public function disconnect(Request $request): Response
     {
-        ProviderConnection::query()
-            ->where('user_id', $request->user()->id)
-            ->where('provider', 'gmail')
-            ->delete();
+        $userId = $request->user()->id;
+
+        DB::transaction(function () use ($userId): void {
+            $conversationQuery = Conversation::query()
+                ->where('user_id', $userId)
+                ->where('provider', 'gmail');
+
+            Message::query()
+                ->whereIn('conversation_id', $conversationQuery->select('id'))
+                ->delete();
+
+            $conversationQuery->delete();
+
+            ProviderConnection::query()
+                ->where('user_id', $userId)
+                ->where('provider', 'gmail')
+                ->delete();
+        });
 
         return response()->noContent();
     }

@@ -111,6 +111,35 @@ describe('GmailConnectionPanel', () => {
     ).toBeInTheDocument()
   })
 
+  test('reloads conversations after disconnecting Gmail', async () => {
+    getGmailStatusMock.mockResolvedValue({
+      connected: true,
+      connection: {
+        id: 1,
+        provider: 'gmail',
+        provider_account_id: 'google-account-123',
+        account_email: 'person@example.com',
+        status: 'connected',
+        scopes: ['openid', 'email'],
+        token_expires_at: null,
+      },
+    })
+    disconnectGmailMock.mockResolvedValue(undefined)
+
+    const onDisconnected = vi.fn()
+
+    render(<GmailConnectionPanel onDisconnected={onDisconnected} />)
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Disconnect Gmail' }),
+    )
+
+    await waitFor(() => {
+      expect(disconnectGmailMock).toHaveBeenCalledTimes(1)
+      expect(onDisconnected).toHaveBeenCalledTimes(1)
+    })
+  })
+
   test('synchronizes Gmail and reloads conversations', async () => {
     getGmailStatusMock.mockResolvedValue({
       connected: true,
