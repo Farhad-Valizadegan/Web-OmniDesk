@@ -262,6 +262,25 @@ export async function startGmailAuthorization(): Promise<GmailAuthorizationRespo
   )
 }
 
+export type GmailSyncResponse = {
+  message: string
+  sync: {
+    threads_processed: number
+    messages_processed: number
+    next_page_token: string | null
+  }
+}
+
+export async function syncGmail(params: {
+  max_results?: number
+  page_token?: string
+} = {}): Promise<GmailSyncResponse> {
+  return request<GmailSyncResponse>('/api/integrations/gmail/sync', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  })
+}
+
 export async function disconnectGmail(): Promise<void> {
   await request<void>('/api/integrations/gmail', {
     method: 'DELETE',
