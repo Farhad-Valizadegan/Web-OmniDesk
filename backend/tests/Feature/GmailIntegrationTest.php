@@ -73,6 +73,31 @@ class GmailIntegrationTest extends TestCase
             ]);
     }
 
+    public function test_disconnect_removes_gmail_data_without_connection(): void
+    {
+        $user = User::factory()->create();
+
+        $conversation = Conversation::factory()
+            ->for($user)
+            ->create(['provider' => 'gmail']);
+
+        Message::factory()
+            ->for($conversation)
+            ->create(['provider' => 'gmail']);
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson('/api/integrations/gmail')
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('conversations', [
+            'id' => $conversation->id,
+        ]);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id' => $conversation->id,
+        ]);
+    }
+
     public function test_user_can_disconnect_own_gmail_connection(): void
     {
         $user = User::factory()->create();

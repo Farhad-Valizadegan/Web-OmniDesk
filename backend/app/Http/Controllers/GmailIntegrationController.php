@@ -77,15 +77,20 @@ class GmailIntegrationController extends Controller
         $userId = $request->user()->id;
 
         DB::transaction(function () use ($userId): void {
-            $conversationQuery = Conversation::query()
+            $conversationIds = Conversation::query()
                 ->where('user_id', $userId)
-                ->where('provider', 'gmail');
+                ->where('provider', 'gmail')
+                ->pluck('id');
 
-            Message::query()
-                ->whereIn('conversation_id', $conversationQuery->select('id'))
-                ->delete();
+            if ($conversationIds->isNotEmpty()) {
+                Message::query()
+                    ->whereIn('conversation_id', $conversationIds)
+                    ->delete();
 
-            $conversationQuery->delete();
+                Conversation::query()
+                    ->whereIn('id', $conversationIds)
+                    ->delete();
+            }
 
             ProviderConnection::query()
                 ->where('user_id', $userId)
