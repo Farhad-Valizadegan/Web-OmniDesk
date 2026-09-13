@@ -27,6 +27,138 @@ class GmailMessageSyncService
     }
 
     /**
+     * Synchronize one lazy-loading page from the Gmail mailbox.
+     *
+     * @return array{threads_processed: int, messages_processed: int, has_more: bool}
+     */
+    public function syncNextMailboxPage(
+        User $user,
+        int $maxResults = 15,
+    ): array {
+        $connection = ProviderConnection::query()
+            ->where('user_id', $user->id)
+            ->where('provider', 'gmail')
+            ->where('status', 'connected')
+            ->latest('id')
+            ->first();
+
+        if (! $connection) {
+            throw new RuntimeException(
+                'A connected Gmail account is required before synchronizing.'
+            );
+        }
+
+        if ($connection->gmail_sync_completed) {
+            return [
+                'threads_processed' => 0,
+                'messages_processed' => 0,
+                'has_more' => false,
+            ];
+        }
+
+        $scopes = is_array($connection->scopes) ? $connection->scopes : [];
+
+        if (! in_array(self::GMAIL_READONLY_SCOPE, $scopes, true)) {
+            throw new RuntimeException(
+                'The Gmail read-only scope is not granted for this connection.'
+            );
+        }
+
+        $client = $this->authenticatedClient($connection);
+        $gmail = new Gmail($client);
+        $profile = $this->providerCall(
+            fn (): object => $gmail->users->getProfile('me')
+        );
+
+        if (
+            ! is_string($connection->gmail_sync_snapshot_history_id)
+            || $connection->gmail_sync_snapshot_history_id === ''
+        ) {
+            $snapshotHistoryId = $profile->getHistoryId();
+
+            if (is_string($snapshotHistoryId) && $snapshotHistoryId !== '') {
+                $connection->gmail_sync_snapshot_history_id = $snapshotHistoryId;
+                $connection->save();
+            }
+        }
+
+        $options = [
+            'maxResults' => min(max($maxResults, 1), 100),
+        ];
+
+        if (
+            is_string($connection->gmail_sync_page_token)
+            && $connection->gmail_sync_page_token !== ''
+        ) {
+            $options['pageToken'] = $connection->gmail_sync_page_token;
+        }
+
+        $threadList = $this->providerCall(
+            fn (): object => $gmail->users_threads->listUsersThreads(
+                'me',
+                $options
+            )
+        );
+
+        $threadsProcessed = 0;
+        $messagesProcessed = 0;
+
+        foreach ($threadList->getThreads() ?? [] as $threadSummary) {
+            $threadId = $threadSummary->getId();
+
+            if (! is_string($threadId) || $threadId === '') {
+                continue;
+            }
+
+            usleep(250000);
+
+            $thread = $this->providerCall(
+                fn (): object => $gmail->users_threads->get(
+                    'me',
+                    $threadId,
+                    ['format' => 'full']
+                )
+            );
+            $messages = $thread->getMessages() ?? [];
+
+            if ($messages === []) {
+                continue;
+            }
+
+            $messagesProcessed += $this->syncThread($user, $threadId, $messages);
+            $threadsProcessed++;
+        }
+
+        $nextPageToken = $threadList->getNextPageToken();
+
+        if (is_string($nextPageToken) && $nextPageToken !== '') {
+            $connection->gmail_sync_page_token = $nextPageToken;
+        } else {
+            $connection->gmail_sync_page_token = null;
+            $connection->gmail_sync_completed = true;
+
+            if (
+                is_string($connection->gmail_sync_snapshot_history_id)
+                && $connection->gmail_sync_snapshot_history_id !== ''
+            ) {
+                $connection->history_id =
+                    $connection->gmail_sync_snapshot_history_id;
+            }
+
+            $connection->gmail_sync_snapshot_history_id = null;
+        }
+
+        $connection->save();
+
+        return [
+            'threads_processed' => $threadsProcessed,
+            'messages_processed' => $messagesProcessed,
+            'has_more' => is_string($nextPageToken)
+                && $nextPageToken !== '',
+        ];
+    }
+
+    /**
      * Synchronize Gmail threads and messages for one application user.
      *
      * @return array{
