@@ -16,7 +16,7 @@ import {
 
 type AuthMode = 'login' | 'register'
 
-type GmailFeedback = {
+export type GmailFeedback = {
   type: 'success' | 'error'
   message: string
 }
@@ -47,7 +47,7 @@ function readGmailFeedback(): GmailFeedback | null {
 
 
 function App() {
-  const [gmailFeedback] = useState<GmailFeedback | null>(readGmailFeedback)
+  const [gmailFeedback, setGmailFeedback] = useState<GmailFeedback | null>(readGmailFeedback)
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
   )
@@ -79,6 +79,18 @@ function App() {
       window.history.replaceState({}, document.title, window.location.pathname)
     }
   }, [])
+
+  useEffect(() => {
+    if (!gmailFeedback) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setGmailFeedback(null)
+    }, 5000)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [gmailFeedback])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -305,6 +317,7 @@ function App() {
               user={user}
               isLoading={authLoading}
               onLogout={() => void handleLogout()}
+              onGmailFeedback={setGmailFeedback}
             />
           ) : (
             <>
