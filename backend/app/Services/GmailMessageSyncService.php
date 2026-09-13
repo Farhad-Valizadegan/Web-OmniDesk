@@ -62,6 +62,8 @@ class GmailMessageSyncService
 
         $client = $this->authenticatedClient($connection);
         $gmail = new Gmail($client);
+        $profile = $gmail->users->getProfile('me');
+        $currentHistoryId = $profile->getHistoryId();
 
         $options = [
             'maxResults' => min(max($maxResults, 1), 100),
@@ -175,6 +177,11 @@ class GmailMessageSyncService
             });
 
             $threadsProcessed++;
+        }
+
+        if (is_string($currentHistoryId) && $currentHistoryId !== '') {
+            $connection->history_id = $currentHistoryId;
+            $connection->save();
         }
 
         return [
