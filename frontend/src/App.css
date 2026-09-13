@@ -1622,5 +1622,5 @@ button:disabled {
 /* Move inbox layout toward sidebar */
 .inbox-layout {
   position: relative;
-  left: -6rem;
+  left: -5.375rem;
 }
