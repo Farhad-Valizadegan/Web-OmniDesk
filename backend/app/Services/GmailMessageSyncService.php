@@ -19,7 +19,7 @@ class GmailMessageSyncService
     private const GMAIL_READONLY_SCOPE =
         'https://www.googleapis.com/auth/gmail.readonly';
 
-    private const FULL_SYNC_THROTTLE_MICROSECONDS = 750000;
+    private const FULL_SYNC_THROTTLE_MICROSECONDS = 2000000;
 
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService
@@ -385,7 +385,17 @@ class GmailMessageSyncService
     {
         return retry(
             3,
-            $operation,
+            function () use ($operation): mixed {
+                try {
+                    return $operation();
+                } catch (Throwable $exception) {
+                    if ($this->isRateLimitFailure($exception)) {
+                        sleep(60);
+                    }
+
+                    throw $exception;
+                }
+            },
             500,
             function (Throwable $exception): bool {
                 $code = (int) $exception->getCode();
@@ -393,9 +403,19 @@ class GmailMessageSyncService
                 return $code === 0
                     || $code === 408
                     || $code === 429
+                    || $code === 403
                     || $code >= 500;
             }
         );
+    }
+
+    private function isRateLimitFailure(Throwable $exception): bool
+    {
+        return (int) $exception->getCode() === 403
+            && str_contains(
+                strtolower($exception->getMessage()),
+                'ratelimitexceeded'
+            );
     }
 
     private function authenticatedClient(
