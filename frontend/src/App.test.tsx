@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -416,6 +417,30 @@ describe('App', () => {
     await waitFor(() => {
       expect(getConversationMessagesMock).toHaveBeenCalledWith(1)
     })
+  })
+
+  test('fades Gmail feedback after five seconds', async () => {
+    vi.useFakeTimers()
+    window.history.pushState({}, '', '/?gmail=connected')
+
+    render(<App />)
+
+    expect(
+      await screen.findByText('Gmail connected successfully.'),
+    ).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Gmail connected successfully.'),
+      ).not.toBeInTheDocument()
+    })
+
+    window.history.replaceState({}, '', '/')
+    vi.useRealTimers()
   })
 
   test('searches conversations from the workspace', async () => {
