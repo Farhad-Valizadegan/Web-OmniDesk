@@ -10,7 +10,7 @@ use Throwable;
 
 class SyncGmailCommand extends Command
 {
-    protected $signature = 'gmail:sync {--max-results=20}';
+    protected $signature = 'gmail:sync {--max-results=20} {--full}';
 
     protected $description =
         'Synchronize connected Gmail accounts with the unified inbox';
@@ -38,6 +38,11 @@ class SyncGmailCommand extends Command
 
         foreach ($connections as $connection) {
             try {
+                if ($this->option('full')) {
+                    $connection->history_id = null;
+                    $connection->save();
+                }
+
                 $threadsProcessed = 0;
                 $messagesProcessed = 0;
                 $pageToken = null;
