@@ -62,9 +62,19 @@ function GmailConnectionPanel({
       setSyncMessage(null)
       setError(null)
 
-      const response = await syncGmail()
+      let pageToken: string | undefined
+      let messagesProcessed = 0
+
+      do {
+        const response = await syncGmail(
+          pageToken ? { page_token: pageToken } : {},
+        )
+        messagesProcessed += response.sync.messages_processed
+        pageToken = response.sync.next_page_token ?? undefined
+      } while (pageToken)
+
       setSyncMessage(
-        `${response.sync.messages_processed} messages synchronized.`,
+        `${messagesProcessed} messages synchronized.`,
       )
 
       await onSynchronized?.()
