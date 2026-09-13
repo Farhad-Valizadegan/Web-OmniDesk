@@ -108,6 +108,27 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
+  test('displays the backend connection loading state', () => {
+    render(<App />)
+
+    expect(
+      screen.getByText('Checking backend connection...'),
+    ).toBeInTheDocument()
+  })
+
+  test('displays the backend connection failure state', async () => {
+    getHealthMock.mockRejectedValueOnce(
+      new Error('Backend unavailable'),
+    )
+
+    render(<App />)
+
+    expect(
+      await screen.findByText(
+        'The backend is unavailable. Make sure Laravel is running.',
+      ),
+    ).toBeInTheDocument()
+  })
   test('allows a user to register', async () => {
     registerUserMock.mockResolvedValue({
       message: 'Registration successful.',
