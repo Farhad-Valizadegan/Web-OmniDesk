@@ -29,10 +29,7 @@ class GmailCallbackController extends Controller
         );
 
         if (! is_array($stateData) || ! isset($stateData['user_id'])) {
-            return response()->json([
-                'message' => 'The OAuth state is invalid or expired.',
-                'error' => 'oauth_state_invalid',
-            ], 422);
+            return $this->redirectToFrontend('oauth_state_invalid');
         }
 
         if ($request->filled('error')) {
