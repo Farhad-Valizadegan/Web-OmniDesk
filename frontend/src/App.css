@@ -1650,3 +1650,17 @@ button:disabled {
   padding-top: 6px !important;
   padding-bottom: 6px !important;
 }
+/* Keep detail layers inside parent */
+.inbox-layout {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.conversation-detail,
+.detail-heading,
+.message-list {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
