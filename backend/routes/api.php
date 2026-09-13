@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/integrations/gmail/authorize', [GmailAuthorizationController::class, 'authorize']);
     Route::get('/integrations/gmail', [GmailIntegrationController::class, 'status']);
+    Route::post('/integrations/gmail/sync', [GmailIntegrationController::class, 'sync']);
     Route::delete('/integrations/gmail', [GmailIntegrationController::class, 'disconnect']);
     Route::get('/conversations', [ConversationController::class, 'index']);
     Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
