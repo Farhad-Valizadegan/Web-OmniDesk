@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ProviderConnection;
 use App\Services\GoogleOAuthService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -111,5 +110,3 @@ class GmailCallbackController extends Controller
 
         return redirect()->to($frontendUrl . '/?gmail=' . urlencode($result));
     }
-}    }
-}
