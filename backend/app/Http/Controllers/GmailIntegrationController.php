@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProviderConnection;
+use App\Services\GmailMessageSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Throwable;
 
 class GmailIntegrationController extends Controller
 {
@@ -35,6 +37,34 @@ class GmailIntegrationController extends Controller
                 'scopes' => $connection->scopes,
                 'token_expires_at' => $connection->token_expires_at,
             ],
+        ]);
+    }
+
+    public function sync(
+        Request $request,
+        GmailMessageSyncService $syncService,
+    ): JsonResponse {
+        $validated = $request->validate([
+            'max_results' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page_token' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        try {
+            $result = $syncService->sync(
+                $request->user(),
+                $validated['max_results'] ?? 20,
+                $validated['page_token'] ?? null,
+            );
+        } catch (Throwable) {
+            return response()->json([
+                'message' => 'Gmail synchronization could not be completed.',
+                'error' => 'gmail_sync_failed',
+            ], 502);
+        }
+
+        return response()->json([
+            'message' => 'Gmail synchronization completed.',
+            'sync' => $result,
         ]);
     }
 
