@@ -1664,9 +1664,9 @@ button:disabled {
   min-width: 0 !important;
   box-sizing: border-box !important;
 }
-/* Extend email panel 20px right */
+/* Extend email panel 24px right */
 .inbox-layout {
-  width: calc(100% + 20px) !important;
+  width: calc(100% + 30px) !important;
 }
 
 .conversation-detail {
