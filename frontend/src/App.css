@@ -1536,3 +1536,22 @@ button:disabled {
 .inbox-layout {
   gap: 0.9rem;
 }
+/* Extra compact workspace layout */
+.workspace-sidebar {
+  width: 130px;
+  padding: 0.65rem;
+}
+
+.navigation-item {
+  padding: 0.38rem 0.45rem;
+  font-size: 0.82rem;
+}
+
+.sidebar-account {
+  margin-top: 1.25rem;
+  font-size: 0.7rem;
+}
+
+.workspace-content {
+  padding: 0.7rem;
+}
