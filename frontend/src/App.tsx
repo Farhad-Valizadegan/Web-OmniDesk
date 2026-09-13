@@ -46,8 +46,6 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      setCaptchaChallenge(null)
-      setCaptchaLoading(false)
       return
     }
 
