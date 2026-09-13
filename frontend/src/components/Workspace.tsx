@@ -80,6 +80,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
   const [inboxError, setInboxError] = useState<string | null>(null)
   const [messagesError, setMessagesError] = useState<string | null>(null)
   const [isLazySyncLoading, setIsLazySyncLoading] = useState(false)
+  const [gmailHasMore, setGmailHasMore] = useState(false)
   const hasInitializedLazySync = useRef(false)
 
   useEffect(() => {
@@ -99,7 +100,8 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
           const gmailStatus = await getGmailStatus()
 
           if (gmailStatus.connected) {
-            await syncGmailPage()
+            const syncResponse = await syncGmailPage()
+            setGmailHasMore(syncResponse.sync.has_more)
           }
         } catch {
           // Existing local conversations remain available when lazy sync is unavailable.
@@ -186,10 +188,19 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
 
   const handleNextPage = async () => {
     if (pagination.current_page >= pagination.last_page) {
+      if (!gmailHasMore) {
+        return
+      }
+
       try {
         setIsLazySyncLoading(true)
         setInboxError(null)
-        await syncGmailPage()
+        const syncResponse = await syncGmailPage()
+        setGmailHasMore(syncResponse.sync.has_more)
+
+        if (syncResponse.sync.threads_processed === 0) {
+          return
+        }
       } catch {
         setInboxError('The next Gmail page could not be loaded.')
         return
@@ -198,9 +209,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
       }
     }
 
-    setPage((current) =>
-      Math.min(pagination.last_page + 1, current + 1),
-    )
+    setPage((current) => current + 1)
   }
 
   return (
