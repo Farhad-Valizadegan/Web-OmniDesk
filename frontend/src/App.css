@@ -936,3 +936,29 @@ button:disabled {
   color: #64748b;
   font-size: 0.68rem;
 }
+
+.gmail-account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gmail-account p {
+  margin: 0;
+}
+
+.gmail-account-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.gmail-account-avatar-fallback {
+  display: grid;
+  place-items: center;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 800;
+}

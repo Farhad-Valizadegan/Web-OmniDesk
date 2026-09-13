@@ -24,6 +24,7 @@ export type GmailConnection = {
   provider: string
   provider_account_id: string | null
   account_email: string | null
+  account_avatar_url: string | null
   status: string
   scopes: string[] | null
   token_expires_at: string | null

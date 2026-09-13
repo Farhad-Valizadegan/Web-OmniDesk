@@ -133,12 +133,25 @@ function GmailConnectionPanel({
 
       {!isLoading && !error && status?.connected && (
         <div className="gmail-connected">
-          <p>
-            Connected account:{' '}
-            <strong>
-              {status.connection?.account_email ?? 'Account identity unavailable'}
-            </strong>
-          </p>
+          <div className="gmail-account">
+            {status.connection?.account_avatar_url ? (
+              <img
+                className="gmail-account-avatar"
+                src={status.connection.account_avatar_url}
+                alt=""
+              />
+            ) : (
+              <span className="gmail-account-avatar gmail-account-avatar-fallback" aria-hidden="true">
+                {(status.connection?.account_email ?? 'G').slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <p>
+              Connected account:{' '}
+              <strong>
+                {status.connection?.account_email ?? 'Account identity unavailable'}
+              </strong>
+            </p>
+          </div>
 
           <div className="gmail-actions">
             <button
