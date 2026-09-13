@@ -6,6 +6,7 @@ use App\Http\Controllers\GmailAuthorizationController;
 use App\Http\Controllers\GmailCallbackController;
 use App\Http\Controllers\GmailIntegrationController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CaptchaController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -18,6 +19,7 @@ Route::get(
     '/integrations/gmail/callback',
     [GmailCallbackController::class, 'callback']
 );
+Route::get('/captcha', [CaptchaController::class, 'challenge']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
