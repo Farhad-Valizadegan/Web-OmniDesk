@@ -164,7 +164,7 @@ function GmailConnectionPanel({
             <p className="gmail-status" role="status">
               {syncMessage}
             </p>
-          )
+          )}
         </div>
       )}
 
