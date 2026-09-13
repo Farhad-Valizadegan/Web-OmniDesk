@@ -29,9 +29,9 @@ function formatDate(value: string | null): string {
 
 function initials(value: string | null): string {
   const words = (value ?? '').trim().split(/\s+/).filter(Boolean)
-  const letters = words.length > 1
-    ? words.slice(0, 2).map((word) => word[0])
-    : (words[0] ?? '?').slice(0, 2)
+  const letters: string[] = words.length > 1
+    ? words.slice(0, 2).map((word) => word[0] ?? '')
+    : [(words[0] ?? '?').slice(0, 2)]
 
   return letters.join('').toUpperCase()
 }
