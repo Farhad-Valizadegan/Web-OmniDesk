@@ -1606,3 +1606,16 @@ button:disabled {
   width: 300px !important;
   max-width: 300px !important;
 }
+/* Move conversation panel left */
+.workspace-content {
+  padding-left: 0 !important;
+}
+
+.inbox-layout {
+  margin-left: 0 !important;
+}
+
+.conversation-list {
+  margin-left: 0 !important;
+  justify-self: start !important;
+}
