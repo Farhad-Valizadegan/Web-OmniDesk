@@ -27,6 +27,21 @@ function formatDate(value: string | null): string {
   }).format(new Date(value))
 }
 
+function initials(value: string | null): string {
+  const words = (value ?? '').trim().split(/\s+/).filter(Boolean)
+  const letters = words.length > 1
+    ? words.slice(0, 2).map((word) => word[0])
+    : (words[0] ?? '?').slice(0, 2)
+
+  return letters.join('').toUpperCase()
+}
+
+function formatAttachmentSize(size: number): string {
+  if (size < 1024) return `${size} B`
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+}
+
 function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] =
@@ -350,17 +365,41 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
                           messages.map((message) => (
                             <article className="message-card" key={message.id}>
                               <div className="message-heading">
-                                <strong>{message.sender_name}</strong>
+                                <div className="message-sender">
+                                  <span className="sender-avatar" aria-hidden="true">
+                                    {initials(message.sender_name)}
+                                  </span>
+                                  <div>
+                                    <strong>{message.sender_name}</strong>
+                                    <p className="message-address">
+                                      {message.sender_address ?? 'Address unavailable'}
+                                    </p>
+                                  </div>
+                                </div>
+
                                 <time dateTime={message.sent_at}>
                                   {formatDate(message.sent_at)}
                                 </time>
                               </div>
 
-                              <p className="message-address">
-                                {message.sender_address ?? 'Address unavailable'}
-                              </p>
-
                               <p className="message-body">{message.body}</p>
+
+                              {(message.metadata?.attachments?.length ?? 0) > 0 && (
+                                <div className="message-attachments" aria-label="Attachments">
+                                  <p className="attachments-title">Attachments</p>
+                                  <div className="attachment-list">
+                                    {message.metadata?.attachments?.map((attachment) => (
+                                      <div className="attachment-item" key={attachment.attachment_id ?? attachment.filename}>
+                                        <span className="attachment-icon" aria-hidden="true">FILE</span>
+                                        <span className="attachment-details">
+                                          <strong>{attachment.filename}</strong>
+                                          <span>{attachment.mime_type} · {formatAttachmentSize(attachment.size)}</span>
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </article>
                           ))
                         )}

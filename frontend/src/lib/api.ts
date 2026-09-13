@@ -39,6 +39,14 @@ export type GmailAuthorizationResponse = {
   expires_in: number
 }
 
+export type MessageAttachment = {
+  filename: string
+  mime_type: string
+  size: number
+  attachment_id: string | null
+  inline: boolean
+}
+
 export type Message = {
   id: number
   conversation_id: number
@@ -52,7 +60,10 @@ export type Message = {
   body: string
   sent_at: string
   is_read: boolean
-  metadata: Record<string, unknown> | null
+  metadata: {
+    label_ids?: string[]
+    attachments?: MessageAttachment[]
+  } | null
 }
 
 export type Conversation = {

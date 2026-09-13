@@ -844,3 +844,95 @@ button:disabled {
     width: 100%;
   }
 }
+
+.message-sender {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.65rem;
+}
+
+.sender-avatar {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.message-sender > div {
+  min-width: 0;
+}
+
+.message-sender strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-address {
+  margin: 0.25rem 0 0;
+}
+
+.message-attachments {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.attachments-title {
+  margin: 0 0 0.55rem;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.attachment-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #dbeafe;
+  border-radius: 0.5rem;
+  background: #eff6ff;
+}
+
+.attachment-icon {
+  color: #2563eb;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.attachment-details {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.attachment-details strong,
+.attachment-details span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-details strong {
+  color: #1e3a8a;
+  font-size: 0.78rem;
+}
+
+.attachment-details span {
+  color: #64748b;
+  font-size: 0.68rem;
+}
