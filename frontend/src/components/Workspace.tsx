@@ -509,10 +509,6 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                         )}
                       </span>
 
-                      <span className="conversation-preview">
-                        {conversation.latest_message?.body ??
-                          'No message preview available.'}
-                      </span>
 
                       <span className="conversation-meta">
                         <span>{conversation.provider}</span>
