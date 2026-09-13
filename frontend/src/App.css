@@ -1633,7 +1633,7 @@ button:disabled {
   width: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
-  min-height: calc(100vh - 240px) !important;
+  min-height: 0 !important;
 }
 /* Widen selected email area */
 .inbox-layout {
@@ -1673,12 +1673,31 @@ button:disabled {
   width: 100% !important;
   max-width: none !important;
 }
-/* Match conversation panel height */
-.inbox-layout {
-  align-items: stretch !important;
-}
 
 .inbox-layout > .conversation-detail {
   align-self: stretch !important;
-  height: auto !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+/* Fill selected email panel height */
+.conversation-detail {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.conversation-detail > .message-list {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+}
+
+.conversation-detail > .message-list > .message-card:only-child {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+}
+
+.conversation-detail > .message-list > .message-card:only-child > .message-html {
+  flex: 1 1 auto !important;
+  height: 100% !important;
 }
