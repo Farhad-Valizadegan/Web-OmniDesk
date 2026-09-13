@@ -76,6 +76,8 @@ class GmailIntegrationController extends Controller
         Request $request,
         GmailMessageSyncService $syncService,
     ): JsonResponse {
+        set_time_limit(120);
+
         $validated = $request->validate([
             'max_results' => ['nullable', 'integer', 'min:1', 'max:15'],
         ]);
