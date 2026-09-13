@@ -1598,11 +1598,11 @@ button:disabled {
 }
 /* Correct conversation panel width */
 .inbox-layout {
-  grid-template-columns: minmax(560px, 560px) minmax(420px, 1fr) !important;
+  grid-template-columns: minmax(360px, 360px) minmax(420px, 1fr) !important;
   gap: 0.7rem !important;
 }
 
 .conversation-list {
-  width: 560px !important;
-  max-width: 560px !important;
+  width: 360px !important;
+  max-width: 360px !important;
 }
