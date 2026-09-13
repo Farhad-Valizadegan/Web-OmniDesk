@@ -121,7 +121,9 @@ class GmailMessageSyncService
 
         $client = $this->authenticatedClient($connection);
         $gmail = new Gmail($client);
-        $profile = $gmail->users->getProfile('me');
+        $profile = $this->providerCall(
+            fn (): object => $gmail->users->getProfile('me')
+        );
         $currentHistoryId = $profile->getHistoryId();
 
         $options = [
@@ -132,9 +134,11 @@ class GmailMessageSyncService
             $options['pageToken'] = $pageToken;
         }
 
-        $threadList = $gmail->users_threads->listUsersThreads(
-            'me',
-            $options
+        $threadList = $this->providerCall(
+            fn (): object => $gmail->users_threads->listUsersThreads(
+                'me',
+                $options
+            )
         );
 
         $threadsProcessed = 0;
@@ -147,10 +151,12 @@ class GmailMessageSyncService
                 continue;
             }
 
-            $thread = $gmail->users_threads->get(
-                'me',
-                $threadId,
-                ['format' => 'full']
+            $thread = $this->providerCall(
+                fn (): object => $gmail->users_threads->get(
+                    'me',
+                    $threadId,
+                    ['format' => 'full']
+                )
             );
             $messages = $thread->getMessages() ?? [];
 
@@ -204,7 +210,12 @@ class GmailMessageSyncService
                 $options['pageToken'] = $nextPageToken;
             }
 
-            $history = $gmail->users_history->listUsersHistory('me', $options);
+            $history = $this->providerCall(
+                fn (): object => $gmail->users_history->listUsersHistory(
+                    'me',
+                    $options
+                )
+            );
             $latestHistoryId = $history->getHistoryId() ?: $latestHistoryId;
 
             foreach ($history->getHistory() ?? [] as $record) {
@@ -240,14 +251,26 @@ class GmailMessageSyncService
         $messagesProcessed = 0;
 
         foreach (array_keys($messageIds) as $messageId) {
-            $gmailMessage = $gmail->users_messages->get('me', $messageId, ['format' => 'full']);
+            $gmailMessage = $this->providerCall(
+                fn (): object => $gmail->users_messages->get(
+                    'me',
+                    $messageId,
+                    ['format' => 'full']
+                )
+            );
             $threadId = $gmailMessage->getThreadId();
 
             if (! is_string($threadId) || $threadId === '') {
                 continue;
             }
 
-            $thread = $gmail->users_threads->get('me', $threadId, ['format' => 'full']);
+            $thread = $this->providerCall(
+                fn (): object => $gmail->users_threads->get(
+                    'me',
+                    $threadId,
+                    ['format' => 'full']
+                )
+            );
             $messages = $thread->getMessages() ?? [];
 
             if ($messages === []) {
@@ -342,6 +365,30 @@ class GmailMessageSyncService
 
             return count($mappedMessages);
         });
+    }
+
+    /**
+     * Retry only failures that may recover without changing application state.
+     *
+     * @template T
+     * @param callable(): T $operation
+     * @return T
+     */
+    private function providerCall(callable $operation): mixed
+    {
+        return retry(
+            3,
+            $operation,
+            500,
+            function (Throwable $exception): bool {
+                $code = (int) $exception->getCode();
+
+                return $code === 0
+                    || $code === 408
+                    || $code === 429
+                    || $code >= 500;
+            }
+        );
     }
 
     private function authenticatedClient(
