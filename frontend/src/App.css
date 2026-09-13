@@ -1111,3 +1111,127 @@ button:disabled {
 .unread-indicator {
   font-size: 0.58rem;
 }
+
+
+/* Theme controls */
+.theme-toggle {
+  min-height: 2.65rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #f8fafc;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.theme-toggle:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+[data-theme="dark"] body {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .app {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .status-card,
+[data-theme="dark"] .workspace,
+[data-theme="dark"] .workspace-header,
+[data-theme="dark"] .gmail-panel,
+[data-theme="dark"] .conversation-list,
+[data-theme="dark"] .conversation-detail,
+[data-theme="dark"] .conversation-item,
+[data-theme="dark"] .inbox-toolbar,
+[data-theme="dark"] .message-card {
+  border-color: #334155;
+  background: #172033;
+}
+
+[data-theme="dark"] .workspace-header,
+[data-theme="dark"] .conversation-item:hover,
+[data-theme="dark"] .conversation-item.selected {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .workspace-sidebar {
+  border-color: #334155;
+  background: #111827;
+}
+
+[data-theme="dark"] .content-heading h2,
+[data-theme="dark"] .section-heading h3,
+[data-theme="dark"] .detail-heading h3,
+[data-theme="dark"] .conversation-item-heading strong,
+[data-theme="dark"] .message-heading,
+[data-theme="dark"] .message-sender strong,
+[data-theme="dark"] .gmail-panel h3 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .workspace-subtitle,
+[data-theme="dark"] .sidebar-account,
+[data-theme="dark"] .conversation-preview,
+[data-theme="dark"] .message-address,
+[data-theme="dark"] .message-heading time,
+[data-theme="dark"] .section-heading span,
+[data-theme="dark"] .conversation-meta,
+[data-theme="dark"] .message-body {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .navigation-item {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .navigation-item:hover,
+[data-theme="dark"] .navigation-item.active {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .secondary-button,
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .inbox-search input,
+[data-theme="dark"] .read-filter select {
+  border-color: #475569;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .secondary-button:hover,
+[data-theme="dark"] .theme-toggle:hover {
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .message-card {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .attachment-item {
+  border-color: #1e40af;
+  background: #172554;
+}
+
+[data-theme="dark"] .attachment-details strong {
+  color: #bfdbfe;
+}
+
+[data-theme="dark"] .attachment-details span,
+[data-theme="dark"] .attachments-title {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .inbox-error,
+[data-theme="dark"] .inbox-status {
+  border-color: #334155;
+  background: #1e293b;
+  color: #cbd5e1;
+}

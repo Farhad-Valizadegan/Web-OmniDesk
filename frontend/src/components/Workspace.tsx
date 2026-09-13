@@ -15,6 +15,7 @@ type WorkspaceProps = {
 }
 
 type ReadFilter = 'all' | 'read' | 'unread'
+type Theme = 'light' | 'dark'
 
 function formatDate(value: string | null): string {
   if (!value) {
@@ -43,6 +44,9 @@ function formatAttachmentSize(size: number): string {
 }
 
 function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
+  const [theme, setTheme] = useState<Theme>(() =>
+    localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
+  )
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null)
@@ -54,6 +58,11 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
   const [isMessagesLoading, setIsMessagesLoading] = useState(false)
   const [inboxError, setInboxError] = useState<string | null>(null)
   const [messagesError, setMessagesError] = useState<string | null>(null)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('omni_desk_theme', theme)
+  }, [theme])
 
   const loadConversations = useCallback(async () => {
     try {
@@ -141,6 +150,15 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
 
         <div className="workspace-user">
           <span>{user.name}</span>
+
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {theme === 'light' ? 'Dark mode' : 'Light mode'}
+          </button>
 
           <button
             type="button"
