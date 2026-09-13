@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import './App.css'
+import GoogleCaptcha from './components/GoogleCaptcha'
 import Workspace from './components/Workspace'
 import {
   getCaptchaChallenge,
@@ -30,6 +31,7 @@ function App() {
   const [captchaChallenge, setCaptchaChallenge] =
     useState<CaptchaChallenge | null>(null)
   const [captchaAnswer, setCaptchaAnswer] = useState('')
+  const [captchaResponse, setCaptchaResponse] = useState('')
   const [captchaLoading, setCaptchaLoading] = useState(true)
   const [captchaError, setCaptchaError] = useState<string | null>(null)
   const [captchaNonce, setCaptchaNonce] = useState(0)
@@ -117,8 +119,13 @@ function App() {
     setPassword('')
     setPasswordConfirmation('')
     setCaptchaAnswer('')
+    setCaptchaResponse('')
     setAuthError(null)
   }
+
+  const handleGoogleCaptchaToken = useCallback((token: string) => {
+    setCaptchaResponse(token)
+  }, [])
 
   const changeAuthMode = (mode: AuthMode) => {
     setAuthMode(mode)
@@ -136,15 +143,23 @@ function App() {
       return
     }
 
-    if (captchaChallenge.driver === 'google') {
-      setAuthLoading(false)
-      setAuthError('Google reCAPTCHA is not configured in this environment.')
-      return
-    }
+    const captchaFields =
+      captchaChallenge.driver === 'internal'
+        ? {
+            captcha_token: captchaChallenge.token,
+            captcha_answer: captchaAnswer,
+          }
+        : {
+            captcha_response: captchaResponse,
+          }
 
-    const captchaFields = {
-      captcha_token: captchaChallenge.token,
-      captcha_answer: captchaAnswer,
+    if (
+      captchaChallenge.driver === 'google' &&
+      captchaResponse === ''
+    ) {
+      setAuthLoading(false)
+      setAuthError('Complete the Google reCAPTCHA check.')
+      return
     }
 
     try {
@@ -359,6 +374,16 @@ function App() {
                       autoComplete="off"
                       aria-label="CAPTCHA answer"
                       required
+                    />
+                  </div>
+                )}
+
+                {captchaChallenge?.driver === 'google' && (
+                  <div className="captcha-field google-captcha-field">
+                    <p className="captcha-label">Security check</p>
+                    <GoogleCaptcha
+                      siteKey={captchaChallenge.site_key}
+                      onToken={handleGoogleCaptchaToken}
                     />
                   </div>
                 )}

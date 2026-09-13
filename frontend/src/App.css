@@ -1394,3 +1394,23 @@ button:disabled {
 [data-theme="dark"] .captcha-status {
   color: #cbd5e1;
 }
+
+
+.google-captcha-field {
+  align-items: flex-start;
+}
+
+.captcha-label {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.google-captcha {
+  min-height: 78px;
+}
+
+[data-theme="dark"] .captcha-label {
+  color: #bfdbfe;
+}
