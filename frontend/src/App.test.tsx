@@ -413,7 +413,8 @@ describe('App', () => {
     ).toHaveBeenCalledWith({
       search: undefined,
       is_read: undefined,
-      per_page: 50,
+      per_page: 15,
+      page: 1,
     })
 
     await waitFor(() => {
@@ -465,7 +466,8 @@ describe('App', () => {
       expect(getConversationsMock).toHaveBeenLastCalledWith({
         search: 'Project',
         is_read: undefined,
-        per_page: 50,
+        per_page: 15,
+        page: 1,
       })
     })
   })
