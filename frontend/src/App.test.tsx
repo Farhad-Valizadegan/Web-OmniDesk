@@ -198,6 +198,51 @@ describe('App', () => {
     expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
   })
 
+  test('refreshes the CAPTCHA after an authentication error', async () => {
+    getCaptchaChallengeMock
+      .mockResolvedValueOnce({
+        driver: 'internal',
+        token: 'first-captcha-token',
+        question: '2 + 8 = ?',
+        expires_in: 300,
+      })
+      .mockResolvedValueOnce({
+        driver: 'internal',
+        token: 'second-captcha-token',
+        question: '3 + 4 = ?',
+        expires_in: 300,
+      })
+
+    loginUserMock.mockRejectedValue(
+      new Error('The CAPTCHA answer is invalid or expired.'),
+    )
+
+    render(<App />)
+
+    await screen.findByText('Backend is connected. Status: ok')
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'freddie@example.com' },
+    })
+
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password123' },
+    })
+
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '11' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    expect(
+      await screen.findByText('The CAPTCHA answer is invalid or expired.'),
+    ).toBeInTheDocument()
+
+    expect(await screen.findByText('3 + 4 = ?')).toBeInTheDocument()
+    expect(getCaptchaChallengeMock).toHaveBeenCalledTimes(2)
+  })
+
   test('displays authentication errors', async () => {
     loginUserMock.mockRejectedValue(
       new Error('The provided credentials are incorrect.'),

@@ -181,6 +181,9 @@ function App() {
       setUser(response.user)
       resetAuthForm()
     } catch (error) {
+      setCaptchaAnswer('')
+      setCaptchaResponse('')
+      setCaptchaNonce((current) => current + 1)
       setAuthError(
         error instanceof Error
           ? error.message
