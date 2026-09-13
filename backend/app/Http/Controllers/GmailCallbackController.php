@@ -110,3 +110,4 @@ class GmailCallbackController extends Controller
 
         return redirect()->to($frontendUrl . '/?gmail=' . urlencode($result));
     }
+}
