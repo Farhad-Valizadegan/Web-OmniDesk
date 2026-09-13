@@ -1666,7 +1666,7 @@ button:disabled {
 }
 /* Extend email panel 40px right */
 .inbox-layout {
-  width: calc(100% + 30px) !important;
+  width: calc(100% + 40px) !important;
 }
 
 .conversation-detail {
