@@ -66,6 +66,8 @@ function emptyPagination<T>(): PaginatedResponse<T> {
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  vi.useRealTimers()
+  window.history.replaceState({}, '', '/')
   sessionStorage.clear()
 })
 
@@ -419,28 +421,23 @@ describe('App', () => {
     })
   })
 
-  test('fades Gmail feedback after five seconds', async () => {
+  test('fades Gmail feedback after five seconds', () => {
     vi.useFakeTimers()
     window.history.pushState({}, '', '/?gmail=connected')
 
     render(<App />)
 
     expect(
-      await screen.findByText('Gmail connected successfully.'),
+      screen.getByText('Gmail connected successfully.'),
     ).toBeInTheDocument()
 
     act(() => {
       vi.advanceTimersByTime(5000)
     })
 
-    await waitFor(() => {
-      expect(
-        screen.queryByText('Gmail connected successfully.'),
-      ).not.toBeInTheDocument()
-    })
-
-    window.history.replaceState({}, '', '/')
-    vi.useRealTimers()
+    expect(
+      screen.queryByText('Gmail connected successfully.'),
+    ).not.toBeInTheDocument()
   })
 
   test('searches conversations from the workspace', async () => {
