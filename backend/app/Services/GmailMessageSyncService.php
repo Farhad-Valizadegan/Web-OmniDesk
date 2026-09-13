@@ -19,6 +19,8 @@ class GmailMessageSyncService
     private const GMAIL_READONLY_SCOPE =
         'https://www.googleapis.com/auth/gmail.readonly';
 
+    private const FULL_SYNC_THROTTLE_MICROSECONDS = 750000;
+
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService
     ) {
@@ -150,6 +152,8 @@ class GmailMessageSyncService
             if (! is_string($threadId) || $threadId === '') {
                 continue;
             }
+
+            usleep(self::FULL_SYNC_THROTTLE_MICROSECONDS);
 
             $thread = $this->providerCall(
                 fn (): object => $gmail->users_threads->get(
