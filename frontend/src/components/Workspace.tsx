@@ -535,7 +535,19 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                                 </time>
                               </div>
 
-                              <p className="message-body">{renderMessageBody(message.body)}</p>
+                              {message.metadata?.html_body?.trim() ? (
+                                <iframe
+                                  className="message-html"
+                                  title={`Email body from ${message.sender_name}`}
+                                  srcDoc={message.metadata.html_body}
+                                  sandbox=""
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <p className="message-body">
+                                  {renderMessageBody(message.body)}
+                                </p>
+                              )}
 
                               {(message.metadata?.attachments?.length ?? 0) > 0 && (
                                 <div className="message-attachments" aria-label="Attachments">

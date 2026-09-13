@@ -75,6 +75,7 @@ export type Message = {
   is_read: boolean
   metadata: {
     label_ids?: string[]
+    html_body?: string | null
     attachments?: MessageAttachment[]
   } | null
 }

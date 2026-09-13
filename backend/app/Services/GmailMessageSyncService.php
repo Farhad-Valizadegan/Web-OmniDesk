@@ -496,6 +496,7 @@ class GmailMessageSyncService
                         'is_read' => $mappedMessage['is_read'],
                         'metadata' => [
                             'label_ids' => $mappedMessage['label_ids'],
+                            'html_body' => $mappedMessage['body_html'],
                             'attachments' => $mappedMessage['attachments'],
                         ],
                     ]
@@ -615,6 +616,7 @@ class GmailMessageSyncService
      *     recipient_address: string|null,
      *     subject: string|null,
      *     body: string,
+     *     body_html: string|null,
      *     sent_at: Carbon,
      *     is_read: bool,
      *     label_ids: array<int, string>,
@@ -640,9 +642,11 @@ class GmailMessageSyncService
         $to = $this->parseAddress($headers['to'] ?? null);
         $bodyParts = $this->bodyParts($payload);
 
+        $bodyHtml = trim($bodyParts['html']);
+
         $body = $bodyParts['plain'] !== ''
             ? $bodyParts['plain']
-            : strip_tags($bodyParts['html']);
+            : strip_tags($bodyHtml);
 
         $internalDate = $gmailMessage->getInternalDate();
         $sentAt = is_numeric($internalDate)
@@ -659,6 +663,7 @@ class GmailMessageSyncService
             'recipient_address' => $to['address'],
             'subject' => $headers['subject'] ?? null,
             'body' => trim($body),
+            'body_html' => $bodyHtml !== '' ? $bodyHtml : null,
             'attachments' => $bodyParts['attachments'],
             'sent_at' => $sentAt,
             'is_read' => ! in_array('UNREAD', $labelIds, true),
