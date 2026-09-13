@@ -176,7 +176,7 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
             <span className="workspace-status">Ready</span>
           </div>
 
-          <GmailConnectionPanel />
+          <GmailConnectionPanel onSynchronized={loadConversations} />
 
           <div className="inbox-toolbar">
             <form className="inbox-search" onSubmit={handleSearchSubmit}>
