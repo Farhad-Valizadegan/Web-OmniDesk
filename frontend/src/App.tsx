@@ -14,6 +14,9 @@ import {
 type AuthMode = 'login' | 'register'
 
 function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
+  )
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [isHealthLoading, setIsHealthLoading] = useState(true)
   const [healthError, setHealthError] = useState<string | null>(null)
@@ -27,6 +30,11 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('omni_desk_theme', theme)
+  }, [theme])
 
   useEffect(() => {
     const loadApplicationState = async () => {
@@ -122,6 +130,17 @@ function App() {
 
   return (
     <main className="app">
+      {!user && (
+        <button
+          type="button"
+          className="app-theme-toggle"
+          onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        >
+          {theme === 'light' ? 'Dark mode' : 'Light mode'}
+        </button>
+      )}
+
       <section className="hero">
         <p className="eyebrow">OmniDesk AI</p>
 

@@ -1235,3 +1235,91 @@ button:disabled {
   background: #1e293b;
   color: #cbd5e1;
 }
+
+
+/* Global theme support for authentication view */
+.app {
+  position: relative;
+}
+
+.app-theme-toggle {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  min-height: 2.4rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-tabs button {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.auth-tabs button:hover,
+.auth-tabs button.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+[data-theme="dark"] .hero h1,
+[data-theme="dark"] .auth-heading h2 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .description,
+[data-theme="dark"] .auth-heading p,
+[data-theme="dark"] .status-card h2,
+[data-theme="dark"] .auth-card label {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .auth-card {
+  border-color: #334155;
+  background: #172033;
+}
+
+[data-theme="dark"] .status-card {
+  border-color: #334155;
+  background: #172033;
+}
+
+[data-theme="dark"] .auth-tabs {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .auth-tabs button {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .auth-tabs button:hover,
+[data-theme="dark"] .auth-tabs button.active {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .app-theme-toggle {
+  border-color: #475569;
+  background: #172033;
+  color: #f8fafc;
+}
