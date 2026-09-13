@@ -56,6 +56,57 @@ function formatAttachmentSize(size: number): string {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
+function formatGmailLabel(label: string): string {
+  const knownLabels: Record<string, string> = {
+    CATEGORY_FORUMS: 'Forums',
+    CATEGORY_PERSONAL: 'Personal',
+    CATEGORY_PROMOTIONS: 'Promotions',
+    CATEGORY_SOCIAL: 'Social',
+    CATEGORY_UPDATES: 'Updates',
+    IMPORTANT: 'Important',
+    INBOX: 'Inbox',
+    SPAM: 'Spam',
+    STARRED: 'Starred',
+    TRASH: 'Trash',
+    UNREAD: 'Unread',
+  }
+
+  if (knownLabels[label]) {
+    return knownLabels[label]
+  }
+
+  return label
+    .replace(/^CATEGORY_/, '')
+    .toLowerCase()
+    .replace(/(^|_)\w/g, (character) => character.toUpperCase())
+    .replace(/_/g, ' ')
+}
+
+function renderMessageBody(body: string): ReactNode {
+  const normalizedBody = body.replace(/\r\n/g, '\n').trim()
+  const parts = normalizedBody.split(/(https?:\/\/[^\s<]+)/g)
+
+  return parts.map((part, index) => {
+    if (!/^https?:\/\//i.test(part)) {
+      return part
+    }
+
+    const displayUrl =
+      part.length > 72 ? `${part.slice(0, 72)}…` : part
+
+    return (
+      <a
+        href={part}
+        key={`${part}-${index}`}
+        target="_blank"
+        rel="noreferrer"
+        title={part}
+      >
+        {displayUrl}
+      </a>
+    )
+  })
+}
 function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProps) {
   const [theme, setTheme] = useState<Theme>(() =>
     localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
@@ -406,7 +457,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                         conversation.labels.length > 0 && (
                           <span className="conversation-labels">
                             {conversation.labels.map((label) => (
-                              <span className="label" key={formatGmailLabel(label)}>
+                              <span className="label" key={label}>
                                 {formatGmailLabel(label)}
                               </span>
                             ))}
