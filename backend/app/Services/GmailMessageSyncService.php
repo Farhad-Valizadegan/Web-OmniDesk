@@ -374,7 +374,7 @@ class GmailMessageSyncService
      * @param callable(): T $operation
      * @return T
      */
-    private function providerCall(callable $operation): mixed
+    protected function providerCall(callable $operation): mixed
     {
         return retry(
             3,
