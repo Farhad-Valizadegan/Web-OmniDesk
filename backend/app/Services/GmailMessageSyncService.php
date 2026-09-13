@@ -551,6 +551,7 @@ class GmailMessageSyncService
 
         $mimeType = strtolower((string) $part->getMimeType());
         $filename = trim((string) $part->getFilename());
+        $partHeaders = $this->headers($part->getHeaders() ?? []);
         $body = $part->getBody();
         $data = $body?->getData();
         $attachmentId = $body?->getAttachmentId();
@@ -584,8 +585,7 @@ class GmailMessageSyncService
                     && $attachmentId !== ''
                     ? $attachmentId
                     : null,
-                'inline' => is_string($part->getContentId())
-                    && $part->getContentId() !== '',
+                'inline' => isset($partHeaders['content-id']),
             ];
         }
 
