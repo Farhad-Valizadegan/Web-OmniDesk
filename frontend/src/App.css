@@ -1519,3 +1519,20 @@ button:disabled {
   margin-top: 2rem;
   font-size: 0.75rem;
 }
+/* Balanced workspace spacing */
+.workspace-content {
+  padding: 0.9rem;
+}
+
+.workspace-body {
+  align-items: stretch;
+}
+
+.workspace-sidebar {
+  width: 160px;
+  padding: 0.9rem;
+}
+
+.inbox-layout {
+  gap: 0.9rem;
+}
