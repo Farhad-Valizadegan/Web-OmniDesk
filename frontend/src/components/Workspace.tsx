@@ -12,6 +12,10 @@ type WorkspaceProps = {
   user: AuthUser
   isLoading: boolean
   onLogout: () => void
+  onGmailFeedback?: (feedback: {
+    type: 'success' | 'error'
+    message: string
+  }) => void
 }
 
 type ReadFilter = 'all' | 'read' | 'unread'
@@ -43,7 +47,7 @@ function formatAttachmentSize(size: number): string {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
+function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProps) {
   const [theme, setTheme] = useState<Theme>(() =>
     localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
   )
@@ -211,7 +215,13 @@ function Workspace({ user, isLoading, onLogout }: WorkspaceProps) {
 
           <GmailConnectionPanel
             onSynchronized={loadConversations}
-            onDisconnected={loadConversations}
+            onDisconnected={async () => {
+              await loadConversations()
+              onGmailFeedback?.({
+                type: 'success',
+                message: 'Gmail disconnected successfully.',
+              })
+            }}
           />
 
           <div className="inbox-toolbar">
