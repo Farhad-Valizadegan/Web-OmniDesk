@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import GmailConnectionPanel from './GmailConnectionPanel'
 import {
   getConversationMessages,
   getConversations,
+  getGmailStatus,
+  syncGmailPage,
   type AuthUser,
   type Conversation,
   type Message,
@@ -77,6 +79,8 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
   const [isMessagesLoading, setIsMessagesLoading] = useState(false)
   const [inboxError, setInboxError] = useState<string | null>(null)
   const [messagesError, setMessagesError] = useState<string | null>(null)
+  const [isLazySyncLoading, setIsLazySyncLoading] = useState(false)
+  const hasInitializedLazySync = useRef(false)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -87,6 +91,20 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
     try {
       setIsInboxLoading(true)
       setInboxError(null)
+
+      if (!hasInitializedLazySync.current) {
+        hasInitializedLazySync.current = true
+
+        try {
+          const gmailStatus = await getGmailStatus()
+
+          if (gmailStatus.connected) {
+            await syncGmailPage()
+          }
+        } catch {
+          // Existing local conversations remain available when lazy sync is unavailable.
+        }
+      }
 
       const response = await getConversations({
         search: search || undefined,
@@ -164,6 +182,25 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
 
   const handleConversationSelect = (conversation: Conversation) => {
     setSelectedConversation(conversation)
+  }
+
+  const handleNextPage = async () => {
+    if (pagination.current_page >= pagination.last_page) {
+      try {
+        setIsLazySyncLoading(true)
+        setInboxError(null)
+        await syncGmailPage()
+      } catch {
+        setInboxError('The next Gmail page could not be loaded.')
+        return
+      } finally {
+        setIsLazySyncLoading(false)
+      }
+    }
+
+    setPage((current) =>
+      Math.min(pagination.last_page + 1, current + 1),
+    )
   }
 
   return (
@@ -491,14 +528,10 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                 <button
                   type="button"
                   className="secondary-button"
-                  onClick={() =>
-                    setPage((current) =>
-                      Math.min(pagination.last_page, current + 1),
-                    )
-                  }
+                  onClick={() => void handleNextPage()}
                   disabled={
                     isInboxLoading ||
-                    pagination.current_page === pagination.last_page
+                    isLazySyncLoading
                   }
                 >
                   Next
