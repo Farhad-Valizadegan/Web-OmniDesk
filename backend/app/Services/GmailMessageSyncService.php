@@ -8,6 +8,7 @@ use App\Models\ProviderConnection;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Client as GoogleClient;
+use Google\Service\Exception as GoogleServiceException;
 use Google\Service\Gmail;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -33,6 +34,64 @@ class GmailMessageSyncService
      * }
      */
     public function sync(
+        User $user,
+        int $maxResults = 20,
+        ?string $pageToken = null,
+    ): array {
+        $connection = ProviderConnection::query()
+            ->where('user_id', $user->id)
+            ->where('provider', 'gmail')
+            ->where('status', 'connected')
+            ->latest('id')
+            ->first();
+
+        if (! $connection) {
+            throw new RuntimeException(
+                'A connected Gmail account is required before synchronizing.'
+            );
+        }
+
+        $scopes = is_array($connection->scopes) ? $connection->scopes : [];
+
+        if (! in_array(self::GMAIL_READONLY_SCOPE, $scopes, true)) {
+            throw new RuntimeException(
+                'The Gmail read-only scope is not granted for this connection.'
+            );
+        }
+
+        if (
+            is_string($connection->history_id)
+            && $connection->history_id !== ''
+            && ($pageToken === null || $pageToken === '')
+        ) {
+            $client = $this->authenticatedClient($connection);
+            $gmail = new Gmail($client);
+
+            try {
+                return $this->syncIncrementally($connection, $user, $gmail, $maxResults);
+            } catch (GoogleServiceException $exception) {
+                if ((int) $exception->getCode() !== 404) {
+                    throw $exception;
+                }
+
+                $connection->history_id = null;
+                $connection->save();
+            }
+        }
+
+        return $this->syncFull($user, $maxResults, $pageToken);
+    }
+
+    /**
+     * Perform a full mailbox synchronization.
+     *
+     * @return array{
+     *     threads_processed: int,
+     *     messages_processed: int,
+     *     next_page_token: string|null
+     * }
+     */
+    private function syncFull(
         User $user,
         int $maxResults = 20,
         ?string $pageToken = null,
@@ -93,89 +152,13 @@ class GmailMessageSyncService
                 $threadId,
                 ['format' => 'full']
             );
-
             $messages = $thread->getMessages() ?? [];
 
             if ($messages === []) {
                 continue;
             }
 
-            DB::transaction(function () use (
-                $user,
-                $threadId,
-                $messages,
-                &$messagesProcessed,
-            ): void {
-                $mappedMessages = [];
-
-                foreach ($messages as $gmailMessage) {
-                    $mappedMessages[] = $this->mapMessage($gmailMessage);
-                }
-
-                usort(
-                    $mappedMessages,
-                    fn (array $left, array $right): int =>
-                        $left['sent_at']->getTimestamp()
-                        <=> $right['sent_at']->getTimestamp()
-                );
-
-                $latest = $mappedMessages[array_key_last($mappedMessages)];
-                $labelIds = array_values(array_unique(array_merge(
-                    ...array_map(
-                        fn (array $message): array => $message['label_ids'],
-                        $mappedMessages
-                    )
-                )));
-
-                $conversation = Conversation::updateOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'provider' => 'gmail',
-                        'provider_conversation_id' => $threadId,
-                    ],
-                    [
-                        'subject' => $latest['subject'],
-                        'status' => 'open',
-                        'is_read' => ! in_array(
-                            'UNREAD',
-                            $latest['label_ids'],
-                            true
-                        ),
-                        'last_message_at' => $latest['sent_at'],
-                        'labels' => $labelIds,
-                    ]
-                );
-
-                foreach ($mappedMessages as $mappedMessage) {
-                    Message::updateOrCreate(
-                        [
-                            'conversation_id' => $conversation->id,
-                            'provider' => 'gmail',
-                            'provider_message_id' =>
-                                $mappedMessage['provider_message_id'],
-                        ],
-                        [
-                            'sender_name' => $mappedMessage['sender_name'],
-                            'sender_address' =>
-                                $mappedMessage['sender_address'],
-                            'recipient_name' =>
-                                $mappedMessage['recipient_name'],
-                            'recipient_address' =>
-                                $mappedMessage['recipient_address'],
-                            'subject' => $mappedMessage['subject'],
-                            'body' => $mappedMessage['body'],
-                            'sent_at' => $mappedMessage['sent_at'],
-                            'is_read' => $mappedMessage['is_read'],
-                            'metadata' => [
-                                'label_ids' => $mappedMessage['label_ids'],
-                            ],
-                        ]
-                    );
-
-                    $messagesProcessed++;
-                }
-            });
-
+            $messagesProcessed += $this->syncThread($user, $threadId, $messages);
             $threadsProcessed++;
         }
 
@@ -189,6 +172,176 @@ class GmailMessageSyncService
             'messages_processed' => $messagesProcessed,
             'next_page_token' => $threadList->getNextPageToken(),
         ];
+    }
+
+    /**
+     * Synchronize only mailbox changes after the stored history cursor.
+     *
+     * @return array{threads_processed: int, messages_processed: int, next_page_token: string|null}
+     */
+    private function syncIncrementally(
+        ProviderConnection $connection,
+        User $user,
+        Gmail $gmail,
+        int $maxResults,
+    ): array {
+        $historyId = $connection->history_id;
+        $nextPageToken = null;
+        $messageIds = [];
+        $deletedMessageIds = [];
+        $latestHistoryId = null;
+
+        do {
+            $options = [
+                'startHistoryId' => $historyId,
+                'maxResults' => min(max($maxResults, 1) * 25, 500),
+                'historyTypes' => [
+                    'messageAdded', 'messageDeleted', 'labelAdded', 'labelRemoved',
+                ],
+            ];
+
+            if (is_string($nextPageToken) && $nextPageToken !== '') {
+                $options['pageToken'] = $nextPageToken;
+            }
+
+            $history = $gmail->users_history->listUsersHistory('me', $options);
+            $latestHistoryId = $history->getHistoryId() ?: $latestHistoryId;
+
+            foreach ($history->getHistory() ?? [] as $record) {
+                foreach ($record->getMessagesAdded() ?? [] as $change) {
+                    $messageId = $change->getMessage()?->getId();
+                    if (is_string($messageId) && $messageId !== '') {
+                        $messageIds[$messageId] = true;
+                    }
+                }
+
+                foreach ([
+                    ...($record->getLabelsAdded() ?? []),
+                    ...($record->getLabelsRemoved() ?? []),
+                ] as $change) {
+                    $messageId = $change->getMessage()?->getId();
+                    if (is_string($messageId) && $messageId !== '') {
+                        $messageIds[$messageId] = true;
+                    }
+                }
+
+                foreach ($record->getMessagesDeleted() ?? [] as $change) {
+                    $messageId = $change->getMessage()?->getId();
+                    if (is_string($messageId) && $messageId !== '') {
+                        $deletedMessageIds[$messageId] = true;
+                    }
+                }
+            }
+
+            $nextPageToken = $history->getNextPageToken();
+        } while (is_string($nextPageToken) && $nextPageToken !== '');
+
+        $threadsProcessed = 0;
+        $messagesProcessed = 0;
+
+        foreach (array_keys($messageIds) as $messageId) {
+            $gmailMessage = $gmail->users_messages->get('me', $messageId, ['format' => 'full']);
+            $threadId = $gmailMessage->getThreadId();
+
+            if (! is_string($threadId) || $threadId === '') {
+                continue;
+            }
+
+            $thread = $gmail->users_threads->get('me', $threadId, ['format' => 'full']);
+            $messages = $thread->getMessages() ?? [];
+
+            if ($messages === []) {
+                continue;
+            }
+
+            $messagesProcessed += $this->syncThread($user, $threadId, $messages);
+            $threadsProcessed++;
+        }
+
+        foreach (array_keys($deletedMessageIds) as $messageId) {
+            Message::query()
+                ->where('provider', 'gmail')
+                ->where('provider_message_id', $messageId)
+                ->delete();
+        }
+
+        if (is_string($latestHistoryId) && $latestHistoryId !== '') {
+            $connection->history_id = $latestHistoryId;
+            $connection->save();
+        }
+
+        return [
+            'threads_processed' => $threadsProcessed,
+            'messages_processed' => $messagesProcessed,
+            'next_page_token' => null,
+        ];
+    }
+
+    /**
+     * Upsert one complete Gmail thread and its messages.
+     *
+     * @param array<int, object> $messages
+     */
+    private function syncThread(User $user, string $threadId, array $messages): int
+    {
+        return DB::transaction(function () use ($user, $threadId, $messages): int {
+            $mappedMessages = array_map(
+                fn (object $gmailMessage): array => $this->mapMessage($gmailMessage),
+                $messages
+            );
+
+            usort(
+                $mappedMessages,
+                fn (array $left, array $right): int =>
+                    $left['sent_at']->getTimestamp() <=> $right['sent_at']->getTimestamp()
+            );
+
+            $latest = $mappedMessages[array_key_last($mappedMessages)];
+            $labelIds = array_values(array_unique(array_merge(
+                ...array_map(
+                    fn (array $message): array => $message['label_ids'],
+                    $mappedMessages
+                )
+            )));
+
+            $conversation = Conversation::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'provider' => 'gmail',
+                    'provider_conversation_id' => $threadId,
+                ],
+                [
+                    'subject' => $latest['subject'],
+                    'status' => 'open',
+                    'is_read' => ! in_array('UNREAD', $latest['label_ids'], true),
+                    'last_message_at' => $latest['sent_at'],
+                    'labels' => $labelIds,
+                ]
+            );
+
+            foreach ($mappedMessages as $mappedMessage) {
+                Message::updateOrCreate(
+                    [
+                        'conversation_id' => $conversation->id,
+                        'provider' => 'gmail',
+                        'provider_message_id' => $mappedMessage['provider_message_id'],
+                    ],
+                    [
+                        'sender_name' => $mappedMessage['sender_name'],
+                        'sender_address' => $mappedMessage['sender_address'],
+                        'recipient_name' => $mappedMessage['recipient_name'],
+                        'recipient_address' => $mappedMessage['recipient_address'],
+                        'subject' => $mappedMessage['subject'],
+                        'body' => $mappedMessage['body'],
+                        'sent_at' => $mappedMessage['sent_at'],
+                        'is_read' => $mappedMessage['is_read'],
+                        'metadata' => ['label_ids' => $mappedMessage['label_ids']],
+                    ]
+                );
+            }
+
+            return count($mappedMessages);
+        });
     }
 
     private function authenticatedClient(
