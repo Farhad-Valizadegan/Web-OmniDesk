@@ -3,13 +3,22 @@ import {
   disconnectGmail,
   getGmailStatus,
   startGmailAuthorization,
+  syncGmail,
   type GmailStatusResponse,
 } from '../lib/api'
 
-function GmailConnectionPanel() {
+type GmailConnectionPanelProps = {
+  onSynchronized?: () => void | Promise<void>
+}
+
+function GmailConnectionPanel({
+  onSynchronized,
+}: GmailConnectionPanelProps) {
   const [status, setStatus] = useState<GmailStatusResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isActionLoading, setIsActionLoading] = useState(false)
+  const [isSyncLoading, setIsSyncLoading] = useState(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const loadStatus = useCallback(async () => {
@@ -42,6 +51,25 @@ function GmailConnectionPanel() {
     } catch {
       setError('Gmail authorization could not be started.')
       setIsActionLoading(false)
+    }
+  }
+
+  const handleSync = async () => {
+    try {
+      setIsSyncLoading(true)
+      setSyncMessage(null)
+      setError(null)
+
+      const response = await syncGmail()
+      setSyncMessage(
+        `${response.sync.messages_processed} messages synchronized.`,
+      )
+
+      await onSynchronized?.()
+    } catch {
+      setError('Gmail messages could not be synchronized.')
+    } finally {
+      setIsSyncLoading(false)
     }
   }
 
@@ -112,14 +140,31 @@ function GmailConnectionPanel() {
             </strong>
           </p>
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => void handleDisconnect()}
-            disabled={isActionLoading}
-          >
-            {isActionLoading ? 'Disconnecting...' : 'Disconnect Gmail'}
-          </button>
+          <div className="gmail-actions">
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => void handleSync()}
+              disabled={isActionLoading || isSyncLoading}
+            >
+              {isSyncLoading ? 'Synchronizing...' : 'Synchronize Gmail'}
+            </button>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => void handleDisconnect()}
+              disabled={isActionLoading || isSyncLoading}
+            >
+              {isActionLoading ? 'Disconnecting...' : 'Disconnect Gmail'}
+            </button>
+          </div>
+
+          {syncMessage && (
+            <p className="gmail-status" role="status">
+              {syncMessage}
+            </p>
+          )
         </div>
       )}
 
