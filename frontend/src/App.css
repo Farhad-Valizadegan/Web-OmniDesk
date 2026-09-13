@@ -1644,3 +1644,9 @@ button:disabled {
   width: 100% !important;
   max-width: none !important;
 }
+/* Reduce detail layers by 20px */
+.detail-heading,
+.message-list {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
