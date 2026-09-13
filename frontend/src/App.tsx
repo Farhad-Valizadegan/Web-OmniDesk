@@ -16,7 +16,38 @@ import {
 
 type AuthMode = 'login' | 'register'
 
+type GmailFeedback = {
+  type: 'success' | 'error'
+  message: string
+}
+
+function readGmailFeedback(): GmailFeedback | null {
+  const params = new URLSearchParams(window.location.search)
+  const result = params.get('gmail')
+
+  if (result === 'connected') {
+    return {
+      type: 'success',
+      message: 'Gmail connected successfully.',
+    }
+  }
+
+  const messages: Record<string, string> = {
+    oauth_state_invalid: 'Gmail connection expired. Start again.',
+    authorization_denied: 'Gmail authorization was cancelled.',
+    authorization_code_missing: 'Gmail authorization code was missing.',
+    gmail_token_exchange_failed: 'Gmail connection could not be completed.',
+    gmail_account_identity_failed: 'The Gmail account could not be verified.',
+  }
+
+  return result && messages[result]
+    ? { type: 'error', message: messages[result] }
+    : null
+}
+
+
 function App() {
+  const [gmailFeedback] = useState<GmailFeedback | null>(readGmailFeedback)
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
   )
@@ -40,6 +71,14 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.has('gmail')) {
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -250,6 +289,15 @@ function App() {
             <p className="status failure">{healthError}</p>
           )}
         </div>
+
+        {gmailFeedback && (
+          <p
+            className={`integration-feedback ${gmailFeedback.type}`}
+            role={gmailFeedback.type === 'error' ? 'alert' : 'status'}
+          >
+            {gmailFeedback.message}
+          </p>
+        )}
 
         <div className={user ? 'workspace-wrapper' : 'auth-card'}>
           {user ? (

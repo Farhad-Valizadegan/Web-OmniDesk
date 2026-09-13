@@ -1414,3 +1414,32 @@ button:disabled {
 [data-theme="dark"] .captcha-label {
   color: #bfdbfe;
 }
+
+
+.integration-feedback {
+  margin: -0.5rem 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.6rem;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 700;
+}
+
+.integration-feedback.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+[data-theme="dark"] .integration-feedback {
+  border-color: #166534;
+  background: #14532d;
+  color: #dcfce7;
+}
+
+[data-theme="dark"] .integration-feedback.error {
+  border-color: #991b1b;
+  background: #450a0a;
+  color: #fecaca;
+}

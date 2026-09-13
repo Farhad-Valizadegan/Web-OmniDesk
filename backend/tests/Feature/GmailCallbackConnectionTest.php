@@ -23,6 +23,8 @@ class GmailCallbackConnectionTest extends TestCase
 
         Config::set('cache.default', 'array');
 
+        Config::set('services.frontend.url', 'http://127.0.0.1:5173');
+
         Config::set('services.google', [
             'client_id' => 'test-client-id',
             'client_secret' => 'test-client-secret',
@@ -71,30 +73,14 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->app->instance(GoogleOAuthService::class, $fakeService);
 
-        $response = $this->getJson(
+        $this->get(
             '/api/integrations/gmail/callback?state='
             . $state
             . '&code=test-code'
-        );
-
-        $response
-            ->assertOk()
-            ->assertJsonPath(
-                'message',
-                'Gmail authorization completed.'
-            )
-            ->assertJsonPath('connection.provider', 'gmail')
-            ->assertJsonPath(
-                'connection.provider_account_id',
-                'google-account-123'
-            )
-            ->assertJsonPath(
-                'connection.account_email',
-                'person@example.com'
-            )
-            ->assertJsonPath('connection.status', 'connected')
-            ->assertJsonMissing(['access_token' => 'stored-access-token'])
-            ->assertJsonMissing(['refresh_token' => 'stored-refresh-token']);
+        )
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=connected'
+            );
 
         $connection = ProviderConnection::first();
 
@@ -154,19 +140,14 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->app->instance(GoogleOAuthService::class, $fakeService);
 
-        $this->getJson(
+        $this->get(
             '/api/integrations/gmail/callback?state='
             . $state
             . '&code=invalid-code'
         )
-            ->assertStatus(502)
-            ->assertJsonPath(
-                'error',
-                'gmail_token_exchange_failed'
-            )
-            ->assertJsonMissing([
-                'message' => 'Sensitive provider token exchange detail',
-            ]);
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=gmail_token_exchange_failed'
+            );
 
         $this->assertDatabaseCount('provider_connections', 0);
     }
@@ -206,19 +187,14 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->app->instance(GoogleOAuthService::class, $fakeService);
 
-        $this->getJson(
+        $this->get(
             '/api/integrations/gmail/callback?state='
             . $state
             . '&code=test-code'
         )
-            ->assertStatus(502)
-            ->assertJsonPath(
-                'error',
-                'gmail_account_identity_failed'
-            )
-            ->assertJsonMissing([
-                'message' => 'Sensitive account identity provider detail',
-            ]);
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=gmail_account_identity_failed'
+            );
 
         $this->assertDatabaseCount('provider_connections', 0);
     }
