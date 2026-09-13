@@ -1499,3 +1499,23 @@ button:disabled {
   border-radius: 0.5rem;
   background: #ffffff;
 }
+/* Compact sidebar layout */
+.workspace-sidebar {
+  box-sizing: border-box;
+  width: 160px;
+  padding: 0.9rem 0.7rem;
+}
+
+.workspace-sidebar nav {
+  gap: 0.15rem;
+}
+
+.navigation-item {
+  padding: 0.48rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.sidebar-account {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+}
