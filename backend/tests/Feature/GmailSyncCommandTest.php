@@ -25,7 +25,12 @@ class GmailSyncCommandTest extends TestCase
         $syncService
             ->shouldReceive('sync')
             ->once()
-            ->with($user, 20)
+            ->with(
+                Mockery::on(
+                    fn (User $syncedUser): bool => $syncedUser->is($user)
+                ),
+                20
+            )
             ->andReturn([
                 'threads_processed' => 2,
                 'messages_processed' => 3,
