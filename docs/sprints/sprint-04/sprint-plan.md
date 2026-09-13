@@ -1,6 +1,8 @@
 # Sprint 04 Plan - Gmail Provider Integration
 
-> Status: Draft
+> Status: Implementation Complete - Closeout Pending
+> Implementation merged: 2026-09-12
+> Audited: 2026-09-13
 
 ## Sprint Goal
 
@@ -130,19 +132,58 @@ Sprint 04 does not automatically create a release tag.
 
 A release tag may be created only after the related milestone outcome and release criteria are complete.
 
-## Unresolved Sprint Decisions
+## Completion Review
 
-| ID | Decision | Current State |
+Sprint 04 was implemented through pull request #5 and merged into `main`.
+
+### Recorded Evidence
+
+- Pull request: `#5`
+- Merge commit: `0623965`
+- Final implementation commit: `fd9453b`
+- GitHub Actions run: `34707953307`
+- GitHub Actions conclusion: successful
+- Gmail OAuth configuration: implemented
+- User-bound OAuth state validation: implemented and tested
+- Authorization-code exchange: implemented and tested
+- Gmail account identity retrieval: implemented and tested
+- Encrypted access-token and refresh-token persistence: implemented and tested
+- Credential hiding from API serialization: implemented and tested
+- Connection status and disconnect endpoints: implemented and tested
+- Frontend connected, disconnected, loading, failure, and retry states: implemented and tested
+- Frontend lint and production build: passed
+
+### Accepted Decisions
+
+- Gmail OAuth uses `google/apiclient` version `2.19.4`.
+- Requested Google scopes are `openid`, `email`, `profile`, and Gmail read-only.
+- Gmail connections are stored in the provider-connections table and belong to an application user.
+- Access and refresh tokens use Laravel encrypted model casts.
+- OAuth callback failures return safe JSON error identifiers without provider-sensitive details.
+- Gmail synchronization remains assigned to Sprint 05.
+
+### Carryover Required Before Formal Completion
+
+- Define and implement a provider-neutral Gmail connector contract.
+- Add explicit authorization, permission, rate-limit, temporary-provider, and invalid-response error classification.
+- Complete the browser callback-to-frontend return flow.
+- Record a successful real Gmail connect and disconnect verification.
+- Record final repository and verification evidence.
+- Add remediation items to the product backlog.
+
+## Sprint Decisions
+
+| ID | Decision | Final State |
 |---|---|---|
-| S04-001 | Gmail OAuth library | To be finalized |
-| S04-002 | Required Gmail scopes | To be finalized |
-| S04-003 | Provider connection schema | To be finalized |
-| S04-004 | Credential encryption approach | To be finalized |
-| S04-005 | OAuth callback error format | To be finalized |
-| S04-006 | Sprint completion date | Not yet determined |
+| S04-001 | Gmail OAuth library | Resolved: `google/apiclient` version `2.19.4` |
+| S04-002 | Required Gmail scopes | Resolved: `openid`, `email`, `profile`, and Gmail read-only |
+| S04-003 | Provider connection schema | Resolved: user-owned provider connection with account identity, encrypted credentials, scopes, expiry, and status |
+| S04-004 | Credential encryption approach | Resolved: Laravel encrypted model casts |
+| S04-005 | OAuth callback error format | Partially resolved: safe JSON error identifiers; frontend browser return remains carryover |
+| S04-006 | Sprint completion date | Pending formal closeout; implementation merged 2026-09-12 |
 
 ## Sprint Status
 
-Sprint 04 has not yet been completed.
+Sprint 04 implementation is complete, but formal closeout remains pending.
 
-Completion will be recorded after the acceptance criteria and verification commands have passed.
+The OAuth foundation was merged and automated verification passed. Provider-contract work, detailed provider-error classification, browser callback completion, and real-account verification remain required before Sprint 04 can be marked completed.
