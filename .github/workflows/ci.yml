@@ -43,6 +43,10 @@ jobs:
         working-directory: backend
         run: composer install --no-interaction --prefer-dist
 
+      - name: Check backend formatting
+        working-directory: backend
+        run: ./vendor/bin/pint --test
+
       - name: Prepare Laravel environment
         working-directory: backend
         run: |
