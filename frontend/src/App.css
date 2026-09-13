@@ -1647,8 +1647,8 @@ button:disabled {
 /* Reduce detail layers by 20px */
 .detail-heading,
 .message-list {
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
 }
 /* Keep detail layers inside parent */
 .inbox-layout {
