@@ -41,8 +41,8 @@ class GmailSyncCommandTest extends TestCase
 
         $this->artisan('gmail:sync')
             ->expectsOutput(
-                'User ' . $user->id
-                . ': 2 threads and 3 messages synchronized.'
+                'User '.$user->id
+                .': 2 threads and 3 messages synchronized.'
             )
             ->assertExitCode(0);
     }
@@ -74,7 +74,7 @@ class GmailSyncCommandTest extends TestCase
 
         $this->artisan('gmail:sync')
             ->expectsOutput(
-                'User ' . $user->id . ': synchronization failed.'
+                'User '.$user->id.': synchronization failed.'
             )
             ->doesntExpectOutput('Sensitive Gmail provider detail')
             ->assertExitCode(1);

@@ -44,8 +44,8 @@ class GmailCallbackTest extends TestCase
 
         $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&error=access_denied'
+            .$state
+            .'&error=access_denied'
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=authorization_denied'
@@ -53,8 +53,8 @@ class GmailCallbackTest extends TestCase
 
         $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&error=access_denied'
+            .$state
+            .'&error=access_denied'
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=oauth_state_invalid'
@@ -73,7 +73,7 @@ class GmailCallbackTest extends TestCase
         );
 
         $this->get(
-            '/api/integrations/gmail/callback?state=' . $state
+            '/api/integrations/gmail/callback?state='.$state
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=authorization_code_missing'
@@ -93,8 +93,8 @@ class GmailCallbackTest extends TestCase
 
         $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&code=test-code'
+            .$state
+            .'&code=test-code'
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=gmail_token_exchange_failed'

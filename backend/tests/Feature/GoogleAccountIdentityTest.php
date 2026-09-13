@@ -28,7 +28,7 @@ class GoogleAccountIdentityTest extends TestCase
         {
             public function createClient(): GoogleClient
             {
-                return new GoogleClient();
+                return new GoogleClient;
             }
 
             public function accountIdentity(array $token): array

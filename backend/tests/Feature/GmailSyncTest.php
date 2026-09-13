@@ -17,9 +17,7 @@ class GmailSyncTest extends TestCase
 
         $fakeService = new class extends GmailMessageSyncService
         {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function sync(
                 User $user,
@@ -60,9 +58,7 @@ class GmailSyncTest extends TestCase
 
         $fakeService = new class extends GmailMessageSyncService
         {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function sync(
                 User $user,

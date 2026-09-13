@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\ProviderConnectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User;
 
 class ProviderConnection extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProviderConnectionFactory> */
+    /** @use HasFactory<ProviderConnectionFactory> */
     use HasFactory;
 
     protected $fillable = [

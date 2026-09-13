@@ -27,7 +27,7 @@ class GoogleOAuthService
             throw new RuntimeException('Google OAuth redirect URI is not configured.');
         }
 
-        $client = new GoogleClient();
+        $client = new GoogleClient;
 
         $client->setClientId($clientId);
         $client->setClientSecret($clientSecret);
@@ -79,7 +79,7 @@ class GoogleOAuthService
     }
 
     /**
-     * @param array<string, mixed> $token
+     * @param  array<string, mixed>  $token
      * @return array{
      *     provider_account_id: string,
      *     account_email: string,

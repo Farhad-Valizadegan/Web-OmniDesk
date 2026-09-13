@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\GmailAuthorizationController;
 use App\Http\Controllers\GmailCallbackController;
 use App\Http\Controllers\GmailIntegrationController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CaptchaController;
 
 Route::get('/health', function () {
     return response()->json([

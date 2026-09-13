@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\CaptchaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -14,8 +15,7 @@ class AuthController extends Controller
 {
     public function __construct(
         private readonly CaptchaService $captchaService
-    ) {
-    }
+    ) {}
 
     public function register(Request $request): JsonResponse
     {
@@ -68,7 +68,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request): \Illuminate\Http\Response
+    public function logout(Request $request): Response
     {
         $plainTextToken = $request->bearerToken();
 

@@ -13,8 +13,7 @@ class GmailCallbackController extends Controller
 {
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService
-    ) {
-    }
+    ) {}
 
     public function callback(Request $request): RedirectResponse
     {
@@ -105,6 +104,6 @@ class GmailCallbackController extends Controller
             '/'
         );
 
-        return redirect()->to($frontendUrl . '/?gmail=' . urlencode($result));
+        return redirect()->to($frontendUrl.'/?gmail='.urlencode($result));
     }
 }

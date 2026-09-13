@@ -48,7 +48,7 @@ class GmailCallbackConnectionTest extends TestCase
         {
             public function createClient(): GoogleClient
             {
-                return new GoogleClient();
+                return new GoogleClient;
             }
 
             public function exchangeCode(string $code): array
@@ -75,8 +75,8 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&code=test-code'
+            .$state
+            .'&code=test-code'
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=connected'
@@ -127,7 +127,7 @@ class GmailCallbackConnectionTest extends TestCase
         {
             public function createClient(): GoogleClient
             {
-                return new GoogleClient();
+                return new GoogleClient;
             }
 
             public function exchangeCode(string $code): array
@@ -142,8 +142,8 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&code=invalid-code'
+            .$state
+            .'&code=invalid-code'
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=gmail_token_exchange_failed'
@@ -151,6 +151,7 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->assertDatabaseCount('provider_connections', 0);
     }
+
     public function test_identity_failure_does_not_create_connection(): void
     {
         $user = User::factory()->create();
@@ -166,7 +167,7 @@ class GmailCallbackConnectionTest extends TestCase
         {
             public function createClient(): GoogleClient
             {
-                return new GoogleClient();
+                return new GoogleClient;
             }
 
             public function exchangeCode(string $code): array
@@ -189,8 +190,8 @@ class GmailCallbackConnectionTest extends TestCase
 
         $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&code=test-code'
+            .$state
+            .'&code=test-code'
         )
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=gmail_account_identity_failed'

@@ -45,6 +45,7 @@ class CaptchaService
 
         if (config('captcha.driver') === 'google') {
             $this->verifyGoogle($request->string('captcha_response')->toString(), $request->ip());
+
             return;
         }
 
@@ -86,7 +87,7 @@ class CaptchaService
 
     private function cacheKey(string $token): string
     {
-        return 'captcha:' . $token;
+        return 'captcha:'.$token;
     }
 
     private function fail(string $field, string $message): never

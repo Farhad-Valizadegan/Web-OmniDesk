@@ -23,8 +23,7 @@ class GmailMessageSyncService
 
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService
-    ) {
-    }
+    ) {}
 
     /**
      * Synchronize one lazy-loading page from the Gmail mailbox.
@@ -439,7 +438,7 @@ class GmailMessageSyncService
     /**
      * Upsert one complete Gmail thread and its messages.
      *
-     * @param array<int, object> $messages
+     * @param  array<int, object>  $messages
      */
     private function syncThread(User $user, string $threadId, array $messages): int
     {
@@ -451,8 +450,7 @@ class GmailMessageSyncService
 
             usort(
                 $mappedMessages,
-                fn (array $left, array $right): int =>
-                    $left['sent_at']->getTimestamp() <=> $right['sent_at']->getTimestamp()
+                fn (array $left, array $right): int => $left['sent_at']->getTimestamp() <=> $right['sent_at']->getTimestamp()
             );
 
             $latest = $mappedMessages[array_key_last($mappedMessages)];
@@ -511,7 +509,8 @@ class GmailMessageSyncService
      * Retry only failures that may recover without changing application state.
      *
      * @template T
-     * @param callable(): T $operation
+     *
+     * @param  callable(): T  $operation
      * @return T
      */
     protected function providerCall(callable $operation): mixed
@@ -672,7 +671,7 @@ class GmailMessageSyncService
     }
 
     /**
-     * @param array<int, object> $headers
+     * @param  array<int, object>  $headers
      * @return array<string, string>
      */
     private function headers(array $headers): array

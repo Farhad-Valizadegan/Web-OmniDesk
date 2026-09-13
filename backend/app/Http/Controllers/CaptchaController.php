@@ -9,8 +9,7 @@ class CaptchaController extends Controller
 {
     public function __construct(
         private readonly CaptchaService $captchaService
-    ) {
-    }
+    ) {}
 
     public function challenge(): JsonResponse
     {

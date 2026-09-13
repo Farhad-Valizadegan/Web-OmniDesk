@@ -14,8 +14,7 @@ class GmailAuthorizationController extends Controller
 
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService
-    ) {
-    }
+    ) {}
 
     public function authorize(Request $request): JsonResponse
     {
@@ -38,6 +37,6 @@ class GmailAuthorizationController extends Controller
 
     public static function stateCacheKey(string $state): string
     {
-        return 'gmail_oauth_state:' . $state;
+        return 'gmail_oauth_state:'.$state;
     }
 }
