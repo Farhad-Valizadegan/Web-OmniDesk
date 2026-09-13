@@ -1049,3 +1049,30 @@ button:disabled {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+/* Compact conversation list typography */
+.conversation-item {
+  font-size: 0.86rem;
+}
+
+.conversation-item-heading strong {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.conversation-preview {
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.conversation-meta {
+  font-size: 0.65rem;
+}
+
+.unread-indicator {
+  font-size: 0.65rem;
+}
+
+.label {
+  font-size: 0.6rem;
+}
