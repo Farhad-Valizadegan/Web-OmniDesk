@@ -72,6 +72,32 @@ class GmailIntegrationController extends Controller
         ]);
     }
 
+    public function syncNextPage(
+        Request $request,
+        GmailMessageSyncService $syncService,
+    ): JsonResponse {
+        $validated = $request->validate([
+            'max_results' => ['nullable', 'integer', 'min:1', 'max:15'],
+        ]);
+
+        try {
+            $result = $syncService->syncNextMailboxPage(
+                $request->user(),
+                $validated['max_results'] ?? 15,
+            );
+        } catch (Throwable) {
+            return response()->json([
+                'message' => 'Gmail page could not be loaded.',
+                'error' => 'gmail_page_sync_failed',
+            ], 502);
+        }
+
+        return response()->json([
+            'message' => 'Gmail page loaded.',
+            'sync' => $result,
+        ]);
+    }
+
     public function disconnect(Request $request): Response
     {
         $userId = $request->user()->id;
