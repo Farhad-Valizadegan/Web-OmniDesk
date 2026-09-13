@@ -1637,7 +1637,7 @@ button:disabled {
 }
 /* Widen selected email area */
 .inbox-layout {
-  width: calc(100% + 7rem) !important;
+  width: calc(100% + 5rem) !important;
 }
 
 .conversation-detail {
