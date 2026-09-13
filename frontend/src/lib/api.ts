@@ -240,6 +240,7 @@ export async function getConversations(params: {
   is_read?: boolean
   label?: string
   per_page?: number
+  page?: number
 } = {}): Promise<PaginatedResponse<Conversation>> {
   const searchParams = new URLSearchParams()
 
@@ -261,6 +262,10 @@ export async function getConversations(params: {
 
   if (params.per_page !== undefined) {
     searchParams.set('per_page', String(params.per_page))
+  }
+
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page))
   }
 
   const query = searchParams.toString()
