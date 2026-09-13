@@ -11,6 +11,7 @@ import {
   getConversationMessages,
   getConversations,
   getGmailStatus,
+  getCaptchaChallenge,
   getCurrentUser,
   getHealth,
   loginUser,
@@ -22,6 +23,7 @@ import {
 } from './lib/api'
 
 vi.mock('./lib/api', () => ({
+  getCaptchaChallenge: vi.fn(),
   getConversationMessages: vi.fn(),
   getConversations: vi.fn(),
   getGmailStatus: vi.fn(),
@@ -32,6 +34,7 @@ vi.mock('./lib/api', () => ({
   registerUser: vi.fn(),
 }))
 
+const getCaptchaChallengeMock = vi.mocked(getCaptchaChallenge)
 const getConversationMessagesMock = vi.mocked(getConversationMessages)
 const getConversationsMock = vi.mocked(getConversations)
 const getGmailStatusMock = vi.mocked(getGmailStatus)
@@ -67,6 +70,13 @@ afterEach(() => {
 
 describe('App', () => {
   beforeEach(() => {
+    getCaptchaChallengeMock.mockResolvedValue({
+      driver: 'internal',
+      token: 'captcha-token',
+      question: '2 + 8 = ?',
+      expires_in: 300,
+    })
+
     getHealthMock.mockResolvedValue({
       status: 'ok',
       service: 'backend',
@@ -127,6 +137,10 @@ describe('App', () => {
       target: { value: 'password123' },
     })
 
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '10' },
+    })
+
     fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
 
     await waitFor(() => {
@@ -135,6 +149,8 @@ describe('App', () => {
         email: 'freddie@example.com',
         password: 'password123',
         password_confirmation: 'password123',
+        captcha_token: 'captcha-token',
+        captcha_answer: '10',
       })
     })
 
@@ -164,12 +180,18 @@ describe('App', () => {
       target: { value: 'password123' },
     })
 
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '10' },
+    })
+
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
     await waitFor(() => {
       expect(loginUserMock).toHaveBeenCalledWith({
         email: 'freddie@example.com',
         password: 'password123',
+        captcha_token: 'captcha-token',
+        captcha_answer: '10',
       })
     })
 
@@ -191,6 +213,10 @@ describe('App', () => {
 
     fireEvent.change(screen.getByLabelText('Password'), {
       target: { value: 'wrong-password' },
+    })
+
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '10' },
     })
 
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))

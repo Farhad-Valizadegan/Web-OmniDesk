@@ -2,12 +2,14 @@ import { useEffect, useState, type FormEvent } from 'react'
 import './App.css'
 import Workspace from './components/Workspace'
 import {
+  getCaptchaChallenge,
   getCurrentUser,
   getHealth,
   loginUser,
   logoutUser,
   registerUser,
   type AuthUser,
+  type CaptchaChallenge,
   type HealthResponse,
 } from './lib/api'
 
@@ -25,6 +27,12 @@ function App() {
   const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
+  const [captchaChallenge, setCaptchaChallenge] =
+    useState<CaptchaChallenge | null>(null)
+  const [captchaAnswer, setCaptchaAnswer] = useState('')
+  const [captchaLoading, setCaptchaLoading] = useState(true)
+  const [captchaError, setCaptchaError] = useState<string | null>(null)
+  const [captchaNonce, setCaptchaNonce] = useState(0)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -35,6 +43,44 @@ function App() {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('omni_desk_theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    if (user) {
+      setCaptchaChallenge(null)
+      setCaptchaLoading(false)
+      return
+    }
+
+    let isActive = true
+
+    const loadCaptcha = async () => {
+      try {
+        setCaptchaLoading(true)
+        setCaptchaError(null)
+        const challenge = await getCaptchaChallenge()
+
+        if (isActive) {
+          setCaptchaChallenge(challenge)
+          setCaptchaAnswer('')
+        }
+      } catch {
+        if (isActive) {
+          setCaptchaChallenge(null)
+          setCaptchaError('Security check could not be loaded.')
+        }
+      } finally {
+        if (isActive) {
+          setCaptchaLoading(false)
+        }
+      }
+    }
+
+    void loadCaptcha()
+
+    return () => {
+      isActive = false
+    }
+  }, [captchaNonce, user])
 
   useEffect(() => {
     const loadApplicationState = async () => {
@@ -72,6 +118,7 @@ function App() {
     setEmail('')
     setPassword('')
     setPasswordConfirmation('')
+    setCaptchaAnswer('')
     setAuthError(null)
   }
 
@@ -85,6 +132,23 @@ function App() {
     setAuthLoading(true)
     setAuthError(null)
 
+    if (!captchaChallenge) {
+      setAuthLoading(false)
+      setAuthError('Security check is not ready. Please try again.')
+      return
+    }
+
+    if (captchaChallenge.driver === 'google') {
+      setAuthLoading(false)
+      setAuthError('Google reCAPTCHA is not configured in this environment.')
+      return
+    }
+
+    const captchaFields = {
+      captcha_token: captchaChallenge.token,
+      captcha_answer: captchaAnswer,
+    }
+
     try {
       const response =
         authMode === 'register'
@@ -93,10 +157,12 @@ function App() {
               email,
               password,
               password_confirmation: passwordConfirmation,
+              ...captchaFields,
             })
           : await loginUser({
               email,
               password,
+              ...captchaFields,
             })
 
       setUser(response.user)
@@ -269,6 +335,46 @@ function App() {
                   </label>
                 )}
 
+                {captchaChallenge?.driver === 'internal' && (
+                  <div className="captcha-field">
+                    <div className="captcha-heading">
+                      <label htmlFor="captcha-answer">Security check</label>
+                      <button
+                        type="button"
+                        className="captcha-refresh"
+                        onClick={() => setCaptchaNonce((current) => current + 1)}
+                        disabled={captchaLoading || authLoading}
+                      >
+                        New challenge
+                      </button>
+                    </div>
+                    <p className="captcha-question">
+                      {captchaChallenge.question}
+                    </p>
+                    <input
+                      id="captcha-answer"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={captchaAnswer}
+                      onChange={(event) => setCaptchaAnswer(event.target.value)}
+                      autoComplete="off"
+                      aria-label="CAPTCHA answer"
+                      required
+                    />
+                  </div>
+                )}
+
+                {captchaLoading && (
+                  <p className="captcha-status">Loading security check...</p>
+                )}
+
+                {captchaError && (
+                  <p className="captcha-error" role="alert">
+                    {captchaError}
+                  </p>
+                )}
+
                 {authError && (
                   <p className="form-error" role="alert">
                     {authError}
@@ -278,7 +384,7 @@ function App() {
                 <button
                   type="submit"
                   className="primary-button"
-                  disabled={authLoading}
+                  disabled={authLoading || captchaLoading || !captchaChallenge}
                 >
                   {authLoading
                     ? 'Please wait...'

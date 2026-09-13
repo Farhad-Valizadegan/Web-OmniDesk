@@ -16,6 +16,18 @@ export type AuthResponse = {
   token: string
 }
 
+export type CaptchaChallenge =
+  | {
+      driver: 'internal'
+      token: string
+      question: string
+      expires_in: number
+    }
+  | {
+      driver: 'google'
+      site_key: string
+    }
+
 export type CurrentUserResponse = {
   user: AuthUser
 }
@@ -168,11 +180,18 @@ export async function getHealth(): Promise<HealthResponse> {
   return request<HealthResponse>('/api/health')
 }
 
+export async function getCaptchaChallenge(): Promise<CaptchaChallenge> {
+  return request<CaptchaChallenge>('/api/captcha')
+}
+
 export async function registerUser(data: {
   name: string
   email: string
   password: string
   password_confirmation: string
+  captcha_token?: string
+  captcha_answer?: string
+  captcha_response?: string
 }): Promise<AuthResponse> {
   const response = await request<AuthResponse>('/api/register', {
     method: 'POST',
@@ -187,6 +206,9 @@ export async function registerUser(data: {
 export async function loginUser(data: {
   email: string
   password: string
+  captcha_token?: string
+  captcha_answer?: string
+  captcha_response?: string
 }): Promise<AuthResponse> {
   const response = await request<AuthResponse>('/api/login', {
     method: 'POST',
