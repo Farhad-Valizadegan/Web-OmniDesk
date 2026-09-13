@@ -1635,3 +1635,12 @@ button:disabled {
   min-width: 0 !important;
   min-height: calc(100vh - 240px) !important;
 }
+/* Widen selected email area */
+.inbox-layout {
+  width: calc(100% + 7rem) !important;
+}
+
+.conversation-detail {
+  width: 100% !important;
+  max-width: none !important;
+}
