@@ -962,3 +962,66 @@ button:disabled {
   color: #1d4ed8;
   font-weight: 800;
 }
+
+/* Long-content protection */
+.workspace-content,
+.conversation-item,
+.conversation-detail {
+  min-width: 0;
+}
+
+.conversation-item-heading strong {
+  min-width: 0;
+}
+
+.detail-heading > div {
+  min-width: 0;
+}
+
+.detail-heading h3 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.message-heading {
+  align-items: flex-start;
+}
+
+.message-heading time {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.message-body {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 980px) {
+  .inbox-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-list {
+    max-height: 28rem;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .gmail-panel-heading,
+  .gmail-disconnected,
+  .gmail-connected {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gmail-actions {
+    justify-content: flex-start;
+  }
+
+  .message-heading {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
