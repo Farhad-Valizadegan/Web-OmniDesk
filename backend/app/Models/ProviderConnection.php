@@ -17,6 +17,7 @@ class ProviderConnection extends Model
         'provider',
         'provider_account_id',
         'account_email',
+        'account_avatar_url',
         'access_token',
         'refresh_token',
         'token_expires_at',

@@ -84,6 +84,9 @@ class GmailCallbackController extends Controller
         $connection->account_email =
             $identity['account_email'];
 
+        $connection->account_avatar_url =
+            $identity['account_avatar_url'] ?? null;
+
         $connection->access_token = $token['access_token'];
 
         if (
@@ -118,6 +121,7 @@ class GmailCallbackController extends Controller
                 'provider_account_id' =>
                     $connection->provider_account_id,
                 'account_email' => $connection->account_email,
+                'account_avatar_url' => $connection->account_avatar_url,
                 'status' => $connection->status,
                 'scopes' => $connection->scopes,
                 'token_expires_at' => $connection->token_expires_at,

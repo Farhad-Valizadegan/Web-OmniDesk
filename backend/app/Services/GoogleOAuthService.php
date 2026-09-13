@@ -83,7 +83,8 @@ class GoogleOAuthService
      * @return array{
      *     provider_account_id: string,
      *     account_email: string,
-     *     account_name: string|null
+     *     account_name: string|null,
+     *     account_avatar_url: string|null
      * }
      */
     public function accountIdentity(array $token): array
@@ -120,12 +121,16 @@ class GoogleOAuthService
         }
 
         $accountName = $userInfo->getName();
+        $accountAvatarUrl = $userInfo->getPicture();
 
         return [
             'provider_account_id' => $providerAccountId,
             'account_email' => $accountEmail,
             'account_name' => is_string($accountName)
                 ? $accountName
+                : null,
+            'account_avatar_url' => is_string($accountAvatarUrl)
+                ? $accountAvatarUrl
                 : null,
         ];
     }

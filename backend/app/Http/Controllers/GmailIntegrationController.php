@@ -33,6 +33,7 @@ class GmailIntegrationController extends Controller
                 'provider_account_id' =>
                     $connection->provider_account_id,
                 'account_email' => $connection->account_email,
+                'account_avatar_url' => $connection->account_avatar_url,
                 'status' => $connection->status,
                 'scopes' => $connection->scopes,
                 'token_expires_at' => $connection->token_expires_at,
