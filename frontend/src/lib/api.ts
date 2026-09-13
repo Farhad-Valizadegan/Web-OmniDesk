@@ -320,6 +320,25 @@ export async function syncGmail(params: {
   })
 }
 
+export type GmailLazySyncResponse = {
+  message: string
+  sync: {
+    threads_processed: number
+    messages_processed: number
+    has_more: boolean
+  }
+}
+
+export async function syncGmailPage(): Promise<GmailLazySyncResponse> {
+  return request<GmailLazySyncResponse>(
+    '/api/integrations/gmail/sync-page',
+    {
+      method: 'POST',
+      body: JSON.stringify({ max_results: 15 }),
+    },
+  )
+}
+
 export async function disconnectGmail(): Promise<void> {
   await request<void>('/api/integrations/gmail', {
     method: 'DELETE',
