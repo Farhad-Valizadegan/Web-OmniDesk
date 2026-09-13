@@ -358,7 +358,10 @@ class GmailMessageSyncService
                         'body' => $mappedMessage['body'],
                         'sent_at' => $mappedMessage['sent_at'],
                         'is_read' => $mappedMessage['is_read'],
-                        'metadata' => ['label_ids' => $mappedMessage['label_ids']],
+                        'metadata' => [
+                            'label_ids' => $mappedMessage['label_ids'],
+                            'attachments' => $mappedMessage['attachments'],
+                        ],
                     ]
                 );
             }
@@ -458,7 +461,14 @@ class GmailMessageSyncService
      *     body: string,
      *     sent_at: Carbon,
      *     is_read: bool,
-     *     label_ids: array<int, string>
+     *     label_ids: array<int, string>,
+     *     attachments: array<int, array{
+     *         filename: string,
+     *         mime_type: string,
+     *         size: int,
+     *         attachment_id: string|null,
+     *         inline: bool
+     *     }>
      * }
      */
     private function mapMessage(object $gmailMessage): array
@@ -493,6 +503,7 @@ class GmailMessageSyncService
             'recipient_address' => $to['address'],
             'subject' => $headers['subject'] ?? null,
             'body' => trim($body),
+            'attachments' => $bodyParts['attachments'],
             'sent_at' => $sentAt,
             'is_read' => ! in_array('UNREAD', $labelIds, true),
             'label_ids' => $labelIds,
@@ -520,25 +531,63 @@ class GmailMessageSyncService
     }
 
     /**
-     * @return array{plain: string, html: string}
+     * @return array{
+     *     plain: string,
+     *     html: string,
+     *     attachments: array<int, array{
+     *         filename: string,
+     *         mime_type: string,
+     *         size: int,
+     *         attachment_id: string|null,
+     *         inline: bool
+     *     }>
+     * }
      */
     private function bodyParts(?object $part): array
     {
         if ($part === null) {
-            return ['plain' => '', 'html' => ''];
+            return ['plain' => '', 'html' => '', 'attachments' => []];
         }
 
         $mimeType = strtolower((string) $part->getMimeType());
+        $filename = trim((string) $part->getFilename());
         $body = $part->getBody();
         $data = $body?->getData();
-        $decoded = is_string($data)
-            ? $this->decodeBase64Url($data)
-            : '';
+        $attachmentId = $body?->getAttachmentId();
+        $size = $body?->getSize();
+        $isAttachment = $filename !== ''
+            || (is_string($attachmentId) && $attachmentId !== '');
 
         $result = [
-            'plain' => $mimeType === 'text/plain' ? $decoded : '',
-            'html' => $mimeType === 'text/html' ? $decoded : '',
+            'plain' => '',
+            'html' => '',
+            'attachments' => [],
         ];
+
+        if (! $isAttachment) {
+            $decoded = is_string($data)
+                ? $this->decodeBase64Url($data)
+                : '';
+
+            $result['plain'] = $mimeType === 'text/plain' ? $decoded : '';
+            $result['html'] = $mimeType === 'text/html' ? $decoded : '';
+        }
+
+        if ($isAttachment) {
+            $result['attachments'][] = [
+                'filename' => $filename === '' ? 'Unnamed attachment' : $filename,
+                'mime_type' => $mimeType === ''
+                    ? 'application/octet-stream'
+                    : $mimeType,
+                'size' => is_numeric($size) ? max(0, (int) $size) : 0,
+                'attachment_id' => is_string($attachmentId)
+                    && $attachmentId !== ''
+                    ? $attachmentId
+                    : null,
+                'inline' => is_string($part->getContentId())
+                    && $part->getContentId() !== '',
+            ];
+        }
 
         foreach ($part->getParts() ?? [] as $child) {
             $childResult = $this->bodyParts($child);
@@ -550,6 +599,11 @@ class GmailMessageSyncService
             if ($result['html'] === '') {
                 $result['html'] = $childResult['html'];
             }
+
+            $result['attachments'] = array_merge(
+                $result['attachments'],
+                $childResult['attachments']
+            );
         }
 
         return $result;
