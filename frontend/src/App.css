@@ -1596,13 +1596,13 @@ button:disabled {
   justify-self: start !important;
   max-width: 420px !important;
 }
-/* Expand conversation section */
+/* Correct conversation panel width */
 .inbox-layout {
-  grid-template-columns: minmax(520px, 0.95fr) minmax(420px, 1.05fr) !important;
+  grid-template-columns: minmax(560px, 560px) minmax(420px, 1fr) !important;
   gap: 0.7rem !important;
 }
 
 .conversation-list {
-  width: 100% !important;
-  max-width: none !important;
+  width: 560px !important;
+  max-width: 560px !important;
 }
