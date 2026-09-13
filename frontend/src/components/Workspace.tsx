@@ -107,6 +107,74 @@ function renderMessageBody(body: string): ReactNode {
     )
   })
 }
+function sanitizeEmailHtml(html: string): string {
+  const document = new DOMParser().parseFromString(html, 'text/html')
+
+  document
+    .querySelectorAll(
+      'script, iframe, object, embed, form, input, button, textarea, select, video, audio, svg, math, link, base',
+    )
+    .forEach((element) => element.remove())
+
+  document.querySelectorAll('style').forEach((style) => {
+    style.textContent = (style.textContent ?? '')
+      .replace(/@import[^;]+;?/gi, '')
+      .replace(/url\s*\([^)]*\)/gi, '')
+      .replace(/expression\s*\([^)]*\)/gi, '')
+  })
+
+  document.querySelectorAll('*').forEach((element) => {
+    Array.from(element.attributes).forEach((attribute) => {
+      const name = attribute.name.toLowerCase()
+      const value = attribute.value.trim()
+
+      if (
+        name.startsWith('on') ||
+        [
+          'srcdoc',
+          'action',
+          'formaction',
+          'xlink:href',
+          'srcset',
+        ].includes(name)
+      ) {
+        element.removeAttribute(attribute.name)
+        return
+      }
+
+      if (name === 'href' || name === 'src') {
+        if (!/^https?:\/\//i.test(value) && !/^data:image\//i.test(value)) {
+          element.removeAttribute(attribute.name)
+        }
+        return
+      }
+
+      if (name === 'style') {
+        element.setAttribute(
+          attribute.name,
+          value
+            .replace(/url\s*\([^)]*\)/gi, '')
+            .replace(/expression\s*\([^)]*\)/gi, '')
+            .replace(/javascript\s*:/gi, ''),
+        )
+      }
+    })
+
+    if (element.tagName.toLowerCase() === 'a') {
+      element.setAttribute('target', '_blank')
+      element.setAttribute('rel', 'noopener noreferrer')
+    }
+  })
+
+  const policy = document.createElement('meta')
+  policy.httpEquiv = 'Content-Security-Policy'
+  policy.content =
+    "default-src 'none'; style-src 'unsafe-inline'; img-src https: data:; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+
+  document.head.prepend(policy)
+
+  return document.documentElement.outerHTML
+}
 function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProps) {
   const [theme, setTheme] = useState<Theme>(() =>
     localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
@@ -539,7 +607,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                                 <iframe
                                   className="message-html"
                                   title={`Email body from ${message.sender_name}`}
-                                  srcDoc={message.metadata.html_body}
+                                  srcDoc={sanitizeEmailHtml(message.metadata.html_body)}
                                   sandbox=""
                                   referrerPolicy="no-referrer"
                                 />
