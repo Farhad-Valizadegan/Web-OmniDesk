@@ -1,7 +1,8 @@
 # Sprint 02 Plan - Database and Authentication
 
-> Status: Completed
+> Status: Completed with Carryover
 > Completed: 2026-09-10
+> Audited: 2026-09-13
 
 ## Sprint Goal
 
@@ -198,18 +199,55 @@ Sprint 02 does not automatically create a release or version tag.
 
 A release tag may be created only after the related milestone outcome and release criteria are completed.
 
-## Unresolved Sprint Decisions
+## Completion Review
 
-| ID | Decision | Current State |
+Sprint 02 was implemented through pull request #2 and merged into `main`.
+
+### Recorded Evidence
+
+- Pull request: `#2`
+- Merge commit: `ad7e78c`
+- Final implementation commit: `8e745a7`
+- GitHub Actions run: `34509484636`
+- GitHub Actions conclusion: successful
+- Registration, login, logout, and current-user endpoints: implemented
+- Password hashing: implemented with Laravel hashing
+- Sanctum authentication tests: passed
+- Frontend authentication tests: passed
+- Frontend lint and production build: passed
+
+### Accepted Decisions
+
+- Authentication uses Laravel Sanctum personal-access bearer tokens.
+- The frontend stores the application bearer token in `sessionStorage`.
+- This storage method is accepted for the current development version.
+- The XSS exposure and a possible migration to HttpOnly first-party cookies remain documented security considerations.
+- Registration requires a unique valid email, password confirmation, and a minimum password length of eight characters.
+- Authentication and validation failures use Laravel JSON error responses.
+
+### Satisfied Later
+
+- Cross-user resource ownership was implemented and tested with conversation resources during Sprint 03.
+
+### Carryover
+
+- Add rate limiting to registration and login.
+- Define access-token expiration and ability policies.
+- Decide whether production authentication will retain bearer-token storage or migrate to HttpOnly cookies.
+- Record the security hardening work in the remediation backlog.
+
+## Sprint Decisions
+
+| ID | Decision | Final State |
 |---|---|---|
-| S02-001 | Authentication implementation approach | To be finalized |
-| S02-002 | Session storage configuration | To be finalized |
-| S02-003 | Authentication API response format | To be finalized |
-| S02-004 | Password policy | To be finalized |
-| S02-005 | Sprint completion date | Completed: 2026-09-10 |
+| S02-001 | Authentication implementation approach | Resolved: Laravel Sanctum personal-access bearer tokens |
+| S02-002 | Session storage configuration | Resolved for development: bearer token stored in browser `sessionStorage` |
+| S02-003 | Authentication API response format | Resolved: Laravel JSON success, validation, and authentication responses |
+| S02-004 | Password policy | Resolved: minimum eight characters with confirmation and secure hashing |
+| S02-005 | Sprint completion date | Resolved: 2026-09-10 |
 
 ## Sprint Status
 
-Sprint 02 has been completed.
+Sprint 02 is completed with documented carryover.
 
-Completion was recorded after the acceptance criteria and verification commands passed.
+The core authentication implementation passed verification. Ownership protection was satisfied during Sprint 03. Remaining rate-limiting, token-policy, and browser-storage hardening work is tracked in the Sprint 01–04 audit.

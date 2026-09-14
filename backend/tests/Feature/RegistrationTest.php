@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -73,5 +74,28 @@ class RegistrationTest extends TestCase
             ->assertJsonValidationErrors(['password']);
 
         $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_registration_is_rate_limited_after_three_attempts(): void
+    {
+        RateLimiter::clear('127.0.0.1');
+
+        for ($attempt = 1; $attempt <= 3; $attempt++) {
+            $this->postJson('/api/register', [
+                'name' => 'Limited User',
+                'email' => "limited{$attempt}@example.com",
+                'password' => 'password123',
+                'password_confirmation' => 'password123',
+            ])->assertCreated();
+        }
+
+        $this->postJson('/api/register', [
+            'name' => 'Blocked User',
+            'email' => 'blocked@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertTooManyRequests();
+
+        $this->assertDatabaseCount('users', 3);
     }
 }

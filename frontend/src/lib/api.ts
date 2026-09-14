@@ -16,6 +16,18 @@ export type AuthResponse = {
   token: string
 }
 
+export type CaptchaChallenge =
+  | {
+      driver: 'internal'
+      token: string
+      question: string
+      expires_in: number
+    }
+  | {
+      driver: 'google'
+      site_key: string
+    }
+
 export type CurrentUserResponse = {
   user: AuthUser
 }
@@ -24,6 +36,7 @@ export type GmailConnection = {
   provider: string
   provider_account_id: string | null
   account_email: string | null
+  account_avatar_url?: string | null
   status: string
   scopes: string[] | null
   token_expires_at: string | null
@@ -39,6 +52,14 @@ export type GmailAuthorizationResponse = {
   expires_in: number
 }
 
+export type MessageAttachment = {
+  filename: string
+  mime_type: string
+  size: number
+  attachment_id: string | null
+  inline: boolean
+}
+
 export type Message = {
   id: number
   conversation_id: number
@@ -52,7 +73,11 @@ export type Message = {
   body: string
   sent_at: string
   is_read: boolean
-  metadata: Record<string, unknown> | null
+  metadata: {
+    label_ids?: string[]
+    html_body?: string | null
+    attachments?: MessageAttachment[]
+  } | null
 }
 
 export type Conversation = {
@@ -156,11 +181,18 @@ export async function getHealth(): Promise<HealthResponse> {
   return request<HealthResponse>('/api/health')
 }
 
+export async function getCaptchaChallenge(): Promise<CaptchaChallenge> {
+  return request<CaptchaChallenge>('/api/captcha')
+}
+
 export async function registerUser(data: {
   name: string
   email: string
   password: string
   password_confirmation: string
+  captcha_token?: string
+  captcha_answer?: string
+  captcha_response?: string
 }): Promise<AuthResponse> {
   const response = await request<AuthResponse>('/api/register', {
     method: 'POST',
@@ -175,6 +207,9 @@ export async function registerUser(data: {
 export async function loginUser(data: {
   email: string
   password: string
+  captcha_token?: string
+  captcha_answer?: string
+  captcha_response?: string
 }): Promise<AuthResponse> {
   const response = await request<AuthResponse>('/api/login', {
     method: 'POST',
@@ -206,6 +241,7 @@ export async function getConversations(params: {
   is_read?: boolean
   label?: string
   per_page?: number
+  page?: number
 } = {}): Promise<PaginatedResponse<Conversation>> {
   const searchParams = new URLSearchParams()
 
@@ -227,6 +263,10 @@ export async function getConversations(params: {
 
   if (params.per_page !== undefined) {
     searchParams.set('per_page', String(params.per_page))
+  }
+
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page))
   }
 
   const query = searchParams.toString()
@@ -259,6 +299,44 @@ export async function getGmailStatus(): Promise<GmailStatusResponse> {
 export async function startGmailAuthorization(): Promise<GmailAuthorizationResponse> {
   return request<GmailAuthorizationResponse>(
     '/api/integrations/gmail/authorize',
+  )
+}
+
+export type GmailSyncResponse = {
+  message: string
+  sync: {
+    threads_processed: number
+    messages_processed: number
+    next_page_token: string | null
+  }
+}
+
+export async function syncGmail(params: {
+  max_results?: number
+  page_token?: string
+} = {}): Promise<GmailSyncResponse> {
+  return request<GmailSyncResponse>('/api/integrations/gmail/sync', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  })
+}
+
+export type GmailLazySyncResponse = {
+  message: string
+  sync: {
+    threads_processed: number
+    messages_processed: number
+    has_more: boolean
+  }
+}
+
+export async function syncGmailPage(): Promise<GmailLazySyncResponse> {
+  return request<GmailLazySyncResponse>(
+    '/api/integrations/gmail/sync-page',
+    {
+      method: 'POST',
+      body: JSON.stringify({ max_results: 15 }),
+    },
   )
 }
 

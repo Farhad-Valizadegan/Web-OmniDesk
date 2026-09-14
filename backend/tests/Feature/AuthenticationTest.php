@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
@@ -101,5 +102,27 @@ class AuthenticationTest extends TestCase
             ->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/user')
             ->assertUnauthorized();
+    }
+
+    public function test_login_is_rate_limited_after_five_attempts(): void
+    {
+        User::factory()->create([
+            'email' => 'limited@example.com',
+            'password' => Hash::make('password123'),
+        ]);
+
+        RateLimiter::clear('limited@example.com|127.0.0.1');
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->postJson('/api/login', [
+                'email' => 'limited@example.com',
+                'password' => 'wrong-password',
+            ])->assertUnprocessable();
+        }
+
+        $this->postJson('/api/login', [
+            'email' => 'limited@example.com',
+            'password' => 'wrong-password',
+        ])->assertTooManyRequests();
     }
 }

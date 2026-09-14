@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Http\Controllers\GmailAuthorizationController;
 use App\Models\User;
+use App\Services\GoogleOAuthService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -21,16 +24,14 @@ class GmailCallbackTest extends TestCase
 
     public function test_callback_rejects_missing_state(): void
     {
-        $this->getJson('/api/integrations/gmail/callback')
-            ->assertStatus(422)
-            ->assertJsonPath('error', 'oauth_state_invalid');
+        $this->get('/api/integrations/gmail/callback')
+            ->assertRedirect('http://127.0.0.1:5173/?gmail=oauth_state_invalid');
     }
 
     public function test_callback_rejects_unknown_state(): void
     {
-        $this->getJson('/api/integrations/gmail/callback?state=unknown-state')
-            ->assertStatus(422)
-            ->assertJsonPath('error', 'oauth_state_invalid');
+        $this->get('/api/integrations/gmail/callback?state=unknown-state')
+            ->assertRedirect('http://127.0.0.1:5173/?gmail=oauth_state_invalid');
     }
 
     public function test_callback_rejects_replayed_state(): void
@@ -44,21 +45,23 @@ class GmailCallbackTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $this->getJson(
+        $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&error=access_denied'
+            .$state
+            .'&error=access_denied'
         )
-            ->assertStatus(422)
-            ->assertJsonPath('error', 'authorization_denied');
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=authorization_denied'
+            );
 
-        $this->getJson(
+        $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&error=access_denied'
+            .$state
+            .'&error=access_denied'
         )
-            ->assertStatus(422)
-            ->assertJsonPath('error', 'oauth_state_invalid');
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=oauth_state_invalid'
+            );
     }
 
     public function test_callback_rejects_missing_authorization_code(): void
@@ -72,11 +75,12 @@ class GmailCallbackTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $this->getJson(
-            '/api/integrations/gmail/callback?state=' . $state
+        $this->get(
+            '/api/integrations/gmail/callback?state='.$state
         )
-            ->assertStatus(422)
-            ->assertJsonPath('error', 'authorization_code_missing');
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=authorization_code_missing'
+            );
     }
 
     public function test_valid_state_is_consumed_before_token_exchange(): void
@@ -90,15 +94,30 @@ class GmailCallbackTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $this->getJson(
+        $fakeService = new class extends GoogleOAuthService
+        {
+            public function exchangeCode(string $code): array
+            {
+                throw new ProviderException(
+                    'gmail',
+                    ProviderErrorType::Authorization,
+                    'Gmail authorization is invalid or expired.'
+                );
+            }
+        };
+
+        $this->app->instance(
+            GoogleOAuthService::class,
+            $fakeService
+        );
+
+        $this->get(
             '/api/integrations/gmail/callback?state='
-            . $state
-            . '&code=test-code'
+            .$state
+            .'&code=test-code'
         )
-            ->assertStatus(502)
-            ->assertJsonPath(
-                'error',
-                'gmail_token_exchange_failed'
+            ->assertRedirect(
+                'http://127.0.0.1:5173/?gmail=gmail_authorization'
             );
 
         $this->assertNull(

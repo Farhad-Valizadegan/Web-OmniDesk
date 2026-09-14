@@ -498,6 +498,13 @@
   gap: 1rem;
 }
 
+.gmail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
 .gmail-status {
   color: #475569;
 }
@@ -557,10 +564,10 @@ button:disabled {
 }
 
 .app {
-  width: min(1180px, 100%);
+  width: min(1440px, 100%);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 2rem clamp(1rem, 4vw, 3rem);
+  padding: 1.5rem clamp(0.75rem, 2vw, 2rem);
 }
 
 .hero {
@@ -836,4 +843,861 @@ button:disabled {
   .search-row button {
     width: 100%;
   }
+}
+
+.message-sender {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.65rem;
+}
+
+.sender-avatar {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.message-sender > div {
+  min-width: 0;
+}
+
+.message-sender strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-address {
+  margin: 0.25rem 0 0;
+}
+
+.message-attachments {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.attachments-title {
+  margin: 0 0 0.55rem;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.attachment-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #dbeafe;
+  border-radius: 0.5rem;
+  background: #eff6ff;
+}
+
+.attachment-icon {
+  color: #2563eb;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.attachment-details {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.attachment-details strong,
+.attachment-details span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-details strong {
+  color: #1e3a8a;
+  font-size: 0.78rem;
+}
+
+.attachment-details span {
+  color: #64748b;
+  font-size: 0.68rem;
+}
+
+.gmail-account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gmail-account p {
+  margin: 0;
+}
+
+.gmail-account-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.gmail-account-avatar-fallback {
+  display: grid;
+  place-items: center;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* Long-content protection */
+.workspace-content,
+.conversation-item,
+.conversation-detail {
+  min-width: 0;
+}
+
+.conversation-item-heading strong {
+  min-width: 0;
+}
+
+.detail-heading > div {
+  min-width: 0;
+}
+
+.detail-heading h3 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.message-heading {
+  align-items: flex-start;
+}
+
+.message-heading time {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.message-body {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 980px) {
+  .inbox-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-list {
+    max-height: 28rem;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .gmail-panel-heading,
+  .gmail-disconnected,
+  .gmail-connected {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gmail-actions {
+    justify-content: flex-start;
+  }
+
+  .message-heading {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Keep conversation text inside its card */
+.conversation-item-heading {
+  min-width: 0;
+}
+
+.conversation-item-heading strong {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.conversation-preview {
+  display: -webkit-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Compact conversation list typography */
+.conversation-item {
+  font-size: 0.86rem;
+}
+
+.conversation-item-heading strong {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.conversation-preview {
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.conversation-meta {
+  font-size: 0.65rem;
+}
+
+.unread-indicator {
+  font-size: 0.65rem;
+}
+
+.label {
+  font-size: 0.6rem;
+}
+
+/* Compact conversation cards */
+.inbox-layout {
+  grid-template-columns: minmax(190px, 0.72fr) minmax(380px, 1.28fr);
+}
+
+.conversation-item {
+  gap: 0.3rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.conversation-item-heading strong {
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.conversation-preview {
+  font-size: 0.7rem;
+  line-height: 1.3;
+  -webkit-line-clamp: 1;
+}
+
+.conversation-meta {
+  font-size: 0.6rem;
+}
+
+.conversation-labels {
+  gap: 0.35rem;
+}
+
+.label,
+.unread-indicator {
+  font-size: 0.58rem;
+}
+
+
+/* Theme controls */
+.theme-toggle {
+  min-height: 2.65rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #f8fafc;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.theme-toggle:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+[data-theme="dark"] body {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .app {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .status-card,
+[data-theme="dark"] .workspace,
+[data-theme="dark"] .workspace-header,
+[data-theme="dark"] .gmail-panel,
+[data-theme="dark"] .conversation-list,
+[data-theme="dark"] .conversation-detail,
+[data-theme="dark"] .conversation-item,
+[data-theme="dark"] .inbox-toolbar,
+[data-theme="dark"] .message-card {
+  border-color: #334155;
+  background: #172033;
+}
+
+[data-theme="dark"] .workspace-header,
+[data-theme="dark"] .conversation-item:hover,
+[data-theme="dark"] .conversation-item.selected {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .workspace-sidebar {
+  border-color: #334155;
+  background: #111827;
+}
+
+[data-theme="dark"] .content-heading h2,
+[data-theme="dark"] .section-heading h3,
+[data-theme="dark"] .detail-heading h3,
+[data-theme="dark"] .conversation-item-heading strong,
+[data-theme="dark"] .message-heading,
+[data-theme="dark"] .message-sender strong,
+[data-theme="dark"] .gmail-panel h3 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .workspace-subtitle,
+[data-theme="dark"] .sidebar-account,
+[data-theme="dark"] .conversation-preview,
+[data-theme="dark"] .message-address,
+[data-theme="dark"] .message-heading time,
+[data-theme="dark"] .section-heading span,
+[data-theme="dark"] .conversation-meta,
+[data-theme="dark"] .message-body {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .navigation-item {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .navigation-item:hover,
+[data-theme="dark"] .navigation-item.active {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .secondary-button,
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .inbox-search input,
+[data-theme="dark"] .read-filter select {
+  border-color: #475569;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .secondary-button:hover,
+[data-theme="dark"] .theme-toggle:hover {
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .message-card {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .attachment-item {
+  border-color: #1e40af;
+  background: #172554;
+}
+
+[data-theme="dark"] .attachment-details strong {
+  color: #bfdbfe;
+}
+
+[data-theme="dark"] .attachment-details span,
+[data-theme="dark"] .attachments-title {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .inbox-error,
+[data-theme="dark"] .inbox-status {
+  border-color: #334155;
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+
+/* Global theme support for authentication view */
+.app {
+  position: relative;
+}
+
+.app-theme-toggle {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  min-height: 2.4rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-tabs button {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.auth-tabs button:hover,
+.auth-tabs button.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+[data-theme="dark"] .hero h1,
+[data-theme="dark"] .auth-heading h2 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .description,
+[data-theme="dark"] .auth-heading p,
+[data-theme="dark"] .status-card h2,
+[data-theme="dark"] .auth-card label {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .auth-card {
+  border-color: #334155;
+  background: #172033;
+}
+
+[data-theme="dark"] .status-card {
+  border-color: #334155;
+  background: #172033;
+}
+
+[data-theme="dark"] .auth-tabs {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .auth-tabs button {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .auth-tabs button:hover,
+[data-theme="dark"] .auth-tabs button.active {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .app-theme-toggle {
+  border-color: #475569;
+  background: #172033;
+  color: #f8fafc;
+}
+
+
+/* Authentication CAPTCHA */
+.captcha-field {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #dbeafe;
+  border-radius: 0.65rem;
+  background: #eff6ff;
+}
+
+.captcha-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.captcha-heading label {
+  margin: 0;
+}
+
+.captcha-refresh {
+  border: 0;
+  background: transparent;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.captcha-question {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.captcha-field input {
+  margin-top: 0;
+}
+
+.captcha-status,
+.captcha-error {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.captcha-status {
+  color: #64748b;
+}
+
+.captcha-error {
+  color: #b91c1c;
+}
+
+[data-theme="dark"] .captcha-field {
+  border-color: #1e40af;
+  background: #172554;
+}
+
+[data-theme="dark"] .captcha-question,
+[data-theme="dark"] .captcha-refresh {
+  color: #bfdbfe;
+}
+
+[data-theme="dark"] .captcha-status {
+  color: #cbd5e1;
+}
+
+
+.google-captcha-field {
+  align-items: flex-start;
+}
+
+.captcha-label {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.google-captcha {
+  min-height: 78px;
+}
+
+[data-theme="dark"] .captcha-label {
+  color: #bfdbfe;
+}
+
+
+.integration-feedback {
+  margin: -0.5rem 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.6rem;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 700;
+}
+
+.integration-feedback.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+[data-theme="dark"] .integration-feedback {
+  border-color: #166534;
+  background: #14532d;
+  color: #dcfce7;
+}
+
+[data-theme="dark"] .integration-feedback.error {
+  border-color: #991b1b;
+  background: #450a0a;
+  color: #fecaca;
+}
+
+
+.conversation-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  color: #64748b;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.conversation-pagination .secondary-button {
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.75rem;
+}
+
+[data-theme="dark"] .conversation-pagination {
+  color: #cbd5e1;
+}
+.message-body {
+  overflow-wrap: anywhere;
+}
+
+.message-body a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.message-body a:hover {
+  color: #1d4ed8;
+}
+
+.conversation-preview {
+  overflow-wrap: anywhere;
+}
+
+[data-theme="dark"] .message-body a {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .message-body a:hover {
+  color: #bfdbfe;
+}
+.message-html {
+  display: block;
+  width: 100%;
+  min-height: 520px;
+  border: 0;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+/* Compact sidebar layout */
+.workspace-sidebar {
+  box-sizing: border-box;
+  width: 160px;
+  padding: 0.9rem 0.7rem;
+}
+
+.workspace-sidebar nav {
+  gap: 0.15rem;
+}
+
+.navigation-item {
+  padding: 0.48rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.sidebar-account {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+}
+/* Balanced workspace spacing */
+.workspace-content {
+  padding: 0.9rem;
+}
+
+.workspace-body {
+  align-items: stretch;
+}
+
+.workspace-sidebar {
+  width: 160px;
+  padding: 0.9rem;
+}
+
+.inbox-layout {
+  gap: 0.9rem;
+}
+/* Extra compact workspace layout */
+.workspace-sidebar {
+  width: 130px;
+  padding: 0.65rem;
+}
+
+.navigation-item {
+  padding: 0.38rem 0.45rem;
+  font-size: 0.82rem;
+}
+
+.sidebar-account {
+  margin-top: 1.25rem;
+  font-size: 0.7rem;
+}
+
+.workspace-content {
+  padding: 0.7rem;
+}
+/* Compact conversation panel */
+.inbox-layout {
+  grid-template-columns: minmax(250px, 0.7fr) minmax(360px, 1.3fr);
+  gap: 0.7rem;
+}
+
+.conversation-list {
+  width: 100%;
+  max-width: 420px;
+  justify-self: start;
+}
+
+.conversation-list .section-heading {
+  padding: 0.7rem 0.8rem;
+}
+
+.conversation-list .conversation-item {
+  padding: 0.6rem 0.7rem;
+  gap: 0.3rem;
+}
+/* Reduce sidebar-to-conversations distance */
+.workspace-content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.7rem !important;
+}
+
+.inbox-layout {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  gap: 0.7rem !important;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr) !important;
+}
+
+.conversation-list {
+  margin-left: 0 !important;
+  justify-self: start !important;
+  max-width: 420px !important;
+}
+/* Correct conversation panel width */
+.inbox-layout {
+  grid-template-columns: minmax(300px, 300px) minmax(420px, 1fr) !important;
+  gap: 0.7rem !important;
+}
+
+.conversation-list {
+  width: 300px !important;
+  max-width: 300px !important;
+}
+/* Move conversation panel left */
+.workspace-content {
+  padding-left: 0 !important;
+}
+
+.inbox-layout {
+  margin-left: 0 !important;
+}
+
+.conversation-list {
+  margin-left: 0 !important;
+  justify-self: start !important;
+}
+/* Move inbox layout toward sidebar */
+.inbox-layout {
+  position: relative;
+  left: -3.5rem;
+}
+/* Expand selected email panel */
+.inbox-layout {
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+}
+
+.conversation-detail {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+/* Widen selected email area */
+.inbox-layout {
+  width: calc(100% + 5rem) !important;
+}
+
+.conversation-detail {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* Reduce detail layers by 20px */
+.detail-heading,
+.message-list {
+  padding-top: 21px !important;
+  padding-bottom: 21px !important;
+}
+/* Keep detail layers inside parent */
+.inbox-layout {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.conversation-detail,
+.detail-heading,
+.message-list {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+/* Extend email panel 40px right */
+.inbox-layout {
+  width: calc(100% + 40px) !important;
+}
+
+.conversation-detail {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.inbox-layout > .conversation-detail {
+  align-self: stretch !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+/* Fill selected email panel height */
+.conversation-detail {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.conversation-detail > .message-list {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+}
+
+.conversation-detail > .message-list > .message-card:only-child {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+}
+
+.conversation-detail > .message-list > .message-card:only-child > .message-html {
+  flex: 1 1 auto !important;
+  height: 100% !important;
 }

@@ -1,7 +1,8 @@
 # Sprint 03 Plan - Unified Inbox Foundation
 
-> Status: Completed
+> Status: Completed with Carryover
 > Completed: 2026-09-12
+> Audited: 2026-09-13
 
 ## Sprint Goal
 
@@ -244,19 +245,59 @@ Sprint 03 does not automatically create a release or version tag.
 
 A release tag may be created only after the related milestone outcome and release criteria are completed.
 
-## Unresolved Sprint Decisions
+## Completion Review
 
-| ID | Decision | Current State |
+Sprint 03 was implemented through pull request #3 and merged into `main`.
+
+### Recorded Evidence
+
+- Pull request: `#3`
+- Merge commit: `c4b8a4c`
+- Final implementation commit: `81d4ef7`
+- GitHub Actions run: `34697818299`
+- GitHub Actions conclusion: successful
+- Provider-neutral conversation and message models: implemented
+- Ownership-protected conversation APIs: implemented and tested
+- Search and backend filtering: implemented and tested
+- Development fixture data: implemented and tested
+- Frontend conversation and message display: implemented
+- Frontend tests, lint, and production build: passed
+
+### Accepted Decisions
+
+- Conversations and messages use provider-neutral database models.
+- Search is performed server-side against conversation subject and provider.
+- Filters use the `status`, `is_read`, and `label` query parameters.
+- Labels are stored as JSON metadata.
+- Development inbox data is created through the idempotent `InboxFixtureSeeder`.
+
+### Satisfied Later
+
+- Frontend pagination was implemented during Sprint 05.
+
+### Carryover
+
+- Add frontend status filtering.
+- Add frontend label filtering.
+- Display conversation status in the inbox.
+- Add explicit frontend tests for conversation selection.
+- Add explicit frontend tests for read-state filtering.
+- Add explicit frontend tests for inbox loading and error states.
+- Record these items in the remediation backlog.
+
+## Sprint Decisions
+
+| ID | Decision | Final State |
 |---|---|---|
-| S03-001 | Conversation database schema | To be finalized |
-| S03-002 | Message database schema | To be finalized |
-| S03-003 | Search implementation approach | To be finalized |
-| S03-004 | Filter response format | To be finalized |
-| S03-005 | Fixture data strategy | To be finalized |
-| S03-006 | Sprint completion date | Completed: 2026-09-12 |
+| S03-001 | Conversation database schema | Resolved: provider-neutral conversations with ownership, status, read state, labels, and provider identifiers |
+| S03-002 | Message database schema | Resolved: provider-neutral messages related to conversations and ordered by `sent_at` |
+| S03-003 | Search implementation approach | Resolved: authenticated server-side subject and provider search |
+| S03-004 | Filter response format | Resolved: paginated JSON responses using status, read-state, and label query parameters |
+| S03-005 | Fixture data strategy | Resolved: idempotent `InboxFixtureSeeder` |
+| S03-006 | Sprint completion date | Resolved: 2026-09-12 |
 
 ## Sprint Status
 
-Sprint 03 has been completed.
+Sprint 03 is completed with documented carryover.
 
-Completion was recorded after the acceptance criteria and verification commands passed.
+The provider-neutral inbox foundation passed verification. Frontend pagination was satisfied during Sprint 05. Remaining status display, frontend filters, and interaction-test work is tracked in the Sprint 01–04 audit.

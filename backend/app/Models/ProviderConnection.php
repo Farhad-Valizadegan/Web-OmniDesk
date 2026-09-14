@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\ProviderConnectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User;
 
 class ProviderConnection extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProviderConnectionFactory> */
+    /** @use HasFactory<ProviderConnectionFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,9 +17,14 @@ class ProviderConnection extends Model
         'provider',
         'provider_account_id',
         'account_email',
+        'account_avatar_url',
         'access_token',
         'refresh_token',
         'token_expires_at',
+        'history_id',
+        'gmail_sync_page_token',
+        'gmail_sync_snapshot_history_id',
+        'gmail_sync_completed',
         'scopes',
         'status',
     ];
@@ -36,6 +41,7 @@ class ProviderConnection extends Model
             'refresh_token' => 'encrypted',
             'token_expires_at' => 'datetime',
             'scopes' => 'array',
+            'gmail_sync_completed' => 'boolean',
         ];
     }
 

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Config;
@@ -65,7 +67,7 @@ class GoogleTokenExchangeTest extends TestCase
         $service->exchangeCode('');
     }
 
-    public function test_failed_token_exchange_is_rejected(): void
+    public function test_failed_token_exchange_is_classified(): void
     {
         $service = new class extends GoogleOAuthService
         {
@@ -86,11 +88,25 @@ class GoogleTokenExchangeTest extends TestCase
             }
         };
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(
-            'Google authorization token exchange failed.'
-        );
+        try {
+            $service->exchangeCode('invalid-authorization-code');
 
-        $service->exchangeCode('invalid-authorization-code');
+            $this->fail('Expected a provider exception.');
+        } catch (ProviderException $exception) {
+            $this->assertSame(
+                ProviderErrorType::Authorization,
+                $exception->type
+            );
+
+            $this->assertSame(
+                'gmail_authorization',
+                $exception->errorCode()
+            );
+
+            $this->assertStringNotContainsString(
+                'Sensitive',
+                $exception->getMessage()
+            );
+        }
     }
 }

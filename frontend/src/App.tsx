@@ -1,19 +1,61 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import './App.css'
+import GoogleCaptcha from './components/GoogleCaptcha'
 import Workspace from './components/Workspace'
 import {
+  getCaptchaChallenge,
   getCurrentUser,
   getHealth,
   loginUser,
   logoutUser,
   registerUser,
   type AuthUser,
+  type CaptchaChallenge,
   type HealthResponse,
 } from './lib/api'
 
 type AuthMode = 'login' | 'register'
 
+export type GmailFeedback = {
+  type: 'success' | 'error'
+  message: string
+}
+
+function readGmailFeedback(): GmailFeedback | null {
+  const params = new URLSearchParams(window.location.search)
+  const result = params.get('gmail')
+
+  if (result === 'connected') {
+    return {
+      type: 'success',
+      message: 'Gmail connected successfully.',
+    }
+  }
+
+  const messages: Record<string, string> = {
+    oauth_state_invalid: 'Gmail connection expired. Start again.',
+    authorization_denied: 'Gmail authorization was cancelled.',
+    authorization_code_missing: 'Gmail authorization code was missing.',
+    gmail_token_exchange_failed: 'Gmail connection could not be completed.',
+    gmail_account_identity_failed: 'The Gmail account could not be verified.',
+    gmail_authorization: 'Gmail authorization is invalid or expired.',
+    gmail_permission: 'Gmail permission is insufficient.',
+    gmail_rate_limit: 'Gmail request limit was reached. Try again later.',
+    gmail_temporary: 'Gmail is temporarily unavailable.',
+    gmail_invalid_response: 'Gmail returned an invalid response.',
+  }
+
+  return result && messages[result]
+    ? { type: 'error', message: messages[result] }
+    : null
+}
+
+
 function App() {
+  const [gmailFeedback, setGmailFeedback] = useState<GmailFeedback | null>(readGmailFeedback)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
+  )
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [isHealthLoading, setIsHealthLoading] = useState(true)
   const [healthError, setHealthError] = useState<string | null>(null)
@@ -22,11 +64,79 @@ function App() {
   const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
+  const [captchaChallenge, setCaptchaChallenge] =
+    useState<CaptchaChallenge | null>(null)
+  const [captchaAnswer, setCaptchaAnswer] = useState('')
+  const [captchaResponse, setCaptchaResponse] = useState('')
+  const [captchaLoading, setCaptchaLoading] = useState(true)
+  const [captchaError, setCaptchaError] = useState<string | null>(null)
+  const [captchaNonce, setCaptchaNonce] = useState(0)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.has('gmail')) {
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!gmailFeedback) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setGmailFeedback(null)
+    }, 5000)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [gmailFeedback])
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('omni_desk_theme', theme)
+  }, [theme])
+
+  useEffect(() => {
+    if (user) {
+      return
+    }
+
+    let isActive = true
+
+    const loadCaptcha = async () => {
+      try {
+        setCaptchaLoading(true)
+        setCaptchaError(null)
+        const challenge = await getCaptchaChallenge()
+
+        if (isActive) {
+          setCaptchaChallenge(challenge)
+          setCaptchaAnswer('')
+        }
+      } catch {
+        if (isActive) {
+          setCaptchaChallenge(null)
+          setCaptchaError('Security check could not be loaded.')
+        }
+      } finally {
+        if (isActive) {
+          setCaptchaLoading(false)
+        }
+      }
+    }
+
+    void loadCaptcha()
+
+    return () => {
+      isActive = false
+    }
+  }, [captchaNonce, user])
 
   useEffect(() => {
     const loadApplicationState = async () => {
@@ -64,8 +174,14 @@ function App() {
     setEmail('')
     setPassword('')
     setPasswordConfirmation('')
+    setCaptchaAnswer('')
+    setCaptchaResponse('')
     setAuthError(null)
   }
+
+  const handleGoogleCaptchaToken = useCallback((token: string) => {
+    setCaptchaResponse(token)
+  }, [])
 
   const changeAuthMode = (mode: AuthMode) => {
     setAuthMode(mode)
@@ -77,6 +193,31 @@ function App() {
     setAuthLoading(true)
     setAuthError(null)
 
+    if (!captchaChallenge) {
+      setAuthLoading(false)
+      setAuthError('Security check is not ready. Please try again.')
+      return
+    }
+
+    const captchaFields =
+      captchaChallenge.driver === 'internal'
+        ? {
+            captcha_token: captchaChallenge.token,
+            captcha_answer: captchaAnswer,
+          }
+        : {
+            captcha_response: captchaResponse,
+          }
+
+    if (
+      captchaChallenge.driver === 'google' &&
+      captchaResponse === ''
+    ) {
+      setAuthLoading(false)
+      setAuthError('Complete the Google reCAPTCHA check.')
+      return
+    }
+
     try {
       const response =
         authMode === 'register'
@@ -85,15 +226,20 @@ function App() {
               email,
               password,
               password_confirmation: passwordConfirmation,
+              ...captchaFields,
             })
           : await loginUser({
               email,
               password,
+              ...captchaFields,
             })
 
       setUser(response.user)
       resetAuthForm()
     } catch (error) {
+      setCaptchaAnswer('')
+      setCaptchaResponse('')
+      setCaptchaNonce((current) => current + 1)
       setAuthError(
         error instanceof Error
           ? error.message
@@ -122,6 +268,17 @@ function App() {
 
   return (
     <main className="app">
+      {!user && (
+        <button
+          type="button"
+          className="app-theme-toggle"
+          onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        >
+          {theme === 'light' ? 'Dark mode' : 'Light mode'}
+        </button>
+      )}
+
       <section className="hero">
         <p className="eyebrow">OmniDesk AI</p>
 
@@ -150,12 +307,22 @@ function App() {
           )}
         </div>
 
+        {gmailFeedback && (
+          <p
+            className={`integration-feedback ${gmailFeedback.type}`}
+            role={gmailFeedback.type === 'error' ? 'alert' : 'status'}
+          >
+            {gmailFeedback.message}
+          </p>
+        )}
+
         <div className={user ? 'workspace-wrapper' : 'auth-card'}>
           {user ? (
             <Workspace
               user={user}
               isLoading={authLoading}
               onLogout={() => void handleLogout()}
+              onGmailFeedback={setGmailFeedback}
             />
           ) : (
             <>
@@ -250,6 +417,56 @@ function App() {
                   </label>
                 )}
 
+                {captchaChallenge?.driver === 'internal' && (
+                  <div className="captcha-field">
+                    <div className="captcha-heading">
+                      <label htmlFor="captcha-answer">Security check</label>
+                      <button
+                        type="button"
+                        className="captcha-refresh"
+                        onClick={() => setCaptchaNonce((current) => current + 1)}
+                        disabled={captchaLoading || authLoading}
+                      >
+                        New challenge
+                      </button>
+                    </div>
+                    <p className="captcha-question">
+                      {captchaChallenge.question}
+                    </p>
+                    <input
+                      id="captcha-answer"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={captchaAnswer}
+                      onChange={(event) => setCaptchaAnswer(event.target.value)}
+                      autoComplete="off"
+                      aria-label="CAPTCHA answer"
+                      required
+                    />
+                  </div>
+                )}
+
+                {captchaChallenge?.driver === 'google' && (
+                  <div className="captcha-field google-captcha-field">
+                    <p className="captcha-label">Security check</p>
+                    <GoogleCaptcha
+                      siteKey={captchaChallenge.site_key}
+                      onToken={handleGoogleCaptchaToken}
+                    />
+                  </div>
+                )}
+
+                {captchaLoading && (
+                  <p className="captcha-status">Loading security check...</p>
+                )}
+
+                {captchaError && (
+                  <p className="captcha-error" role="alert">
+                    {captchaError}
+                  </p>
+                )}
+
                 {authError && (
                   <p className="form-error" role="alert">
                     {authError}
@@ -259,7 +476,7 @@ function App() {
                 <button
                   type="submit"
                   className="primary-button"
-                  disabled={authLoading}
+                  disabled={authLoading || captchaLoading || !captchaChallenge}
                 >
                   {authLoading
                     ? 'Please wait...'

@@ -1,7 +1,8 @@
 # Sprint 01 Plan - Backend and Frontend Foundation
 
-> Status: Completed
+> Status: Completed with Carryover
 > Completed: 2026-09-10
+> Audited: 2026-09-13
 
 ## Sprint Goal
 
@@ -216,19 +217,48 @@ Sprint 01 does not automatically create a release or version tag.
 
 A version tag may be created after the M0 outcome is complete and the release criteria have been reviewed.
 
-## Unresolved Sprint Decisions
+## Completion Review
 
-| ID | Decision | Current State |
+The Sprint 01 implementation was completed directly on `main`.
+
+### Recorded Evidence
+
+- Completion commit: `1d8b0d0`
+- Backend health endpoint: implemented and tested
+- PostgreSQL migration execution: included in GitHub Actions
+- Frontend health request: implemented through the shared API client
+- Frontend tests: included in GitHub Actions
+- Frontend lint: included in GitHub Actions
+- Frontend production build: included in GitHub Actions
+- Secret-dependent CI configuration: not required
+
+### Accepted Decisions
+
+- Frontend API requests use relative `/api` URLs.
+- Local development and deployment must provide a Vite proxy or reverse proxy for `/api`.
+- Native Fetch API remains the shared frontend HTTP client.
+- A routing library is intentionally deferred until multiple application pages exist.
+
+### Carryover
+
+- Add frontend tests for the health-check loading and failure states.
+- Add Laravel Pint verification to CI.
+- Replace framework starter documentation with project-specific development commands.
+- Record these items in the remediation backlog.
+
+## Sprint Decisions
+
+| ID | Decision | Final State |
 |---|---|---|
-| S01-001 | Exact health-check response format | To be finalized during implementation |
-| S01-002 | Final frontend API client library | To be decided |
-| S01-003 | CI provider configuration | To be finalized |
-| S01-004 | PHP formatting tool | To be finalized |
-| S01-005 | Frontend routing library | To be finalized |
-| S01-006 | Sprint completion date | Completed: 2026-09-10 |
+| S01-001 | Exact health-check response format | Resolved: JSON containing `status` and `service` |
+| S01-002 | Final frontend API client library | Resolved: native Fetch API behind `frontend/src/lib/api.ts` |
+| S01-003 | CI provider configuration | Resolved: GitHub Actions with PostgreSQL, backend tests, frontend tests, lint, and build |
+| S01-004 | PHP formatting tool | Carryover: Laravel Pint verification must be added to CI |
+| S01-005 | Frontend routing library | Deferred: no router until multiple application pages require one |
+| S01-006 | Sprint completion date | Resolved: 2026-09-10 |
 
 ## Sprint Status
 
-Sprint 01 has been completed.
+Sprint 01 is completed with documented carryover.
 
-Completion was recorded after the acceptance criteria and verification commands passed.
+The core foundation and CI baseline passed verification. Remaining documentation, frontend test coverage, and PHP formatting work is tracked in the Sprint 01–04 audit.

@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -11,6 +12,7 @@ import {
   getConversationMessages,
   getConversations,
   getGmailStatus,
+  getCaptchaChallenge,
   getCurrentUser,
   getHealth,
   loginUser,
@@ -22,6 +24,7 @@ import {
 } from './lib/api'
 
 vi.mock('./lib/api', () => ({
+  getCaptchaChallenge: vi.fn(),
   getConversationMessages: vi.fn(),
   getConversations: vi.fn(),
   getGmailStatus: vi.fn(),
@@ -30,8 +33,10 @@ vi.mock('./lib/api', () => ({
   loginUser: vi.fn(),
   logoutUser: vi.fn(),
   registerUser: vi.fn(),
+  syncGmailPage: vi.fn(),
 }))
 
+const getCaptchaChallengeMock = vi.mocked(getCaptchaChallenge)
 const getConversationMessagesMock = vi.mocked(getConversationMessages)
 const getConversationsMock = vi.mocked(getConversations)
 const getGmailStatusMock = vi.mocked(getGmailStatus)
@@ -62,11 +67,20 @@ function emptyPagination<T>(): PaginatedResponse<T> {
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  vi.useRealTimers()
+  window.history.replaceState({}, '', '/')
   sessionStorage.clear()
 })
 
 describe('App', () => {
   beforeEach(() => {
+    getCaptchaChallengeMock.mockResolvedValue({
+      driver: 'internal',
+      token: 'captcha-token',
+      question: '2 + 8 = ?',
+      expires_in: 300,
+    })
+
     getHealthMock.mockResolvedValue({
       status: 'ok',
       service: 'backend',
@@ -94,6 +108,27 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
+  test('displays the backend connection loading state', () => {
+    render(<App />)
+
+    expect(
+      screen.getByText('Checking backend connection...'),
+    ).toBeInTheDocument()
+  })
+
+  test('displays the backend connection failure state', async () => {
+    getHealthMock.mockRejectedValueOnce(
+      new Error('Backend unavailable'),
+    )
+
+    render(<App />)
+
+    expect(
+      await screen.findByText(
+        'The backend is unavailable. Make sure Laravel is running.',
+      ),
+    ).toBeInTheDocument()
+  })
   test('allows a user to register', async () => {
     registerUserMock.mockResolvedValue({
       message: 'Registration successful.',
@@ -127,6 +162,10 @@ describe('App', () => {
       target: { value: 'password123' },
     })
 
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '10' },
+    })
+
     fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
 
     await waitFor(() => {
@@ -135,6 +174,8 @@ describe('App', () => {
         email: 'freddie@example.com',
         password: 'password123',
         password_confirmation: 'password123',
+        captcha_token: 'captcha-token',
+        captcha_answer: '10',
       })
     })
 
@@ -164,16 +205,67 @@ describe('App', () => {
       target: { value: 'password123' },
     })
 
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '10' },
+    })
+
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
     await waitFor(() => {
       expect(loginUserMock).toHaveBeenCalledWith({
         email: 'freddie@example.com',
         password: 'password123',
+        captcha_token: 'captcha-token',
+        captcha_answer: '10',
       })
     })
 
     expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
+  })
+
+  test('refreshes the CAPTCHA after an authentication error', async () => {
+    getCaptchaChallengeMock
+      .mockResolvedValueOnce({
+        driver: 'internal',
+        token: 'first-captcha-token',
+        question: '2 + 8 = ?',
+        expires_in: 300,
+      })
+      .mockResolvedValueOnce({
+        driver: 'internal',
+        token: 'second-captcha-token',
+        question: '3 + 4 = ?',
+        expires_in: 300,
+      })
+
+    loginUserMock.mockRejectedValue(
+      new Error('The CAPTCHA answer is invalid or expired.'),
+    )
+
+    render(<App />)
+
+    await screen.findByText('Backend is connected. Status: ok')
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'freddie@example.com' },
+    })
+
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password123' },
+    })
+
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '11' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    expect(
+      await screen.findByText('The CAPTCHA answer is invalid or expired.'),
+    ).toBeInTheDocument()
+
+    expect(await screen.findByText('3 + 4 = ?')).toBeInTheDocument()
+    expect(getCaptchaChallengeMock).toHaveBeenCalledTimes(2)
   })
 
   test('displays authentication errors', async () => {
@@ -191,6 +283,10 @@ describe('App', () => {
 
     fireEvent.change(screen.getByLabelText('Password'), {
       target: { value: 'wrong-password' },
+    })
+
+    fireEvent.change(screen.getByLabelText('CAPTCHA answer'), {
+      target: { value: '10' },
     })
 
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
@@ -246,6 +342,11 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
     expect(await screen.findByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
     expect(screen.getByText('No conversations found')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Connect or synchronize a provider, or adjust the search and read-state filters.',
+      ),
+    ).toBeInTheDocument()
   })
 
   test('displays conversations and messages in the workspace', async () => {
@@ -339,12 +440,43 @@ describe('App', () => {
     ).toHaveBeenCalledWith({
       search: undefined,
       is_read: undefined,
-      per_page: 50,
+      per_page: 15,
+      page: 1,
     })
 
     await waitFor(() => {
       expect(getConversationMessagesMock).toHaveBeenCalledWith(1)
     })
+  })
+
+  test('displays a classified Gmail callback error', () => {
+    window.history.pushState({}, '', '/?gmail=gmail_rate_limit')
+
+    render(<App />)
+
+    expect(
+      screen.getByText(
+        'Gmail request limit was reached. Try again later.',
+      ),
+    ).toBeInTheDocument()
+  })
+  test('fades Gmail feedback after five seconds', () => {
+    vi.useFakeTimers()
+    window.history.pushState({}, '', '/?gmail=connected')
+
+    render(<App />)
+
+    expect(
+      screen.getByText('Gmail connected successfully.'),
+    ).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+
+    expect(
+      screen.queryByText('Gmail connected successfully.'),
+    ).not.toBeInTheDocument()
   })
 
   test('searches conversations from the workspace', async () => {
@@ -372,7 +504,8 @@ describe('App', () => {
       expect(getConversationsMock).toHaveBeenLastCalledWith({
         search: 'Project',
         is_read: undefined,
-        per_page: 50,
+        per_page: 15,
+        page: 1,
       })
     })
   })

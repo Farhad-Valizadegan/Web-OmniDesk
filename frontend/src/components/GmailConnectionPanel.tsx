@@ -3,13 +3,24 @@ import {
   disconnectGmail,
   getGmailStatus,
   startGmailAuthorization,
+  syncGmail,
   type GmailStatusResponse,
 } from '../lib/api'
 
-function GmailConnectionPanel() {
+type GmailConnectionPanelProps = {
+  onSynchronized?: () => void | Promise<void>
+  onDisconnected?: () => void | Promise<void>
+}
+
+function GmailConnectionPanel({
+  onSynchronized,
+  onDisconnected,
+}: GmailConnectionPanelProps) {
   const [status, setStatus] = useState<GmailStatusResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isActionLoading, setIsActionLoading] = useState(false)
+  const [isSyncLoading, setIsSyncLoading] = useState(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const loadStatus = useCallback(async () => {
@@ -45,6 +56,35 @@ function GmailConnectionPanel() {
     }
   }
 
+  const handleSync = async () => {
+    try {
+      setIsSyncLoading(true)
+      setSyncMessage(null)
+      setError(null)
+
+      let pageToken: string | undefined
+      let messagesProcessed = 0
+
+      do {
+        const response = await syncGmail(
+          pageToken ? { page_token: pageToken } : {},
+        )
+        messagesProcessed += response.sync.messages_processed
+        pageToken = response.sync.next_page_token ?? undefined
+      } while (pageToken)
+
+      setSyncMessage(
+        `${messagesProcessed} messages synchronized.`,
+      )
+
+      await onSynchronized?.()
+    } catch {
+      setError('Gmail messages could not be synchronized.')
+    } finally {
+      setIsSyncLoading(false)
+    }
+  }
+
   const handleDisconnect = async () => {
     try {
       setIsActionLoading(true)
@@ -56,6 +96,8 @@ function GmailConnectionPanel() {
         connected: false,
         connection: null,
       })
+
+      await onDisconnected?.()
     } catch {
       setError('Gmail could not be disconnected.')
     } finally {
@@ -105,21 +147,51 @@ function GmailConnectionPanel() {
 
       {!isLoading && !error && status?.connected && (
         <div className="gmail-connected">
-          <p>
-            Connected account:{' '}
-            <strong>
-              {status.connection?.account_email ?? 'Account identity unavailable'}
-            </strong>
-          </p>
+          <div className="gmail-account">
+            {status.connection?.account_avatar_url ? (
+              <img
+                className="gmail-account-avatar"
+                src={status.connection.account_avatar_url}
+                alt=""
+              />
+            ) : (
+              <span className="gmail-account-avatar gmail-account-avatar-fallback" aria-hidden="true">
+                {(status.connection?.account_email ?? 'G').slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <p>
+              Connected account:{' '}
+              <strong>
+                {status.connection?.account_email ?? 'Account identity unavailable'}
+              </strong>
+            </p>
+          </div>
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => void handleDisconnect()}
-            disabled={isActionLoading}
-          >
-            {isActionLoading ? 'Disconnecting...' : 'Disconnect Gmail'}
-          </button>
+          <div className="gmail-actions">
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => void handleSync()}
+              disabled={isActionLoading || isSyncLoading}
+            >
+              {isSyncLoading ? 'Synchronizing...' : 'Synchronize Gmail'}
+            </button>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => void handleDisconnect()}
+              disabled={isActionLoading || isSyncLoading}
+            >
+              {isActionLoading ? 'Disconnecting...' : 'Disconnect Gmail'}
+            </button>
+          </div>
+
+          {syncMessage && (
+            <p className="gmail-status" role="status">
+              {syncMessage}
+            </p>
+          )}
         </div>
       )}
 

@@ -32,6 +32,7 @@ class ProviderConnectionFactory extends Factory
                 'https://www.googleapis.com/auth/gmail.readonly',
             ],
             'status' => 'connected',
+            'gmail_sync_completed' => true,
         ];
     }
 }

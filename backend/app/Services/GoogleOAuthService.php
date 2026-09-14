@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use Google\Client as GoogleClient;
 use Google\Service\Oauth2;
 use RuntimeException;
+use Throwable;
 
 class GoogleOAuthService
 {
@@ -27,7 +30,7 @@ class GoogleOAuthService
             throw new RuntimeException('Google OAuth redirect URI is not configured.');
         }
 
-        $client = new GoogleClient();
+        $client = new GoogleClient;
 
         $client->setClientId($clientId);
         $client->setClientSecret($clientSecret);
@@ -60,8 +63,12 @@ class GoogleOAuthService
             throw new RuntimeException('OAuth authorization code cannot be empty.');
         }
 
-        $token = $this->createClient()
-            ->fetchAccessTokenWithAuthCode($code);
+        try {
+            $token = $this->createClient()
+                ->fetchAccessTokenWithAuthCode($code);
+        } catch (Throwable $exception) {
+            throw $this->errorClassifier->classify($exception);
+        }
 
         if (
             ! is_array($token)
@@ -70,8 +77,10 @@ class GoogleOAuthService
             || ! is_string($token['access_token'])
             || $token['access_token'] === ''
         ) {
-            throw new RuntimeException(
-                'Google authorization token exchange failed.'
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Authorization,
+                'Gmail authorization is invalid or expired.'
             );
         }
 
@@ -79,11 +88,12 @@ class GoogleOAuthService
     }
 
     /**
-     * @param array<string, mixed> $token
+     * @param  array<string, mixed>  $token
      * @return array{
      *     provider_account_id: string,
      *     account_email: string,
-     *     account_name: string|null
+     *     account_name: string|null,
+     *     account_avatar_url: string|null
      * }
      */
     public function accountIdentity(array $token): array
@@ -93,17 +103,23 @@ class GoogleOAuthService
             || ! is_string($token['access_token'])
             || $token['access_token'] === ''
         ) {
-            throw new RuntimeException(
-                'Google access token is missing.'
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::InvalidResponse,
+                'Gmail returned an invalid response.'
             );
         }
 
         $client = $this->createClient();
         $client->setAccessToken($token);
 
-        $userInfo = (new Oauth2($client))
-            ->userinfo
-            ->get();
+        try {
+            $userInfo = (new Oauth2($client))
+                ->userinfo
+                ->get();
+        } catch (Throwable $exception) {
+            throw $this->errorClassifier->classify($exception);
+        }
 
         $providerAccountId = $userInfo->getId();
         $accountEmail = $userInfo->getEmail();
@@ -114,18 +130,24 @@ class GoogleOAuthService
             || ! is_string($accountEmail)
             || $accountEmail === ''
         ) {
-            throw new RuntimeException(
-                'Google account identity is incomplete.'
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::InvalidResponse,
+                'Gmail returned an invalid response.'
             );
         }
 
         $accountName = $userInfo->getName();
+        $accountAvatarUrl = $userInfo->getPicture();
 
         return [
             'provider_account_id' => $providerAccountId,
             'account_email' => $accountEmail,
             'account_name' => is_string($accountName)
                 ? $accountName
+                : null,
+            'account_avatar_url' => is_string($accountAvatarUrl)
+                ? $accountAvatarUrl
                 : null,
         ];
     }

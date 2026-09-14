@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ProviderException;
 use App\Models\ProviderConnection;
 use App\Services\GoogleOAuthService;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
@@ -13,18 +14,14 @@ class GmailCallbackController extends Controller
 {
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService
-    ) {
-    }
+    ) {}
 
-    public function callback(Request $request): JsonResponse
+    public function callback(Request $request): RedirectResponse
     {
         $state = $request->string('state')->toString();
 
         if ($state === '') {
-            return response()->json([
-                'message' => 'The OAuth state is invalid or expired.',
-                'error' => 'oauth_state_invalid',
-            ], 422);
+            return $this->redirectToFrontend('oauth_state_invalid');
         }
 
         $stateData = Cache::pull(
@@ -32,45 +29,34 @@ class GmailCallbackController extends Controller
         );
 
         if (! is_array($stateData) || ! isset($stateData['user_id'])) {
-            return response()->json([
-                'message' => 'The OAuth state is invalid or expired.',
-                'error' => 'oauth_state_invalid',
-            ], 422);
+            return $this->redirectToFrontend('oauth_state_invalid');
         }
 
         if ($request->filled('error')) {
-            return response()->json([
-                'message' => 'Gmail authorization was not completed.',
-                'error' => 'authorization_denied',
-            ], 422);
+            return $this->redirectToFrontend('authorization_denied');
         }
 
         if (! $request->filled('code')) {
-            return response()->json([
-                'message' => 'The OAuth authorization code is missing.',
-                'error' => 'authorization_code_missing',
-            ], 422);
+            return $this->redirectToFrontend('authorization_code_missing');
         }
 
         try {
             $token = $this->googleOAuthService->exchangeCode(
                 $request->string('code')->toString()
             );
+        } catch (ProviderException $exception) {
+            return $this->redirectToFrontend($exception->errorCode());
         } catch (Throwable) {
-            return response()->json([
-                'message' => 'Gmail authorization could not be completed.',
-                'error' => 'gmail_token_exchange_failed',
-            ], 502);
+            return $this->redirectToFrontend('gmail_token_exchange_failed');
         }
 
         try {
             $identity = $this->googleOAuthService
                 ->accountIdentity($token);
+        } catch (ProviderException $exception) {
+            return $this->redirectToFrontend($exception->errorCode());
         } catch (Throwable) {
-            return response()->json([
-                'message' => 'The Gmail account identity could not be retrieved.',
-                'error' => 'gmail_account_identity_failed',
-            ], 502);
+            return $this->redirectToFrontend('gmail_account_identity_failed');
         }
 
         $connection = ProviderConnection::firstOrNew([
@@ -83,6 +69,9 @@ class GmailCallbackController extends Controller
 
         $connection->account_email =
             $identity['account_email'];
+
+        $connection->account_avatar_url =
+            $identity['account_avatar_url'] ?? null;
 
         $connection->access_token = $token['access_token'];
 
@@ -110,18 +99,16 @@ class GmailCallbackController extends Controller
         $connection->status = 'connected';
         $connection->save();
 
-        return response()->json([
-            'message' => 'Gmail authorization completed.',
-            'connection' => [
-                'id' => $connection->id,
-                'provider' => $connection->provider,
-                'provider_account_id' =>
-                    $connection->provider_account_id,
-                'account_email' => $connection->account_email,
-                'status' => $connection->status,
-                'scopes' => $connection->scopes,
-                'token_expires_at' => $connection->token_expires_at,
-            ],
-        ]);
+        return $this->redirectToFrontend('connected');
+    }
+
+    private function redirectToFrontend(string $result): RedirectResponse
+    {
+        $frontendUrl = rtrim(
+            (string) config('services.frontend.url'),
+            '/'
+        );
+
+        return redirect()->to($frontendUrl.'/?gmail='.urlencode($result));
     }
 }

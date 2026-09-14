@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\ProviderConnection;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -71,6 +73,31 @@ class GmailIntegrationTest extends TestCase
             ]);
     }
 
+    public function test_disconnect_removes_gmail_data_without_connection(): void
+    {
+        $user = User::factory()->create();
+
+        $conversation = Conversation::factory()
+            ->for($user)
+            ->create(['provider' => 'gmail']);
+
+        Message::factory()
+            ->for($conversation)
+            ->create(['provider' => 'gmail']);
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson('/api/integrations/gmail')
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('conversations', [
+            'id' => $conversation->id,
+        ]);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id' => $conversation->id,
+        ]);
+    }
+
     public function test_user_can_disconnect_own_gmail_connection(): void
     {
         $user = User::factory()->create();
@@ -79,6 +106,14 @@ class GmailIntegrationTest extends TestCase
             ->for($user)
             ->create();
 
+        $conversation = Conversation::factory()
+            ->for($user)
+            ->create(['provider' => 'gmail']);
+
+        Message::factory()
+            ->for($conversation)
+            ->create(['provider' => 'gmail']);
+
         $this->actingAs($user, 'sanctum')
             ->deleteJson('/api/integrations/gmail')
             ->assertNoContent();
@@ -86,6 +121,14 @@ class GmailIntegrationTest extends TestCase
         $this->assertDatabaseMissing('provider_connections', [
             'user_id' => $user->id,
             'provider' => 'gmail',
+        ]);
+
+        $this->assertDatabaseMissing('conversations', [
+            'id' => $conversation->id,
+        ]);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id' => $conversation->id,
         ]);
     }
 
