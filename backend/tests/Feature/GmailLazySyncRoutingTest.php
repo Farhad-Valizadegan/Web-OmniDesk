@@ -67,14 +67,14 @@ class GmailLazySyncRoutingTest extends TestCase
 
         $this->assertSame(1, $firstResult['threads_processed']);
         $this->assertSame(1, $firstResult['messages_processed']);
-        $this->assertNotNull($firstResult['next_page_token']);
+        $this->assertNull($firstResult['next_page_token']);
         $this->assertSame(1, $service->lazyCalls);
 
-        $secondResult = $service->sync(
-            $user,
-            100,
-            $firstResult['next_page_token']
+        $this->assertFalse(
+            $connection->fresh()->gmail_sync_completed
         );
+
+        $secondResult = $service->sync($user, 100);
 
         $this->assertSame(2, $secondResult['threads_processed']);
         $this->assertSame(2, $secondResult['messages_processed']);
