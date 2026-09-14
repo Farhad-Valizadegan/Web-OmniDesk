@@ -34,7 +34,7 @@ Includes:
 - CI baseline
 - Environment and secret-management conventions
 
-### M1 - Authentication and Workspace Foundation
+### M1 - Authentication and Workspace
 
 **Outcome:** A user can securely access a basic communication workspace.
 
@@ -104,7 +104,7 @@ Includes:
 - AI failure handling
 - No autonomous message sending
 
-### M6 - Production Hardening and Deployment
+### M6 - Production Hardening
 
 **Outcome:** The application is sufficiently verified and prepared for release.
 
@@ -124,12 +124,12 @@ Includes:
 | Milestone | Sprints | Main Result |
 |---|---|---|
 | M0 - Engineering Foundation | Sprint 0 and Sprint 1 | Development foundation |
-| M1 - Authentication and Workspace Foundation | Sprint 02 and Sprint 03 | Secure communication workspace |
+| M1 - Authentication and Workspace | Sprint 02 and Sprint 03 | Secure communication workspace |
 | M2 - Gmail Integration | Sprint 4 and Sprint 5 | Gmail connection and synchronization |
 | M3 - Unified Inbox | Sprint 06 | Unified communication workspace |
 | M4 - Telegram Integration | Sprint 07 | Telegram connection and synchronization |
 | M5 - AI-Assisted Communication | Sprint 08 | User-controlled AI assistance |
-| M6 - Production Hardening and Deployment | Sprint 09 | Release readiness |
+| M6 - Production Hardening | Sprint 09 | Release readiness |
 
 ### M0 Sprint Structure
 
