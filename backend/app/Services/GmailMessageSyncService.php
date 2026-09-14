@@ -22,6 +22,8 @@ class GmailMessageSyncService implements MessageProviderConnector
 
     private const FULL_SYNC_THROTTLE_MICROSECONDS = 2000000;
 
+    private const LAZY_SYNC_CONTINUATION_TOKEN = 'stored-page-token';
+
     public function __construct(
         private readonly GoogleOAuthService $googleOAuthService,
         private readonly GmailProviderErrorClassifier $errorClassifier = new GmailProviderErrorClassifier,
@@ -204,6 +206,21 @@ class GmailMessageSyncService implements MessageProviderConnector
                 ProviderErrorType::Permission,
                 'The Gmail read-only permission is required.'
             );
+        }
+
+        if (! $connection->gmail_sync_completed) {
+            $lazyResult = $this->syncNextPage(
+                $user,
+                min($maxResults, 15)
+            );
+
+            return [
+                'threads_processed' => $lazyResult['threads_processed'],
+                'messages_processed' => $lazyResult['messages_processed'],
+                'next_page_token' => $lazyResult['has_more']
+                    ? self::LAZY_SYNC_CONTINUATION_TOKEN
+                    : null,
+            ];
         }
 
         if (
