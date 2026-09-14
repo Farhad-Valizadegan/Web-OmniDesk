@@ -59,6 +59,9 @@ Includes:
 - Gmail connector
 - Provider error handling
 - Initial Gmail synchronization
+- Incremental Gmail synchronization
+- Duplicate prevention
+- Synchronization status and failure handling
 - Gmail data normalization
 
 ### M3 - Unified Inbox
@@ -72,8 +75,6 @@ Includes:
 - Message display
 - Search and filtering
 - Labels and tags
-- Duplicate prevention
-- Incremental synchronization
 
 ### M4 - Telegram Integration
 
