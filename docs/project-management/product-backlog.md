@@ -21,28 +21,28 @@ Backlog items represent capabilities, improvements, technical work, and verifica
 ## Backlog Items
 | ID | Backlog Item | Priority | Milestone | Status |
 |---|---|---|---|---|
-| PB-001 | Prepare the local development environment | Must | M0 | Planned |
-| PB-002 | Establish Laravel backend foundation | Must | M0 | Planned |
-| PB-003 | Establish React and TypeScript frontend foundation | Must | M0 | Planned |
-| PB-004 | Configure PostgreSQL and database access | Must | M0 | Planned |
-| PB-005 | Establish testing, formatting, and CI checks | Must | M0 | Planned |
-| PB-006 | Implement user registration | Must | M1 | Planned |
-| PB-007 | Implement login and logout | Must | M1 | Planned |
-| PB-008 | Implement authenticated sessions | Must | M1 | Planned |
-| PB-009 | Implement authorization and ownership checks | Must | M1 | Planned |
-| PB-010 | Implement the initial workspace layout | Must | M1 | Planned |
+| PB-001 | Prepare the local development environment | Must | M0 | Completed |
+| PB-002 | Establish Laravel backend foundation | Must | M0 | Completed |
+| PB-003 | Establish React and TypeScript frontend foundation | Must | M0 | Completed |
+| PB-004 | Configure PostgreSQL and database access | Must | M0 | Completed |
+| PB-005 | Establish testing, formatting, and CI checks | Must | M0 | Completed |
+| PB-006 | Implement user registration | Must | M1 | Completed |
+| PB-007 | Implement login and logout | Must | M1 | Completed |
+| PB-008 | Implement authenticated sessions | Must | M1 | Completed |
+| PB-009 | Implement authorization and ownership checks | Must | M1 | Completed |
+| PB-010 | Implement the initial workspace layout | Must | M1 | Completed |
 | PB-011 | Implement the conversation list | Must | M3 | Planned |
 | PB-012 | Implement conversation details and message display | Must | M3 | Planned |
 | PB-013 | Implement search and filtering | Should | M3 | Planned |
 | PB-014 | Implement local labels and tags | Should | M3 | Planned |
-| PB-015 | Implement Gmail authorization | Must | M2 | Planned |
-| PB-016 | Implement secure provider token storage | Must | M2 | Planned |
-| PB-017 | Implement the Gmail connector | Must | M2 | Planned |
-| PB-018 | Normalize Gmail communication data | Must | M2 | Planned |
-| PB-019 | Implement initial synchronization | Must | M2 | Planned |
-| PB-020 | Implement incremental synchronization | Must | M2 | Planned |
-| PB-021 | Prevent duplicate synchronized records | Must | M2 | Planned |
-| PB-022 | Record synchronization status and failures | Must | M2 | Planned |
+| PB-015 | Implement Gmail authorization | Must | M2 | Completed |
+| PB-016 | Implement secure provider token storage | Must | M2 | Completed |
+| PB-017 | Implement the Gmail connector | Must | M2 | Completed |
+| PB-018 | Normalize Gmail communication data | Must | M2 | Completed |
+| PB-019 | Implement initial synchronization | Must | M2 | Completed |
+| PB-020 | Implement incremental synchronization | Must | M2 | Completed |
+| PB-021 | Prevent duplicate synchronized records | Must | M2 | Completed |
+| PB-022 | Record synchronization status and failures | Must | M2 | Completed |
 | PB-023 | Validate the Telegram integration mode | Must | M4 | Planned |
 | PB-024 | Implement the Telegram connector | Must | M4 | Planned |
 | PB-025 | Implement Telegram synchronization | Must | M4 | Planned |
