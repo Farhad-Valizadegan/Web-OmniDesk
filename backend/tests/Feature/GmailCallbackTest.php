@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Http\Controllers\GmailAuthorizationController;
 use App\Models\User;
+use App\Services\GoogleOAuthService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -89,6 +92,23 @@ class GmailCallbackTest extends TestCase
             GmailAuthorizationController::stateCacheKey($state),
             ['user_id' => $user->id],
             now()->addMinutes(10)
+        );
+
+        $fakeService = new class extends GoogleOAuthService
+        {
+            public function exchangeCode(string $code): array
+            {
+                throw new ProviderException(
+                    'gmail',
+                    ProviderErrorType::Authorization,
+                    'Gmail authorization is invalid or expired.'
+                );
+            }
+        };
+
+        $this->app->instance(
+            GoogleOAuthService::class,
+            $fakeService
         );
 
         $this->get(
