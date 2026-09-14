@@ -74,8 +74,7 @@ class GmailMessageSyncService implements MessageProviderConnector
             );
         }
 
-        $client = $this->authenticatedClient($connection);
-        $gmail = new Gmail($client);
+        $gmail = $this->gmailService($connection);
         $profile = $this->providerCall(
             fn (): object => $gmail->users->getProfile('me')
         );
@@ -212,8 +211,7 @@ class GmailMessageSyncService implements MessageProviderConnector
             && $connection->history_id !== ''
             && ($pageToken === null || $pageToken === '')
         ) {
-            $client = $this->authenticatedClient($connection);
-            $gmail = new Gmail($client);
+            $gmail = $this->gmailService($connection);
 
             try {
                 return $this->syncIncrementally($connection, $user, $gmail, $maxResults);
@@ -271,8 +269,7 @@ class GmailMessageSyncService implements MessageProviderConnector
             );
         }
 
-        $client = $this->authenticatedClient($connection);
-        $gmail = new Gmail($client);
+        $gmail = $this->gmailService($connection);
         $profile = $this->providerCall(
             fn (): object => $gmail->users->getProfile('me')
         );
@@ -563,6 +560,17 @@ class GmailMessageSyncService implements MessageProviderConnector
         } catch (Throwable $exception) {
             throw $this->errorClassifier->classify($exception);
         }
+    }
+
+    /**
+     * Create an authenticated Gmail SDK service.
+     */
+    protected function gmailService(
+        ProviderConnection $connection
+    ): Gmail {
+        return new Gmail(
+            $this->authenticatedClient($connection)
+        );
     }
 
     private function authenticatedClient(
