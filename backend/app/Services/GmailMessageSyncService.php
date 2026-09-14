@@ -573,7 +573,7 @@ class GmailMessageSyncService implements MessageProviderConnector
         );
     }
 
-    private function authenticatedClient(
+    protected function authenticatedClient(
         ProviderConnection $connection
     ): GoogleClient {
         $client = $this->googleOAuthService->createClient();
