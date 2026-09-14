@@ -63,12 +63,13 @@ The initial sprint sequence is:
 | Sprint 0 | Repository and environment preparation | M0 |
 | Sprint 1 | Backend and frontend foundation | M0 |
 | Sprint 2 | Database and authentication | M1 |
-| Sprint 3 | Workspace and communication features | M1 and M3 |
+| Sprint 3 | Workspace foundation | M1 |
 | Sprint 4 | Gmail provider integration | M2 |
-| Sprint 5 | Synchronization and unified inbox | M2 and M3 |
-| Sprint 6 | Telegram integration | M4 |
-| Sprint 7 | AI assistance | M5 |
-| Sprint 8 | Hardening, testing, and release preparation | M6 |
+| Sprint 5 | Gmail synchronization | M2 |
+| Sprint 6 | Unified inbox completion | M3 |
+| Sprint 7 | Telegram integration | M4 |
+| Sprint 8 | AI assistance | M5 |
+| Sprint 9 | Hardening and release preparation | M6 |
 
 This sprint sequence is a planning baseline and may be adjusted when implementation evidence identifies new dependencies.
 
@@ -206,11 +207,11 @@ Implement the Gmail connector behind the provider boundary.
 - Gmail data can be retrieved through the integration boundary.
 - Provider failures are classified safely.
 
-## Sprint 5 - Synchronization and Unified Inbox
+## Sprint 5 - Gmail Synchronization
 
 ### Objective
 
-Synchronize provider data into the unified workspace.
+Synchronize Gmail provider data and make it available to the unified workspace.
 
 ### Tasks
 
@@ -232,11 +233,38 @@ Synchronize provider data into the unified workspace.
 - Temporary failures can be retried.
 - Existing valid data is preserved.
 
-## Sprint 6 - Telegram Integration
+## Sprint 6 - Unified Inbox
 
 ### Objective
 
-Implement supported Telegram integration.
+Complete the unified inbox experience under M3 using the provider-neutral workspace and synchronized Gmail data.
+
+### Tasks
+
+- Complete conversation organization workflows.
+- Implement and verify status filtering.
+- Implement and verify label filtering.
+- Display conversation status consistently.
+- Complete inbox selection, loading, and error states.
+- Add the remaining frontend interaction tests.
+- Present synchronized Gmail conversations and messages.
+- Preserve ownership boundaries and provider-neutral APIs.
+
+### Completion Criteria
+
+- Users can organize synchronized communication in the unified workspace.
+- Status and label filters work end to end.
+- Conversation status is visible.
+- Required frontend interaction, loading, and error tests pass.
+- Existing backend and frontend verification remains passing.
+- No provider credentials are exposed.
+- Sprint 06 verification evidence is recorded.
+
+## Sprint 7 - Telegram Integration
+
+### Objective
+
+Implement supported Telegram integration for M4.
 
 ### Tasks
 
@@ -316,6 +344,66 @@ Prepare the application for release verification.
 - Monitoring requirements are documented.
 - A release candidate can be prepared.
 
+## Sprint 8 - AI Assistance
+
+### Objective
+
+Implement user-controlled AI assistance for M5.
+
+### Tasks
+
+- Implement summary requests.
+- Implement editable reply suggestions.
+- Verify conversation ownership.
+- Minimize context before external processing.
+- Implement the AI provider abstraction.
+- Validate AI responses.
+- Implement suggestion states.
+- Store user decisions.
+- Handle AI failures safely.
+- Prevent autonomous message sending.
+- Add AI security and integration tests.
+
+### Completion Criteria
+
+- Users can request summaries.
+- Users can request reply suggestions.
+- Generated content is editable.
+- Users can accept or discard suggestions.
+- Minimum required context is sent.
+- AI failure does not block communication features.
+- AI cannot send messages autonomously.
+
+## Sprint 9 - Hardening and Release Preparation
+
+### Objective
+
+Prepare the application for M6 release verification.
+
+### Tasks
+
+- Run full automated tests.
+- Run integration tests.
+- Run end-to-end tests.
+- Verify authorization boundaries.
+- Verify secret protection.
+- Verify provider failure isolation.
+- Verify AI data minimization.
+- Review logging and diagnostics.
+- Review backup and recovery procedures.
+- Review deployment configuration.
+- Resolve release-blocking defects.
+- Prepare release notes.
+
+### Completion Criteria
+
+- Mandatory tests pass.
+- Security checks pass.
+- Release-blocking defects are resolved.
+- Deployment instructions are documented.
+- Monitoring requirements are documented.
+- A release candidate can be prepared.
+
 ## Definition of Done
 
 An implementation item is complete when:
@@ -355,8 +443,8 @@ Implementation tasks should be traceable to approved requirements, System Analys
 | IMP-001 | Final sprint duration | To be decided |
 | IMP-002 | Exact branch strategy | To be finalized |
 | IMP-003 | Exact Redis usage | To be decided during implementation |
-| IMP-004 | Exact Gmail scopes | To be finalized during integration |
-| IMP-005 | Exact Telegram integration mode | Requires validation |
+| IMP-004 | Exact Gmail scopes | Resolved in Sprint 04 |
+| IMP-005 | Exact Telegram integration mode | Requires validation in Sprint 07 |
 | IMP-006 | Final AI provider | Unresolved |
-| IMP-007 | Exact release schedule | To be finalized during implementation |
+| IMP-007 | Exact release schedule | To be finalized during release planning |
 | IMP-008 | Production deployment method | To be finalized during deployment planning |
