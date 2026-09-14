@@ -342,6 +342,11 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
     expect(await screen.findByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
     expect(screen.getByText('No conversations found')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Connect or synchronize a provider, or adjust the search and read-state filters.',
+      ),
+    ).toBeInTheDocument()
   })
 
   test('displays conversations and messages in the workspace', async () => {

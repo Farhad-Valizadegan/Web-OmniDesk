@@ -470,8 +470,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
               <h3>No conversations found</h3>
 
               <p>
-                Try changing the search or read-state filter. Provider
-                connections will be implemented in Sprint 04.
+                Connect or synchronize a provider, or adjust the search and read-state filters.
               </p>
             </section>
           )}
