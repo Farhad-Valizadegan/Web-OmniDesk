@@ -77,12 +77,12 @@ Core provider-neutral inbox implemented. UI and test carryover remains.
 | Fixture data | Passed | No action |
 | Conversation and message display | Passed | No action |
 | Read-state frontend filter | Passed | No action |
-| Status and label frontend filters | Fix Now | Implement both filters |
-| Conversation status display | Fix Now | Display status in the conversation interface |
-| Frontend selection, filter, loading and error tests | Fix Now | Add missing interaction tests |
+| Status and label frontend filters | Deferred | Complete both filters in Sprint 06 under M3 |
+| Conversation status display | Deferred | Complete status display in Sprint 06 under M3 |
+| Frontend selection, filter, loading and error tests | Deferred | Complete the remaining interaction tests in Sprint 06 under M3 |
 | Frontend pagination | Satisfied Later | Implemented during Sprint 05 |
-| Sprint verification evidence | Missing Evidence | Record CI and test results |
-| Unresolved Sprint 03 decisions | Fix Now | Record final implementation decisions |
+| Sprint verification evidence | Deferred | Record consolidated evidence after Sprint 06 carryover is complete |
+| Unresolved Sprint 03 decisions | Deferred | Close remaining decisions with Sprint 06 completion evidence |
 
 ### Proposed Status
 
