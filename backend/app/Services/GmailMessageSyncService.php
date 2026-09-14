@@ -435,12 +435,7 @@ class GmailMessageSyncService implements MessageProviderConnector
             $threadsProcessed++;
         }
 
-        foreach (array_keys($deletedMessageIds) as $messageId) {
-            Message::query()
-                ->where('provider', 'gmail')
-                ->where('provider_message_id', $messageId)
-                ->delete();
-        }
+        $this->deleteMessages($user, array_keys($deletedMessageIds));
 
         if (is_string($latestHistoryId) && $latestHistoryId !== '') {
             $connection->history_id = $latestHistoryId;
@@ -452,6 +447,27 @@ class GmailMessageSyncService implements MessageProviderConnector
             'messages_processed' => $messagesProcessed,
             'next_page_token' => null,
         ];
+    }
+
+    /**
+     * Delete Gmail messages owned by the synchronizing user.
+     *
+     * @param  array<int, string>  $messageIds
+     */
+    protected function deleteMessages(User $user, array $messageIds): void
+    {
+        if ($messageIds === []) {
+            return;
+        }
+
+        Message::query()
+            ->where('provider', 'gmail')
+            ->whereIn('provider_message_id', $messageIds)
+            ->whereHas(
+                'conversation',
+                fn ($query) => $query->where('user_id', $user->id)
+            )
+            ->delete();
     }
 
     /**
