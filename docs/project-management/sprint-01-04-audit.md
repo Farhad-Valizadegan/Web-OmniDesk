@@ -1,6 +1,6 @@
 # Sprint 01–04 Audit
 
-> Status: In Progress
+> Status: Completed with Carryover
 > Audit started: 2026-09-13
 
 ## Purpose
@@ -63,7 +63,7 @@ Core authentication implemented. Security and documentation carryover remains.
 
 `Completed with Carryover`
 
-## Sprint 03 — Unified Inbox Foundation
+## Sprint 03 — Workspace Foundation
 
 ### Result
 
@@ -92,7 +92,7 @@ Core provider-neutral inbox implemented. UI and test carryover remains.
 
 ### Result
 
-Gmail OAuth implementation was merged, but formal closeout remains incomplete.
+Gmail OAuth implementation and formal closeout are complete.
 
 | Finding | Classification | Resolution |
 |---|---|---|
@@ -111,7 +111,7 @@ Gmail OAuth implementation was merged, but formal closeout remains incomplete.
 
 ### Proposed Status
 
-`Implementation Complete — Closeout Pending`
+`Completed`
 
 ## Mandatory Remediation Before Milestone Closure
 
@@ -131,24 +131,20 @@ Gmail OAuth implementation was merged, but formal closeout remains incomplete.
 
 ### M2
 
-- Define the Gmail connector contract.
-- Implement explicit Gmail provider-error classification.
-- Complete the browser callback flow.
-- Record real Gmail connection evidence.
-- Complete Sprint 05 synchronization acceptance.
+- Sprint 04 and Sprint 05 acceptance evidence is complete.
+- No remaining Sprint 05 synchronization remediation is open.
 
 ### M3
 
-- Add frontend status and label filters.
-- Display conversation status.
-- Add missing frontend inbox tests.
-- Complete Sprint 05 synchronization acceptance.
+- Complete frontend status and label filters in Sprint 06.
+- Display conversation status in Sprint 06.
+- Add the remaining inbox interaction tests in Sprint 06.
 
 ## Next Action
 
-Resolve Sprint 05 synchronization correctness defects before expanding product scope:
+Plan and execute Sprint 06 under M3 to complete the remaining unified inbox carryover:
 
-1. Advance the Gmail history cursor only after complete successful synchronization.
-2. Scope deleted Gmail messages to the authenticated user.
-3. Add regression tests for both defects.
-4. Complete real Gmail synchronization verification.
+1. Implement frontend status and label filters.
+2. Display conversation status consistently.
+3. Add the remaining inbox interaction, loading, and error tests.
+4. Record Sprint 06 verification evidence.
