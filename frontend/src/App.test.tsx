@@ -18,6 +18,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  syncGmailPage,
   type Conversation,
   type Message,
   type PaginatedResponse,
@@ -45,6 +46,7 @@ const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
 const registerUserMock = vi.mocked(registerUser)
+const syncGmailPageMock = vi.mocked(syncGmailPage)
 
 function emptyPagination<T>(): PaginatedResponse<T> {
   return {
@@ -98,6 +100,15 @@ describe('App', () => {
     getConversationMessagesMock.mockResolvedValue(
       emptyPagination<Message>(),
     )
+
+    syncGmailPageMock.mockResolvedValue({
+      message: 'Gmail page synchronized.',
+      sync: {
+        threads_processed: 0,
+        messages_processed: 0,
+        has_more: false,
+      },
+    })
   })
 
   test('displays a successful backend connection', async () => {
@@ -449,6 +460,132 @@ describe('App', () => {
     })
   })
 
+  test('performs an initial lazy Gmail sync when Gmail is connected', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    getGmailStatusMock.mockResolvedValue({
+      connected: true,
+      connection: {
+        id: 1,
+        provider: 'gmail',
+        provider_account_id: 'freddie@example.com',
+        account_email: 'freddie@example.com',
+        status: 'connected',
+        scopes: [],
+        token_expires_at: null,
+      },
+    })
+
+    syncGmailPageMock.mockResolvedValue({
+      message: 'Gmail page synchronized.',
+      sync: {
+        threads_processed: 15,
+        messages_processed: 20,
+        has_more: true,
+      },
+    })
+
+    render(<App />)
+
+    await screen.findByText('Welcome, Freddie')
+
+    await waitFor(() => {
+      expect(syncGmailPageMock).toHaveBeenCalledTimes(1)
+    })
+
+    expect(getGmailStatusMock).toHaveBeenCalled()
+  })
+  test('loads the next Gmail page when local pagination is exhausted but Gmail has more', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    getGmailStatusMock.mockResolvedValue({
+      connected: true,
+      connection: {
+        id: 1,
+        provider: 'gmail',
+        provider_account_id: 'freddie@example.com',
+        account_email: 'freddie@example.com',
+        status: 'connected',
+        scopes: [],
+        token_expires_at: null,
+      },
+    })
+
+    syncGmailPageMock
+      .mockResolvedValueOnce({
+        message: 'Initial Gmail page synchronized.',
+        sync: {
+          threads_processed: 15,
+          messages_processed: 20,
+          has_more: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        message: 'Next Gmail page synchronized.',
+        sync: {
+          threads_processed: 15,
+          messages_processed: 18,
+          has_more: false,
+        },
+      })
+
+    getConversationsMock
+      .mockResolvedValueOnce({
+        ...emptyPagination<Conversation>(),
+        current_page: 1,
+        last_page: 1,
+        from: 1,
+        to: 15,
+        total: 15,
+      })
+      .mockResolvedValueOnce({
+        ...emptyPagination<Conversation>(),
+        current_page: 2,
+        last_page: 2,
+        from: 16,
+        to: 30,
+        total: 30,
+      })
+
+    render(<App />)
+
+    await screen.findByText('Welcome, Freddie')
+
+    await waitFor(() => {
+      expect(syncGmailPageMock).toHaveBeenCalledTimes(1)
+    })
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Next' }))
+
+    await waitFor(() => {
+      expect(syncGmailPageMock).toHaveBeenCalledTimes(2)
+    })
+
+    await waitFor(() => {
+      expect(getConversationsMock).toHaveBeenLastCalledWith({
+        search: undefined,
+        is_read: undefined,
+        per_page: 15,
+        page: 2,
+      })
+    })
+  })
   test('displays a classified Gmail callback error', () => {
     window.history.pushState({}, '', '/?gmail=gmail_rate_limit')
 

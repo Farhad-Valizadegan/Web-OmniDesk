@@ -643,7 +643,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
             </div>
           )}
 
-            {pagination.last_page > 1 && (
+            {(pagination.last_page > 1 || gmailHasMore) && (
               <nav className="conversation-pagination" aria-label="Conversation pages">
                 <button
                   type="button"
