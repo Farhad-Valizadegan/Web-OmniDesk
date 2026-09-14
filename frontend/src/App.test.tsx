@@ -444,6 +444,17 @@ describe('App', () => {
     })
   })
 
+  test('displays a classified Gmail callback error', () => {
+    window.history.pushState({}, '', '/?gmail=gmail_rate_limit')
+
+    render(<App />)
+
+    expect(
+      screen.getByText(
+        'Gmail request limit was reached. Try again later.',
+      ),
+    ).toBeInTheDocument()
+  })
   test('fades Gmail feedback after five seconds', () => {
     vi.useFakeTimers()
     window.history.pushState({}, '', '/?gmail=connected')

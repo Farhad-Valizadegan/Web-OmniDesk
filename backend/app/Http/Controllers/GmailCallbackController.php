@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ProviderException;
 use App\Models\ProviderConnection;
 use App\Services\GoogleOAuthService;
 use Illuminate\Http\RedirectResponse;
@@ -43,6 +44,8 @@ class GmailCallbackController extends Controller
             $token = $this->googleOAuthService->exchangeCode(
                 $request->string('code')->toString()
             );
+        } catch (ProviderException $exception) {
+            return $this->redirectToFrontend($exception->errorCode());
         } catch (Throwable) {
             return $this->redirectToFrontend('gmail_token_exchange_failed');
         }
@@ -50,6 +53,8 @@ class GmailCallbackController extends Controller
         try {
             $identity = $this->googleOAuthService
                 ->accountIdentity($token);
+        } catch (ProviderException $exception) {
+            return $this->redirectToFrontend($exception->errorCode());
         } catch (Throwable) {
             return $this->redirectToFrontend('gmail_account_identity_failed');
         }

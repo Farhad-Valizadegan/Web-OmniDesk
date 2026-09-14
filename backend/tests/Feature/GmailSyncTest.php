@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Models\User;
 use App\Services\GmailMessageSyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -79,6 +81,39 @@ class GmailSyncTest extends TestCase
             ->assertJsonPath('error', 'gmail_sync_failed')
             ->assertJsonMissing([
                 'message' => 'Sensitive Gmail provider detail',
+            ]);
+    }
+
+    public function test_classified_provider_failure_returns_safe_api_response(): void
+    {
+        $user = User::factory()->create();
+
+        $fakeService = new class extends GmailMessageSyncService
+        {
+            public function __construct() {}
+
+            public function sync(
+                User $user,
+                int $maxResults = 20,
+                ?string $pageToken = null,
+            ): array {
+                throw new ProviderException(
+                    'gmail',
+                    ProviderErrorType::RateLimit,
+                    'Gmail request limit was reached.'
+                );
+            }
+        };
+
+        $this->app->instance(GmailMessageSyncService::class, $fakeService);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/integrations/gmail/sync')
+            ->assertTooManyRequests()
+            ->assertJson([
+                'message' => 'Gmail request limit was reached.',
+                'error' => 'gmail_rate_limit',
+                'retryable' => true,
             ]);
     }
 

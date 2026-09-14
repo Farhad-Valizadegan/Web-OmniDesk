@@ -38,6 +38,11 @@ function readGmailFeedback(): GmailFeedback | null {
     authorization_code_missing: 'Gmail authorization code was missing.',
     gmail_token_exchange_failed: 'Gmail connection could not be completed.',
     gmail_account_identity_failed: 'The Gmail account could not be verified.',
+    gmail_authorization: 'Gmail authorization is invalid or expired.',
+    gmail_permission: 'Gmail permission is insufficient.',
+    gmail_rate_limit: 'Gmail request limit was reached. Try again later.',
+    gmail_temporary: 'Gmail is temporarily unavailable.',
+    gmail_invalid_response: 'Gmail returned an invalid response.',
   }
 
   return result && messages[result]

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ProviderException;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\ProviderConnection;
@@ -60,6 +61,8 @@ class GmailIntegrationController extends Controller
                 $validated['max_results'] ?? 20,
                 $validated['page_token'] ?? null,
             );
+        } catch (ProviderException $exception) {
+            return $this->providerErrorResponse($exception);
         } catch (Throwable) {
             return response()->json([
                 'message' => 'Gmail synchronization could not be completed.',
@@ -88,6 +91,8 @@ class GmailIntegrationController extends Controller
                 $request->user(),
                 $validated['max_results'] ?? 15,
             );
+        } catch (ProviderException $exception) {
+            return $this->providerErrorResponse($exception);
         } catch (Throwable) {
             return response()->json([
                 'message' => 'Gmail page could not be loaded.',
@@ -99,6 +104,16 @@ class GmailIntegrationController extends Controller
             'message' => 'Gmail page loaded.',
             'sync' => $result,
         ]);
+    }
+
+    private function providerErrorResponse(
+        ProviderException $exception
+    ): JsonResponse {
+        return response()->json([
+            'message' => $exception->getMessage(),
+            'error' => $exception->errorCode(),
+            'retryable' => $exception->isRetryable(),
+        ], $exception->httpStatus());
     }
 
     public function disconnect(Request $request): Response

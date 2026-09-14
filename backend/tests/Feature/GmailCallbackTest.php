@@ -97,7 +97,7 @@ class GmailCallbackTest extends TestCase
             .'&code=test-code'
         )
             ->assertRedirect(
-                'http://127.0.0.1:5173/?gmail=gmail_token_exchange_failed'
+                'http://127.0.0.1:5173/?gmail=gmail_authorization'
             );
 
         $this->assertNull(

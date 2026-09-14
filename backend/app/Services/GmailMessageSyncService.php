@@ -3,16 +3,16 @@
 namespace App\Services;
 
 use App\Contracts\MessageProviderConnector;
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\ProviderConnection;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Client as GoogleClient;
-use Google\Service\Exception as GoogleServiceException;
 use Google\Service\Gmail;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
 use Throwable;
 
 class GmailMessageSyncService implements MessageProviderConnector
@@ -23,7 +23,8 @@ class GmailMessageSyncService implements MessageProviderConnector
     private const FULL_SYNC_THROTTLE_MICROSECONDS = 2000000;
 
     public function __construct(
-        private readonly GoogleOAuthService $googleOAuthService
+        private readonly GoogleOAuthService $googleOAuthService,
+        private readonly GmailProviderErrorClassifier $errorClassifier = new GmailProviderErrorClassifier,
     ) {}
 
     public function provider(): string
@@ -48,7 +49,9 @@ class GmailMessageSyncService implements MessageProviderConnector
             ->first();
 
         if (! $connection) {
-            throw new RuntimeException(
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Authorization,
                 'A connected Gmail account is required before synchronizing.'
             );
         }
@@ -64,8 +67,10 @@ class GmailMessageSyncService implements MessageProviderConnector
         $scopes = is_array($connection->scopes) ? $connection->scopes : [];
 
         if (! in_array(self::GMAIL_READONLY_SCOPE, $scopes, true)) {
-            throw new RuntimeException(
-                'The Gmail read-only scope is not granted for this connection.'
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Permission,
+                'The Gmail read-only permission is required.'
             );
         }
 
@@ -185,7 +190,9 @@ class GmailMessageSyncService implements MessageProviderConnector
             ->first();
 
         if (! $connection) {
-            throw new RuntimeException(
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Authorization,
                 'A connected Gmail account is required before synchronizing.'
             );
         }
@@ -193,8 +200,10 @@ class GmailMessageSyncService implements MessageProviderConnector
         $scopes = is_array($connection->scopes) ? $connection->scopes : [];
 
         if (! in_array(self::GMAIL_READONLY_SCOPE, $scopes, true)) {
-            throw new RuntimeException(
-                'The Gmail read-only scope is not granted for this connection.'
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Permission,
+                'The Gmail read-only permission is required.'
             );
         }
 
@@ -208,8 +217,8 @@ class GmailMessageSyncService implements MessageProviderConnector
 
             try {
                 return $this->syncIncrementally($connection, $user, $gmail, $maxResults);
-            } catch (GoogleServiceException $exception) {
-                if ((int) $exception->getCode() !== 404) {
+            } catch (ProviderException $exception) {
+                if ((int) $exception->getPrevious()?->getCode() !== 404) {
                     throw $exception;
                 }
 
@@ -243,7 +252,9 @@ class GmailMessageSyncService implements MessageProviderConnector
             ->first();
 
         if (! $connection) {
-            throw new RuntimeException(
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Authorization,
                 'A connected Gmail account is required before synchronizing.'
             );
         }
@@ -253,8 +264,10 @@ class GmailMessageSyncService implements MessageProviderConnector
             : [];
 
         if (! in_array(self::GMAIL_READONLY_SCOPE, $scopes, true)) {
-            throw new RuntimeException(
-                'The Gmail read-only scope is not granted for this connection.'
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Permission,
+                'The Gmail read-only permission is required.'
             );
         }
 
@@ -521,39 +534,19 @@ class GmailMessageSyncService implements MessageProviderConnector
      */
     protected function providerCall(callable $operation): mixed
     {
-        return retry(
-            3,
-            function () use ($operation): mixed {
-                try {
-                    return $operation();
-                } catch (Throwable $exception) {
-                    if ($this->isRateLimitFailure($exception)) {
-                        sleep(60);
-                    }
-
-                    throw $exception;
-                }
-            },
-            500,
-            function (Throwable $exception): bool {
-                $code = (int) $exception->getCode();
-
-                return $code === 0
-                    || $code === 408
-                    || $code === 429
-                    || $code === 403
-                    || $code >= 500;
-            }
-        );
-    }
-
-    private function isRateLimitFailure(Throwable $exception): bool
-    {
-        return (int) $exception->getCode() === 403
-            && str_contains(
-                strtolower($exception->getMessage()),
-                'ratelimitexceeded'
+        try {
+            return retry(
+                3,
+                $operation,
+                500,
+                fn (Throwable $exception): bool => $this
+                    ->errorClassifier
+                    ->classify($exception)
+                    ->isRetryable()
             );
+        } catch (Throwable $exception) {
+            throw $this->errorClassifier->classify($exception);
+        }
     }
 
     private function authenticatedClient(
@@ -566,8 +559,10 @@ class GmailMessageSyncService implements MessageProviderConnector
             $refreshToken = $connection->refresh_token;
 
             if (! is_string($refreshToken) || $refreshToken === '') {
-                throw new RuntimeException(
-                    'The Gmail access token expired and no refresh token exists.'
+                throw new ProviderException(
+                    'gmail',
+                    ProviderErrorType::Authorization,
+                    'Gmail authorization is invalid or expired.'
                 );
             }
 
@@ -575,10 +570,7 @@ class GmailMessageSyncService implements MessageProviderConnector
                 $token = $client
                     ->fetchAccessTokenWithRefreshToken($refreshToken);
             } catch (Throwable $exception) {
-                throw new RuntimeException(
-                    'The Gmail access token could not be refreshed.',
-                    previous: $exception
-                );
+                throw $this->errorClassifier->classify($exception);
             }
 
             if (
@@ -588,8 +580,10 @@ class GmailMessageSyncService implements MessageProviderConnector
                 || ! is_string($token['access_token'])
                 || $token['access_token'] === ''
             ) {
-                throw new RuntimeException(
-                    'The Gmail access token could not be refreshed.'
+                throw new ProviderException(
+                    'gmail',
+                    ProviderErrorType::Authorization,
+                    'Gmail authorization is invalid or expired.'
                 );
             }
 

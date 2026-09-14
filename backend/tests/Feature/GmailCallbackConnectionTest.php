@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Http\Controllers\GmailAuthorizationController;
 use App\Models\ProviderConnection;
 use App\Models\User;
@@ -196,6 +198,42 @@ class GmailCallbackConnectionTest extends TestCase
             ->assertRedirect(
                 'http://127.0.0.1:5173/?gmail=gmail_account_identity_failed'
             );
+
+        $this->assertDatabaseCount('provider_connections', 0);
+    }
+
+    public function test_classified_provider_failure_redirects_with_stable_error_code(): void
+    {
+        $user = User::factory()->create();
+        $state = 'classified-provider-failure-state';
+
+        Cache::put(
+            GmailAuthorizationController::stateCacheKey($state),
+            ['user_id' => $user->id],
+            now()->addMinutes(10)
+        );
+
+        $fakeService = new class extends GoogleOAuthService
+        {
+            public function exchangeCode(string $code): array
+            {
+                throw new ProviderException(
+                    'gmail',
+                    ProviderErrorType::RateLimit,
+                    'Gmail request limit was reached.'
+                );
+            }
+        };
+
+        $this->app->instance(GoogleOAuthService::class, $fakeService);
+
+        $this->get(
+            '/api/integrations/gmail/callback?state='
+            .$state
+            .'&code=test-code'
+        )->assertRedirect(
+            'http://127.0.0.1:5173/?gmail=gmail_rate_limit'
+        );
 
         $this->assertDatabaseCount('provider_connections', 0);
     }

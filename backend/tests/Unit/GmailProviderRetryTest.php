@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Services\GmailMessageSyncService;
 use App\Services\GoogleOAuthService;
 use RuntimeException;
@@ -35,7 +37,7 @@ class GmailProviderRetryTest extends TestCase
         $this->assertSame(3, $attempts);
     }
 
-    public function test_non_transient_provider_failure_is_not_retried(): void
+    public function test_non_transient_provider_failure_is_classified_without_retry(): void
     {
         $service = new class(new GoogleOAuthService) extends GmailMessageSyncService
         {
@@ -47,16 +49,26 @@ class GmailProviderRetryTest extends TestCase
 
         $attempts = 0;
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('invalid credentials');
-
         try {
             $service->callProvider(function () use (&$attempts): never {
                 $attempts++;
-                throw new RuntimeException('invalid credentials', 401);
+
+                throw new RuntimeException('Sensitive credentials', 401);
             });
-        } finally {
-            $this->assertSame(1, $attempts);
+
+            $this->fail('Expected a provider exception.');
+        } catch (ProviderException $exception) {
+            $this->assertSame(
+                ProviderErrorType::Authorization,
+                $exception->type
+            );
+
+            $this->assertSame(
+                'Gmail authorization is invalid or expired.',
+                $exception->getMessage()
+            );
         }
+
+        $this->assertSame(1, $attempts);
     }
 }

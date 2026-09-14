@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Config;
-use RuntimeException;
 use Tests\TestCase;
 
 class GoogleAccountIdentityTest extends TestCase
@@ -59,15 +60,24 @@ class GoogleAccountIdentityTest extends TestCase
         );
     }
 
-    public function test_missing_access_token_is_rejected(): void
+    public function test_missing_access_token_is_classified(): void
     {
         $service = app(GoogleOAuthService::class);
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(
-            'Google access token is missing.'
-        );
+        try {
+            $service->accountIdentity([]);
 
-        $service->accountIdentity([]);
+            $this->fail('Expected a provider exception.');
+        } catch (ProviderException $exception) {
+            $this->assertSame(
+                ProviderErrorType::InvalidResponse,
+                $exception->type
+            );
+
+            $this->assertSame(
+                'gmail_invalid_response',
+                $exception->errorCode()
+            );
+        }
     }
 }
