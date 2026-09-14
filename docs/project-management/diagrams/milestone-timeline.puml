@@ -23,12 +23,28 @@ note bottom of M0
 Sprint 00 and Sprint 01
 end note
 
+note bottom of M1
+Sprint 02 and Sprint 03
+end note
+
+note bottom of M2
+Sprint 04 and Sprint 05
+end note
+
 note bottom of M3
-Sprint 03 and Sprint 05
+Sprint 06
+end note
+
+note bottom of M4
+Sprint 07
+end note
+
+note bottom of M5
+Sprint 08
 end note
 
 note bottom of M6
-Sprint 08
+Sprint 09
 end note
 
 @enduml

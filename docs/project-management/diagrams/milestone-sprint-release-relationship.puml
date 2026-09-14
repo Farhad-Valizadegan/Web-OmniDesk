@@ -27,6 +27,7 @@ package "Sprints" {
   rectangle "Sprint 06" as S06
   rectangle "Sprint 07" as S07
   rectangle "Sprint 08" as S08
+  rectangle "Sprint 09" as S09
 }
 
 rectangle "Release Review" as Review
@@ -43,18 +44,18 @@ Planning --> S05 : assign work
 Planning --> S06 : assign work
 Planning --> S07 : assign work
 Planning --> S08 : assign work
+Planning --> S09 : assign work
 
-S00 --> M0 : contributes to
-S01 --> M0 : contributes to
-S02 --> M1 : contributes to
-S03 --> M1 : contributes to
-S03 --> M3 : contributes to
-S04 --> M2 : contributes to
-S05 --> M2 : contributes to
-S05 --> M3 : contributes to
-S06 --> M4 : contributes to
-S07 --> M5 : contributes to
-S08 --> M6 : contributes to
+S00 --> M0 : primary milestone
+S01 --> M0 : primary milestone
+S02 --> M1 : primary milestone
+S03 --> M1 : primary milestone
+S04 --> M2 : primary milestone
+S05 --> M2 : primary milestone
+S06 --> M3 : primary milestone
+S07 --> M4 : primary milestone
+S08 --> M5 : primary milestone
+S09 --> M6 : primary milestone
 
 M0 --> Review : outcome review
 M1 --> Review : outcome review
