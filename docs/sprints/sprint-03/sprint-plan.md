@@ -1,4 +1,4 @@
-# Sprint 03 Plan - Unified Inbox Foundation
+# Sprint 03 Plan - Workspace Foundation
 
 > Status: Completed with Carryover
 > Completed: 2026-09-12
@@ -12,9 +12,9 @@ Sprint 03 establishes the frontend and backend foundation for viewing conversati
 
 ## Related Milestone
 
-M3 - Unified Inbox
+M1 - Authentication and Workspace
 
-Sprint 03 contributes to M3 only. Gmail integration belongs to M2 and will be implemented in Sprints 04 and 05.
+Sprint 03 contributes to M1 only. Unified Inbox completion belongs to M3 and will be implemented in Sprint 06. Gmail integration belongs to M2 and is implemented in Sprints 04 and 05.
 
 ## Related Backlog Items
 

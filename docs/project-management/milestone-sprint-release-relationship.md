@@ -1,6 +1,7 @@
 # Milestone, Sprint, and Release Relationship
 
-> Status: Draft
+> Status: Approved
+> Normalized: 2026-09-14
 
 ## Purpose
 
@@ -16,7 +17,7 @@ This document explains how product backlog items, sprints, milestones, and relea
 - Sprint planning selects a limited set of backlog items.
 - Sprints produce reviewable implementation increments.
 - Multiple sprints may contribute to one milestone.
-- One sprint may contribute to more than one milestone.
+- Each sprint has exactly one primary milestone.
 - Milestones represent meaningful project outcomes.
 - Releases represent published increments.
 - A sprint does not automatically create a release.
@@ -28,12 +29,12 @@ This document explains how product backlog items, sprints, milestones, and relea
 | Milestone | Contributing Sprints | Outcome |
 |---|---|---|
 | M0 | Sprint 00 and Sprint 01 | Engineering foundation |
-| M1 | Sprint 02 | Authentication and workspace foundation |
+| M1 | Sprint 02 and Sprint 03 | Authentication and workspace foundation |
 | M2 | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
-| M3 | Sprint 03 and Sprint 05 | Unified communication workspace |
-| M4 | Sprint 06 | Telegram connection and synchronization |
-| M5 | Sprint 07 | User-controlled AI assistance |
-| M6 | Sprint 08 | Production hardening and release readiness |
+| M3 | Sprint 06 | Unified communication workspace |
+| M4 | Sprint 07 | Telegram connection and synchronization |
+| M5 | Sprint 08 | User-controlled AI assistance |
+| M6 | Sprint 09 | Production hardening and release readiness |
 
 ## Release Rule
 

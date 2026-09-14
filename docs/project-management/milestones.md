@@ -123,12 +123,12 @@ Includes:
 | Milestone | Sprints | Main Result |
 |---|---|---|
 | M0 - Engineering Foundation | Sprint 0 and Sprint 1 | Development foundation |
-| M1 - Authentication and Workspace Foundation | Sprint 02 | Secure workspace foundation |
+| M1 - Authentication and Workspace Foundation | Sprint 02 and Sprint 03 | Secure communication workspace |
 | M2 - Gmail Integration | Sprint 4 and Sprint 5 | Gmail connection and synchronization |
-| M3 - Unified Inbox | Sprint 3 and Sprint 5 | Unified communication workspace |
-| M4 - Telegram Integration | Sprint 6 | Telegram connection and synchronization |
-| M5 - AI-Assisted Communication | Sprint 7 | User-controlled AI assistance |
-| M6 - Production Hardening and Deployment | Sprint 8 | Release readiness |
+| M3 - Unified Inbox | Sprint 06 | Unified communication workspace |
+| M4 - Telegram Integration | Sprint 07 | Telegram connection and synchronization |
+| M5 - AI-Assisted Communication | Sprint 08 | User-controlled AI assistance |
+| M6 - Production Hardening and Deployment | Sprint 09 | Release readiness |
 
 ### M0 Sprint Structure
 
@@ -146,11 +146,11 @@ Establishes the Laravel backend, React frontend, REST API foundation, frontend-b
 
 Implements the database foundation, registration, login, logout, sessions, authentication, and ownership checks.
 
-#### Sprint 3 - Workspace and Communication Features
+#### Sprint 3 - Workspace Foundation
 
 Implements the initial workspace, conversation list, conversation details, message display, search, filtering, labels, and tags.
 
-Sprint 3 contributes to M3.
+Sprint 3 contributes to M1 only. Unified Inbox completion is assigned to Sprint 06 under M3.
 
 ### M2 Sprint Structure
 
@@ -158,31 +158,35 @@ Sprint 3 contributes to M3.
 
 Implements Gmail authorization, secure token storage, the Gmail connector, data mapping, and provider error classification.
 
-#### Sprint 5 - Synchronization and Unified Inbox
+#### Sprint 5 - Gmail Synchronization
 
-Implements synchronization coordination, validation, normalization, duplicate prevention, and incremental synchronization.
+Implements Gmail synchronization coordination, validation, normalization, duplicate prevention, and incremental synchronization.
 
-Sprint 5 contributes to both M2 and M3.
+Sprint 5 contributes to M2 only.
 
 ### M3 Sprint Structure
 
-M3 is completed through the workspace work in Sprint 3 and the synchronization and unified inbox work in Sprint 5.
+#### Sprint 6 - Unified Inbox
+
+Completes the unified inbox experience, including conversation organization, search, filtering, labels, synchronization presentation, and user-facing inbox workflows.
+
+Sprint 6 contributes to M3 only.
 
 ### M4 Sprint Structure
 
-#### Sprint 6 - Telegram Integration
+#### Sprint 7 - Telegram Integration
 
 Implements the validated Telegram connection flow, connector, supported data normalization, synchronization, and failure isolation.
 
 ### M5 Sprint Structure
 
-#### Sprint 7 - AI Assistance
+#### Sprint 8 - AI Assistance
 
 Implements summaries, editable reply suggestions, context minimization, AI provider abstraction, suggestion lifecycle, and AI failure handling.
 
 ### M6 Sprint Structure
 
-#### Sprint 8 - Hardening and Release Preparation
+#### Sprint 9 - Hardening and Release Preparation
 
 Completes security verification, integration testing, end-to-end testing, performance checks, deployment preparation, monitoring review, and release candidate preparation.
 

@@ -40,9 +40,9 @@ Backlog items represent capabilities, improvements, technical work, and verifica
 | PB-017 | Implement the Gmail connector | Must | M2 | Planned |
 | PB-018 | Normalize Gmail communication data | Must | M2 | Planned |
 | PB-019 | Implement initial synchronization | Must | M2 | Planned |
-| PB-020 | Implement incremental synchronization | Must | M3 | Planned |
-| PB-021 | Prevent duplicate synchronized records | Must | M3 | Planned |
-| PB-022 | Record synchronization status and failures | Must | M3 | Planned |
+| PB-020 | Implement incremental synchronization | Must | M2 | Planned |
+| PB-021 | Prevent duplicate synchronized records | Must | M2 | Planned |
+| PB-022 | Record synchronization status and failures | Must | M2 | Planned |
 | PB-023 | Validate the Telegram integration mode | Must | M4 | Planned |
 | PB-024 | Implement the Telegram connector | Must | M4 | Planned |
 | PB-025 | Implement Telegram synchronization | Must | M4 | Planned |
