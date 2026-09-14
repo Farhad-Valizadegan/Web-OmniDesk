@@ -84,7 +84,7 @@ class GmailIntegrationController extends Controller
         ]);
 
         try {
-            $result = $syncService->syncNextMailboxPage(
+            $result = $syncService->syncNextPage(
                 $request->user(),
                 $validated['max_results'] ?? 15,
             );

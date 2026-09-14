@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\MessageProviderConnector;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\ProviderConnection;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
 
-class GmailMessageSyncService
+class GmailMessageSyncService implements MessageProviderConnector
 {
     private const GMAIL_READONLY_SCOPE =
         'https://www.googleapis.com/auth/gmail.readonly';
@@ -25,12 +26,17 @@ class GmailMessageSyncService
         private readonly GoogleOAuthService $googleOAuthService
     ) {}
 
+    public function provider(): string
+    {
+        return 'gmail';
+    }
+
     /**
      * Synchronize one lazy-loading page from the Gmail mailbox.
      *
      * @return array{threads_processed: int, messages_processed: int, has_more: bool}
      */
-    public function syncNextMailboxPage(
+    public function syncNextPage(
         User $user,
         int $maxResults = 15,
     ): array {
