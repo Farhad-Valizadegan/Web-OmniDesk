@@ -1,6 +1,6 @@
 # Sprint 05 Plan - Gmail Synchronization
 
-> Status: In Progress
+> Status: Complete
 
 ## Sprint Goal
 
@@ -119,12 +119,17 @@ Temporary provider failures must preserve existing data and must not expose prov
 
 ## Completion Evidence
 
-Record the following before marking Sprint 05 complete:
-
-- Backend test result.
-- Frontend test, lint, and build results.
-- Initial synchronization output.
-- Incremental synchronization output with a newly received test email.
-- Repeated synchronization output showing no duplicate processing.
-- Cursor value before and after a real mailbox change.
-- Git status and diff check.
+- Backend full suite: 78 tests passed, 306 assertions.
+- Targeted Gmail synchronization, lazy-routing, and command tests passed.
+- Frontend tests passed.
+- Frontend lint passed.
+- Frontend build passed.
+- Gmail initial synchronization completed successfully.
+- Gmail incremental synchronization was verified with cursor advancement.
+- Repeated synchronization prevented duplicate processing.
+- Rate-limit recovery preserved the synchronization token and resumed successfully.
+- Final Gmail state: `page_token = null`, `snapshot_history_id = null`, `completed = true`.
+- `git diff --check` passed.
+- Working tree was clean before merge.
+- Pull Request #6 was merged into `main`.
+- Merge commit: `5438688`.
