@@ -6,6 +6,7 @@ use App\Models\ProviderConnection;
 use App\Models\User;
 use App\Services\GmailMessageSyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
 
@@ -71,6 +72,19 @@ class GmailSyncCommandTest extends TestCase
             ));
 
         $this->app->instance(GmailMessageSyncService::class, $syncService);
+
+        Log::shouldReceive('error')
+            ->once()
+            ->with(
+                'Scheduled Gmail synchronization failed.',
+                Mockery::on(
+                    fn (array $context): bool => $context['provider_connection_id']
+                            === $user->providerConnections()->firstOrFail()->id
+                        && $context['user_id'] === $user->id
+                        && $context['error'] === 'gmail_sync_failed'
+                        && ! array_key_exists('exception', $context)
+                )
+            );
 
         $this->artisan('gmail:sync')
             ->expectsOutput(

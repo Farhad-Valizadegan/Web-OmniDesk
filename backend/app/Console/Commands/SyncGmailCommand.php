@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\ProviderException;
 use App\Models\ProviderConnection;
 use App\Services\GmailMessageSyncService;
 use Illuminate\Console\Command;
@@ -73,7 +74,9 @@ class SyncGmailCommand extends Command
                 Log::error('Scheduled Gmail synchronization failed.', [
                     'provider_connection_id' => $connection->id,
                     'user_id' => $connection->user_id,
-                    'exception' => $exception,
+                    'error' => $exception instanceof ProviderException
+                        ? $exception->errorCode()
+                        : 'gmail_sync_failed',
                 ]);
 
                 $this->error(sprintf(
