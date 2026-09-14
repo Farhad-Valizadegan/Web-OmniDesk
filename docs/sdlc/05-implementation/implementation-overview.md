@@ -10,7 +10,9 @@ Implementation transforms the approved requirements and System Design artifacts 
 
 ## Role in the SDLC
 
-Implementation follows System Design and precedes formal Testing, Deployment, and Maintenance.
+Implementation follows System Design and supplies working increments for the separate Testing, Deployment, and Maintenance phases.
+
+Implementation includes developer-level verification. Formal Testing remains a distinct SDLC phase for consolidated verification and release evidence.
 
 It includes:
 - Preparing the development environment
@@ -430,8 +432,15 @@ A significant change should identify:
 
 ## Phase Status
 
-Implementation is currently in the planning stage.
+Implementation is in progress.
 
-The implementation will begin after the System Design artifacts are reviewed and approved.
+Completed implementation increments include:
 
-Implementation progress will be recorded incrementally and verified against the Requirements Traceability Matrix.
+- M0 engineering foundation.
+- M1 authentication and workspace foundation.
+- M2 Gmail authorization and provider integration.
+- Sprint 05 Gmail synchronization under M2.
+
+The current planned implementation increment is Sprint 06 under M3 - Unified Inbox. Telegram integration, AI assistance, and production hardening remain planned for later milestones.
+
+Implementation progress is recorded incrementally and verified against the Requirements Traceability Matrix.
