@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Exceptions\ProviderErrorType;
 use App\Exceptions\ProviderException;
 use App\Services\GmailMessageSyncService;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use RuntimeException;
 use Tests\TestCase;
@@ -13,7 +14,7 @@ class GmailProviderRetryTest extends TestCase
 {
     public function test_transient_provider_failure_is_retried(): void
     {
-        $service = new class(new GoogleOAuthService) extends GmailMessageSyncService
+        $service = new class(new GoogleOAuthService(new GmailProviderErrorClassifier)) extends GmailMessageSyncService
         {
             public function callProvider(callable $operation): mixed
             {
@@ -39,7 +40,7 @@ class GmailProviderRetryTest extends TestCase
 
     public function test_non_transient_provider_failure_is_classified_without_retry(): void
     {
-        $service = new class(new GoogleOAuthService) extends GmailMessageSyncService
+        $service = new class(new GoogleOAuthService(new GmailProviderErrorClassifier)) extends GmailMessageSyncService
         {
             public function callProvider(callable $operation): mixed
             {
