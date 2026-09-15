@@ -78,6 +78,24 @@ function App() {
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
 
   useEffect(() => {
+    const handleAuthenticationInvalidated = () => {
+      setUser(null)
+    }
+
+    window.addEventListener(
+      'omni-desk:authentication-invalidated',
+      handleAuthenticationInvalidated,
+    )
+
+    return () => {
+      window.removeEventListener(
+        'omni-desk:authentication-invalidated',
+        handleAuthenticationInvalidated,
+      )
+    }
+  }, [])
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
 
     if (params.has('gmail')) {

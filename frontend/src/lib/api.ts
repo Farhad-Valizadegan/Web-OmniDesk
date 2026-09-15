@@ -116,6 +116,8 @@ export type PaginatedResponse<T> = {
 }
 
 const tokenStorageKey = 'omni_desk_auth_token'
+export const authenticationInvalidatedEvent =
+  'omni-desk:authentication-invalidated'
 
 export function getStoredToken(): string | null {
   return sessionStorage.getItem(tokenStorageKey)
@@ -127,6 +129,11 @@ function storeToken(token: string): void {
 
 function clearStoredToken(): void {
   sessionStorage.removeItem(tokenStorageKey)
+}
+
+function invalidateAuthentication(): void {
+  clearStoredToken()
+  window.dispatchEvent(new Event(authenticationInvalidatedEvent))
 }
 
 async function getErrorMessage(response: Response): Promise<string> {
@@ -165,6 +172,10 @@ async function request<T>(
     headers,
     credentials: 'same-origin',
   })
+
+  if (response.status === 401) {
+    invalidateAuthentication()
+  }
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response))
@@ -340,8 +351,18 @@ export async function syncGmailPage(): Promise<GmailLazySyncResponse> {
   )
 }
 
-export async function disconnectGmail(): Promise<void> {
-  await request<void>('/api/integrations/gmail', {
-    method: 'DELETE',
-  })
+export type GmailDisconnectResponse = {
+  message: string
+  error: 'gmail_revocation_failed'
+}
+
+export async function disconnectGmail(): Promise<GmailDisconnectResponse | null> {
+  const response = await request<GmailDisconnectResponse | undefined>(
+    '/api/integrations/gmail',
+    {
+      method: 'DELETE',
+    },
+  )
+
+  return response ?? null
 }

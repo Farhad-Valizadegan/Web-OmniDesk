@@ -50,6 +50,21 @@ The system may process:
 4. AI processing shall be limited to user-requested features.
 5. Provider disconnection shall invalidate access where applicable.
 6. Privacy-related decisions shall be reviewed before production deployment.
+
+## Current V1 Security Implementation
+
+The following security decisions are implemented in the current V1 codebase:
+
+- OmniDesk AI user authentication uses Laravel Sanctum personal access bearer tokens for the REST API.
+- The web client keeps the bearer token in `sessionStorage`; authentication tokens are not stored in `localStorage`.
+- Sanctum bearer tokens have a finite lifetime configured through `SANCTUM_TOKEN_EXPIRATION`. The documented default is 480 minutes, and production deployments may set a different finite value through the environment.
+- A `401 Unauthenticated` response causes the web client to remove the stored bearer token and return to the unauthenticated application state.
+- Gmail provider access and refresh tokens are stored using Laravel's encrypted model casts and are hidden from model serialization.
+- Provider tokens are not included in Gmail status responses and must not be logged or exposed in exception responses.
+- Gmail disconnect attempts Google authorization revocation through the official Google OAuth client. The refresh token is preferred when available; otherwise the access token is used.
+- If Google revocation fails, local Gmail conversations, messages, and the local provider connection are still removed to honor the local disconnect and data-removal request. The API returns an explicit warning response rather than silently treating remote revocation as successful.
+- Gmail disconnect and provider operations remain scoped to the authenticated user's Gmail connection.
+
 ## Relationship to Later Documents
 These security and privacy requirements will provide input for:
 - System Analysis
@@ -61,4 +76,3 @@ These security and privacy requirements will provide input for:
 - Testing
 - Deployment Planning
 - Requirements Traceability Matrix
-

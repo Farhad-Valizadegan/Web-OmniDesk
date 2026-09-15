@@ -90,12 +90,16 @@ function GmailConnectionPanel({
       setIsActionLoading(true)
       setError(null)
 
-      await disconnectGmail()
+      const result = await disconnectGmail()
 
       setStatus({
         connected: false,
         connection: null,
       })
+
+      if (result?.error === 'gmail_revocation_failed') {
+        setError(result.message)
+      }
 
       await onDisconnected?.()
     } catch {

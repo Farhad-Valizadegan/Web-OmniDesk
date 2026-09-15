@@ -70,6 +70,28 @@ class AuthenticationTest extends TestCase
             ->assertJsonPath('user.email', $user->email);
     }
 
+    public function test_expired_token_is_rejected_as_unauthenticated(): void
+    {
+        config()->set('sanctum.expiration', 60);
+
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+        $accessToken = PersonalAccessToken::findToken($token);
+
+        $this->assertNotNull($accessToken);
+
+        $accessToken->forceFill([
+            'created_at' => now()->subMinutes(61),
+        ])->save();
+
+        Auth::forgetGuards();
+
+        $this
+            ->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/user')
+            ->assertUnauthorized();
+    }
+
     public function test_unauthenticated_user_cannot_access_user_endpoint(): void
     {
         $response = $this->getJson('/api/user');

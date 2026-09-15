@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\ProviderConnection;
 use App\Services\GmailMessageSyncService;
+use App\Services\GoogleOAuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -116,11 +117,31 @@ class GmailIntegrationController extends Controller
         ], $exception->httpStatus());
     }
 
-    public function disconnect(Request $request): Response
-    {
+    public function disconnect(
+        Request $request,
+        GoogleOAuthService $googleOAuthService,
+    ): Response|JsonResponse {
         $userId = $request->user()->id;
 
-        DB::transaction(function () use ($userId): void {
+        $connection = ProviderConnection::query()
+            ->where('user_id', $userId)
+            ->where('provider', 'gmail')
+            ->first();
+
+        $revocationFailed = false;
+
+        if ($connection !== null) {
+            try {
+                $googleOAuthService->revokeAuthorization(
+                    $connection->refresh_token,
+                    $connection->access_token,
+                );
+            } catch (Throwable) {
+                $revocationFailed = true;
+            }
+        }
+
+        DB::transaction(function () use ($userId, $connection): void {
             $conversationIds = Conversation::query()
                 ->where('user_id', $userId)
                 ->where('provider', 'gmail')
@@ -136,11 +157,21 @@ class GmailIntegrationController extends Controller
                     ->delete();
             }
 
-            ProviderConnection::query()
-                ->where('user_id', $userId)
-                ->where('provider', 'gmail')
-                ->delete();
+            if ($connection !== null) {
+                ProviderConnection::query()
+                    ->where('id', $connection->id)
+                    ->where('user_id', $userId)
+                    ->where('provider', 'gmail')
+                    ->delete();
+            }
         });
+
+        if ($revocationFailed) {
+            return response()->json([
+                'message' => 'Gmail was disconnected locally, but Google authorization could not be revoked. Revoke OmniDesk AI access from your Google Account if it remains active.',
+                'error' => 'gmail_revocation_failed',
+            ], 202);
+        }
 
         return response()->noContent();
     }

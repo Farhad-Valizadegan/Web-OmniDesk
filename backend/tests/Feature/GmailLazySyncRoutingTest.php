@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ProviderConnection;
 use App\Models\User;
 use App\Services\GmailMessageSyncService;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use Google\Service\Gmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,7 +28,7 @@ class GmailLazySyncRoutingTest extends TestCase
                 'gmail_sync_page_token' => 'provider-page-token',
             ]);
 
-        $service = new class(new GoogleOAuthService) extends GmailMessageSyncService
+        $service = new class(new GoogleOAuthService(new GmailProviderErrorClassifier)) extends GmailMessageSyncService
         {
             public int $lazyCalls = 0;
 

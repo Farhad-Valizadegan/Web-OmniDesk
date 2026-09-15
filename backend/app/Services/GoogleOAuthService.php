@@ -11,6 +11,10 @@ use Throwable;
 
 class GoogleOAuthService
 {
+    public function __construct(
+        private readonly GmailProviderErrorClassifier $errorClassifier
+    ) {}
+
     public function createClient(): GoogleClient
     {
         $clientId = config('services.google.client_id');
@@ -87,6 +91,32 @@ class GoogleOAuthService
         return $token;
     }
 
+    public function revokeAuthorization(
+        ?string $refreshToken,
+        ?string $accessToken,
+    ): void {
+        $token = $this->usableToken($refreshToken)
+            ?? $this->usableToken($accessToken);
+
+        if ($token === null) {
+            return;
+        }
+
+        try {
+            $revoked = $this->createClient()->revokeToken($token);
+        } catch (Throwable $exception) {
+            throw $this->errorClassifier->classify($exception);
+        }
+
+        if ($revoked !== true) {
+            throw new ProviderException(
+                'gmail',
+                ProviderErrorType::Temporary,
+                'Gmail authorization could not be revoked.'
+            );
+        }
+    }
+
     /**
      * @param  array<string, mixed>  $token
      * @return array{
@@ -150,5 +180,16 @@ class GoogleOAuthService
                 ? $accountAvatarUrl
                 : null,
         ];
+    }
+
+    private function usableToken(?string $token): ?string
+    {
+        if (! is_string($token)) {
+            return null;
+        }
+
+        $token = trim($token);
+
+        return $token === '' ? null : $token;
     }
 }
