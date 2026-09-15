@@ -92,7 +92,7 @@ describe('GmailConnectionPanel', () => {
       },
     })
 
-    disconnectGmailMock.mockResolvedValue(undefined)
+    disconnectGmailMock.mockResolvedValue(null)
 
     render(<GmailConnectionPanel />)
 
@@ -111,6 +111,39 @@ describe('GmailConnectionPanel', () => {
     ).toBeInTheDocument()
   })
 
+  test('surfaces a Google revocation warning after local disconnect', async () => {
+    getGmailStatusMock.mockResolvedValue({
+      connected: true,
+      connection: {
+        id: 1,
+        provider: 'gmail',
+        provider_account_id: 'google-account-123',
+        account_email: 'person@example.com',
+        status: 'connected',
+        scopes: ['openid', 'email'],
+        token_expires_at: null,
+      },
+    })
+
+    disconnectGmailMock.mockResolvedValue({
+      message:
+        'Gmail was disconnected locally, but Google authorization could not be revoked. Revoke OmniDesk AI access from your Google Account if it remains active.',
+      error: 'gmail_revocation_failed',
+    })
+
+    render(<GmailConnectionPanel />)
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Disconnect Gmail',
+      }),
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Gmail was disconnected locally, but Google authorization could not be revoked.',
+    )
+  })
+
   test('reloads conversations after disconnecting Gmail', async () => {
     getGmailStatusMock.mockResolvedValue({
       connected: true,
@@ -124,7 +157,7 @@ describe('GmailConnectionPanel', () => {
         token_expires_at: null,
       },
     })
-    disconnectGmailMock.mockResolvedValue(undefined)
+    disconnectGmailMock.mockResolvedValue(null)
 
     const onDisconnected = vi.fn()
 
