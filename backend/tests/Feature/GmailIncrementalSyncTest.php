@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\ProviderConnection;
 use App\Models\User;
 use App\Services\GmailMessageSyncService;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Google\Service\Gmail;
@@ -80,7 +81,9 @@ class GmailIncrementalSyncTest extends TestCase
             public function __construct(
                 private readonly Gmail $fakeGmail,
             ) {
-                parent::__construct(new GoogleOAuthService);
+                parent::__construct(
+                    new GoogleOAuthService(new GmailProviderErrorClassifier)
+                );
             }
 
             protected function gmailService(
@@ -146,7 +149,9 @@ class GmailIncrementalSyncTest extends TestCase
             public function __construct(
                 private readonly Gmail $fakeGmail,
             ) {
-                parent::__construct(new GoogleOAuthService);
+                parent::__construct(
+                    new GoogleOAuthService(new GmailProviderErrorClassifier)
+                );
             }
 
             protected function gmailService(
@@ -224,7 +229,9 @@ class GmailIncrementalSyncTest extends TestCase
             public function __construct(
                 private readonly Gmail $fakeGmail,
             ) {
-                parent::__construct(new GoogleOAuthService);
+                parent::__construct(
+                    new GoogleOAuthService(new GmailProviderErrorClassifier)
+                );
             }
 
             protected function gmailService(
@@ -295,7 +302,9 @@ class GmailIncrementalSyncTest extends TestCase
             public function __construct(
                 private readonly Gmail $fakeGmail,
             ) {
-                parent::__construct(new GoogleOAuthService);
+                parent::__construct(
+                    new GoogleOAuthService(new GmailProviderErrorClassifier)
+                );
             }
 
             protected function gmailService(
@@ -415,7 +424,9 @@ class GmailIncrementalSyncTest extends TestCase
             public function __construct(
                 private readonly Gmail $fakeGmail,
             ) {
-                parent::__construct(new GoogleOAuthService);
+                parent::__construct(
+                    new GoogleOAuthService(new GmailProviderErrorClassifier)
+                );
             }
 
             protected function gmailService(
