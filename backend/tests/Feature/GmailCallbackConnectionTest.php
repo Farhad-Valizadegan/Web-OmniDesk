@@ -7,6 +7,7 @@ use App\Exceptions\ProviderException;
 use App\Http\Controllers\GmailAuthorizationController;
 use App\Models\ProviderConnection;
 use App\Models\User;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -46,7 +47,7 @@ class GmailCallbackConnectionTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $fakeService = new class extends GoogleOAuthService
+        $fakeService = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
@@ -125,7 +126,7 @@ class GmailCallbackConnectionTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $fakeService = new class extends GoogleOAuthService
+        $fakeService = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
@@ -165,7 +166,7 @@ class GmailCallbackConnectionTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $fakeService = new class extends GoogleOAuthService
+        $fakeService = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
@@ -213,7 +214,7 @@ class GmailCallbackConnectionTest extends TestCase
             now()->addMinutes(10)
         );
 
-        $fakeService = new class extends GoogleOAuthService
+        $fakeService = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function exchangeCode(string $code): array
             {
