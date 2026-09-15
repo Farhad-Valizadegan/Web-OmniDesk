@@ -10,7 +10,7 @@ Project Definition is maintained separately under `docs/Project-Definition/`. It
 
 ## Roadmap
 
-![OmniDesk AI SDLC Roadmap](./diagrams/sdlc-roadmap.svg)
+The authoritative editable diagram source is [sdlc-roadmap.puml](./diagrams/sdlc-roadmap.puml).
 
 ## SDLC Phases
 
