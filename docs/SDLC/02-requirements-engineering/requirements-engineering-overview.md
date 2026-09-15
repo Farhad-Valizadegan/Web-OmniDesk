@@ -8,9 +8,9 @@ This document defines the purpose, activities, outputs, and boundaries of the Re
 
 ## Role in the SDLC
 
-Requirements Engineering is the second major activity in the Software Development Life Cycle.
+Requirements Engineering is the second phase in the Software Development Life Cycle, following [Project Planning](../01-project-planning/project-planning-overview.md).
 
-It transforms the approved project definition into clear, complete, consistent, feasible, testable, and traceable requirements.
+It transforms the approved project definition and planning inputs into clear, complete, consistent, feasible, testable, and traceable requirements.
 
 Requirements Engineering is both:
 
@@ -21,14 +21,15 @@ Requirements Engineering is both:
 
 The main inputs are:
 
-- Project Overview
-- Project Problem Statement
-- Project Goals and Objectives
-- Project Scope
-- Stakeholders and External Systems
-- Assumptions and Constraints
-- Project Risks
-- Project Success Criteria
+- [Project Planning](../01-project-planning/project-planning-overview.md)
+- [Project Overview](../../Project-Definition/project-overview.md)
+- [Project Problem Statement](../../Project-Definition/project-problem-statement.md)
+- [Project Goals and Objectives](../../Project-Definition/project-goals-and-objectives.md)
+- [Project Scope](../../Project-Definition/project-scope.md)
+- [Stakeholders and External Systems](../../Project-Definition/stakeholders-and-external-systems.md)
+- [Assumptions and Constraints](../../Project-Definition/assumptions-and-constraints.md)
+- [Project Risks](../../Project-Definition/project-risks.md)
+- [Project Success Criteria](../../Project-Definition/project-success-criteria.md)
 
 ## Main Activities
 
@@ -100,7 +101,7 @@ The strict UML-style Use Case Diagram is authored in PlantUML and displayed as a
 
 ## Relationship to Other Phases
 
-Requirements Engineering receives its main inputs from Project Definition.
+Requirements Engineering follows Project Planning. Its source definition artifacts remain under `docs/Project-Definition/`, outside the SDLC.
 
 Its outputs will be used by:
 
