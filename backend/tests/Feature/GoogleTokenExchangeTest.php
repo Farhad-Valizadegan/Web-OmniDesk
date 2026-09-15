@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Exceptions\ProviderErrorType;
 use App\Exceptions\ProviderException;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Config;
@@ -26,7 +27,7 @@ class GoogleTokenExchangeTest extends TestCase
 
     public function test_authorization_code_is_exchanged_for_access_token(): void
     {
-        $service = new class extends GoogleOAuthService
+        $service = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
@@ -69,7 +70,7 @@ class GoogleTokenExchangeTest extends TestCase
 
     public function test_failed_token_exchange_is_classified(): void
     {
-        $service = new class extends GoogleOAuthService
+        $service = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
