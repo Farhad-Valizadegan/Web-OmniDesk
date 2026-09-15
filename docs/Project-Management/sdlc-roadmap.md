@@ -6,6 +6,8 @@
 
 This document describes the Software Development Life Cycle structure used by OmniDesk AI.
 
+Project Definition is maintained separately under `docs/Project-Definition/`. It defines the project's problem, goals, scope, stakeholders, assumptions, risks, and success criteria. It is an input to the SDLC, not an SDLC phase.
+
 ## Roadmap
 
 ![OmniDesk AI SDLC Roadmap](./diagrams/sdlc-roadmap.svg)
@@ -14,14 +16,20 @@ This document describes the Software Development Life Cycle structure used by Om
 
 | Phase | Main Responsibility |
 |---|---|
-| Project Definition | Define the problem, goals, scope, stakeholders, and constraints |
+| Project Planning | Formally initiate development execution using the approved project definition, delivery model, backlog, milestones, sprint process, risks, constraints, and initial technical direction |
 | Requirements Engineering | Elicit, document, validate, and manage requirements |
 | System Analysis | Analyze behavior, domain concepts, workflows, and business rules |
 | System Design | Define architecture, modules, APIs, data, security, and deployment structure |
 | Implementation | Build the backend, frontend, integrations, and supporting components |
 | Testing | Verify functionality, security, reliability, performance, and quality |
 | Deployment | Prepare and operate the application in its target environment |
-| Maintenance and Evolution | Correct defects, improve the system, and evolve capabilities |
+| Maintenance | Correct defects, support released versions, improve the system, and evolve capabilities in a controlled way |
+
+## Project Definition Relationship
+
+Project Definition remains outside the SDLC at `docs/Project-Definition/`.
+
+Project Planning consumes those approved definition artifacts and organizes execution. It does not redefine project scope, goals, stakeholders, or product identity.
 
 ## Agile Execution
 
@@ -35,19 +43,18 @@ Agile milestones and sprints organize the practical execution of the SDLC.
 
 ## Current Project Structure
 
-The current project uses these SDLC documentation folders:
+The SDLC documentation folders are:
 
-- `01-project-definition`
+- `01-project-planning`
 - `02-requirements-engineering`
 - `03-system-analysis`
 - `04-system-design`
 - `05-implementation`
+- `06-testing`
+- `07-deployment`
+- `08-maintenance`
 
-The following phases will be documented later:
-
-- Testing
-- Deployment
-- Maintenance and Evolution
+Project Definition remains separately maintained under `docs/Project-Definition/`.
 
 ## PlantUML Source
 
