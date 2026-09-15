@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ProviderConnection;
 use App\Services\GmailMessageSyncService;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ class GmailAccessTokenRefreshTest extends TestCase
             'token_expires_at' => now()->subMinute(),
         ]);
 
-        $oauthService = new class extends GoogleOAuthService
+        $oauthService = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
