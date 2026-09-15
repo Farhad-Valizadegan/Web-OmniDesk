@@ -2,8 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
+use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Config;
+use Mockery;
+use RuntimeException;
 use Tests\TestCase;
 
 class GoogleOAuthServiceTest extends TestCase
@@ -70,5 +76,123 @@ class GoogleOAuthServiceTest extends TestCase
         );
 
         app(GoogleOAuthService::class)->authorizationUrl('test-state');
+    }
+
+    public function test_service_resolves_with_error_classifier_dependency(): void
+    {
+        $service = $this->app->make(GoogleOAuthService::class);
+
+        $this->assertInstanceOf(GoogleOAuthService::class, $service);
+    }
+
+    public function test_google_api_exception_is_classified_during_token_exchange(): void
+    {
+        $client = Mockery::mock(GoogleClient::class);
+        $client->shouldReceive('fetchAccessTokenWithAuthCode')
+            ->once()
+            ->with('test-code')
+            ->andThrow(new RuntimeException('Unauthorized', 401));
+
+        $service = $this->serviceUsingClient($client);
+
+        try {
+            $service->exchangeCode('test-code');
+            $this->fail('Expected a ProviderException.');
+        } catch (ProviderException $exception) {
+            $this->assertSame(ProviderErrorType::Authorization, $exception->type);
+            $this->assertSame('gmail_authorization', $exception->errorCode());
+            $this->assertSame(
+                'Gmail authorization is invalid or expired.',
+                $exception->getMessage(),
+            );
+        }
+    }
+
+    public function test_invalid_token_exchange_response_is_rejected(): void
+    {
+        $client = Mockery::mock(GoogleClient::class);
+        $client->shouldReceive('fetchAccessTokenWithAuthCode')
+            ->once()
+            ->with('test-code')
+            ->andReturn([
+                'error' => 'invalid_grant',
+                'error_description' => 'Bad authorization code.',
+            ]);
+
+        $service = $this->serviceUsingClient($client);
+
+        $this->expectException(ProviderException::class);
+        $this->expectExceptionMessage(
+            'Gmail authorization is invalid or expired.',
+        );
+
+        $service->exchangeCode('test-code');
+    }
+
+    public function test_revocation_prefers_refresh_token(): void
+    {
+        $client = Mockery::mock(GoogleClient::class);
+        $client->shouldReceive('revokeToken')
+            ->once()
+            ->with('refresh-token')
+            ->andReturnTrue();
+
+        $service = $this->serviceUsingClient($client);
+
+        $service->revokeAuthorization('refresh-token', 'access-token');
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function test_revocation_uses_access_token_when_refresh_token_is_missing(): void
+    {
+        $client = Mockery::mock(GoogleClient::class);
+        $client->shouldReceive('revokeToken')
+            ->once()
+            ->with('access-token')
+            ->andReturnTrue();
+
+        $service = $this->serviceUsingClient($client);
+
+        $service->revokeAuthorization(null, 'access-token');
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function test_revocation_failure_is_classified(): void
+    {
+        $client = Mockery::mock(GoogleClient::class);
+        $client->shouldReceive('revokeToken')
+            ->once()
+            ->with('refresh-token')
+            ->andThrow(new RuntimeException('Provider unavailable', 503));
+
+        $service = $this->serviceUsingClient($client);
+
+        try {
+            $service->revokeAuthorization('refresh-token', 'access-token');
+            $this->fail('Expected a ProviderException.');
+        } catch (ProviderException $exception) {
+            $this->assertSame(ProviderErrorType::Temporary, $exception->type);
+            $this->assertSame('gmail_temporary', $exception->errorCode());
+        }
+    }
+
+    private function serviceUsingClient(GoogleClient $client): GoogleOAuthService
+    {
+        return new class(new GmailProviderErrorClassifier, $client) extends GoogleOAuthService
+        {
+            public function __construct(
+                GmailProviderErrorClassifier $errorClassifier,
+                private readonly GoogleClient $client,
+            ) {
+                parent::__construct($errorClassifier);
+            }
+
+            public function createClient(): GoogleClient
+            {
+                return $this->client;
+            }
+        };
     }
 }
