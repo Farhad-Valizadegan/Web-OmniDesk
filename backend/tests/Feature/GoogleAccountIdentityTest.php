@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Exceptions\ProviderErrorType;
 use App\Exceptions\ProviderException;
+use App\Services\GmailProviderErrorClassifier;
 use App\Services\GoogleOAuthService;
 use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Config;
@@ -25,7 +26,7 @@ class GoogleAccountIdentityTest extends TestCase
 
     public function test_google_identity_is_normalized(): void
     {
-        $service = new class extends GoogleOAuthService
+        $service = new class(new GmailProviderErrorClassifier) extends GoogleOAuthService
         {
             public function createClient(): GoogleClient
             {
