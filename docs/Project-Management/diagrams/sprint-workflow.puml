@@ -3,30 +3,36 @@ title OmniDesk AI Sprint Workflow
 
 start
 
-:Review approved milestone outcome;
-:Refine product backlog;
-:Select sprint backlog items;
-:Define sprint goal;
-:Define acceptance criteria;
-:Break items into implementation tasks;
-:Implement selected work;
-:Run automated tests;
-:Run quality and security checks;
+:Review relevant milestone outcome;
+:Refine Product Backlog as needed;
+:Select Sprint backlog items;
+:Define Sprint Goal;
+:Confirm or define acceptance criteria;
+:Break selected items into engineering tasks;
+:Perform lifecycle work required by Sprint Goal;
+note right
+Requirements, Analysis, Design,
+Implementation, Testing, or
+Documentation as needed.
+end note
+:Run relevant automated and manual verification;
+:Run applicable quality and security checks;
 
-if (All acceptance criteria satisfied?) then (yes)
-  :Review sprint increment;
-  :Record sprint completion;
+if (Sprint Goal and acceptance criteria satisfied?) then (yes)
+  :Review Sprint Increment;
+  :Record completed and incomplete work;
 else (no)
-  :Return incomplete work for correction;
-  :Update sprint backlog;
+  :Return incomplete work to the backlog;
+  :Record discoveries and required follow-up;
 endif
 
 stop
 
 note right
-A sprint produces a reviewable increment.
+A Sprint produces a meaningful,
+reviewable Increment.
 
-A sprint does not automatically
+A Sprint does not automatically
 create a release.
 end note
 
