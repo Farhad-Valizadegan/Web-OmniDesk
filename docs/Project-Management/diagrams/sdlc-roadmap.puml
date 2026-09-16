@@ -22,15 +22,20 @@ Testing --> Deployment
 Deployment --> Maintenance
 
 note bottom of Design
-Agile milestones and sprints
-organize execution across
-the SDLC phases.
+Milestones define meaningful outcomes.
+Agile Sprints organize iterative
+execution across SDLC activities.
 end note
 
 note bottom of Planning
 Project Definition is an input
 to Project Planning and remains
-outside the SDLC.
+outside the SDLC documentation sequence.
+end note
+
+note bottom of Testing
+The numbered SDLC activities do not
+require strict Waterfall execution.
 end note
 
 @enduml
