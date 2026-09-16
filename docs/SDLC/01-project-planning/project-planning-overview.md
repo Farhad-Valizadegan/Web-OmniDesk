@@ -25,9 +25,23 @@ Project Planning uses the existing Project Definition artifacts as planning inpu
 
 These documents define what the project is and what it intends to achieve. Planning determines how the approved direction is organized for execution.
 
+## Development Approach
+
+Web-OmniDesk-AI follows an Agile, iterative, and incremental development approach using a lightweight Scrum-style workflow appropriate for a solo software engineering project.
+
+Work is planned and refined progressively rather than treating the project as a single fixed sequence of phases. Product Backlog items are selected into Sprints according to current priorities, dependencies, and readiness, and each Sprint works toward a specific Sprint Goal and a meaningful Increment.
+
+### Relationship Between Agile and SDLC
+
+The SDLC documentation structure organizes the project's engineering activities and artifacts; its numbered folders do **not** represent a strict sequential Waterfall execution model.
+
+Agile defines how the work is executed, reviewed, and adapted over time. Work is organized through the Product Backlog and Sprints. Depending on its Sprint Goal, a Sprint may involve Requirements, Analysis, Design, Implementation, Testing, and Documentation activities as needed. A Sprint is not required to mechanically execute every SDLC activity.
+
+Review, feedback, technical learning, and newly discovered constraints may refine or reprioritize future work. Web-OmniDesk-AI therefore uses the SDLC as its engineering and lifecycle structure while executing development iteratively and incrementally through Agile practices.
+
 ## Delivery and Agile Planning References
 
-The project uses an Agile, incremental execution model. Project Planning relies on the existing Project Management artifacts:
+The development approach is operationalized through the existing Project Management artifacts:
 
 - [Product Backlog](../../Project-Management/product-backlog.md)
 - [Backlog Refinement](../../Project-Management/backlog-refinement.md)
