@@ -6,17 +6,19 @@
 
 This document describes the Software Development Life Cycle structure used by OmniDesk AI.
 
-Project Definition is maintained separately under `docs/Project-Definition/`. It defines the project's problem, goals, scope, stakeholders, assumptions, risks, and success criteria. It is an input to the SDLC, not an SDLC phase.
+Project Definition is maintained separately under `docs/Project-Definition/`. It defines the project's problem, goals, scope, stakeholders, assumptions, risks, and success criteria. It is an input to the SDLC, not an SDLC phase in this repository's documentation structure.
+
+The numbered SDLC folders organize engineering activities and artifacts. They do **not** define a strict sequential Waterfall execution model.
 
 ## Roadmap
 
 The authoritative editable diagram source is [sdlc-roadmap.puml](./diagrams/sdlc-roadmap.puml).
 
-## SDLC Phases
+## SDLC Activities
 
-| Phase | Main Responsibility |
+| Activity | Main Responsibility |
 |---|---|
-| Project Planning | Formally initiate development execution using the approved project definition, delivery model, backlog, milestones, sprint process, risks, constraints, and initial technical direction |
+| Project Planning | Organize development execution using the approved project definition, delivery model, backlog, milestones, Sprint process, risks, constraints, and initial technical direction |
 | Requirements Engineering | Elicit, document, validate, and manage requirements |
 | System Analysis | Analyze behavior, domain concepts, workflows, and business rules |
 | System Design | Define architecture, modules, APIs, data, security, and deployment structure |
@@ -29,17 +31,21 @@ The authoritative editable diagram source is [sdlc-roadmap.puml](./diagrams/sdlc
 
 Project Definition remains outside the SDLC at `docs/Project-Definition/`.
 
-Project Planning consumes those approved definition artifacts and organizes execution. It does not redefine project scope, goals, stakeholders, or product identity.
+Project Planning consumes those definition artifacts and organizes execution. It does not redefine project scope, goals, stakeholders, or product identity.
 
-## Agile Execution
+## Agile and Incremental Execution
 
-Agile milestones and sprints organize the practical execution of the SDLC.
+Milestones define meaningful delivery outcomes, while Agile Sprints organize iterative execution toward those outcomes.
 
-- Milestones represent meaningful outcomes.
-- Sprints are short execution cycles.
-- Backlog items are selected for sprints.
-- Sprint increments are reviewed against acceptance criteria.
-- Releases are created after release criteria are satisfied.
+- The Product Backlog contains prioritized work.
+- Sprint Planning selects work for a specific Sprint Goal.
+- A Sprint may involve Requirements, Analysis, Design, Implementation, Testing, and Documentation as required.
+- Every Sprint is not required to execute every SDLC activity mechanically.
+- Each Sprint should produce a meaningful, reviewable Increment.
+- Review, feedback, learning, and changing priorities may refine future work.
+- A Sprint does not automatically create a release.
+
+The SDLC therefore provides the project's engineering and lifecycle structure, while Agile practices organize how work is executed and adapted over time.
 
 ## Current Project Structure
 
