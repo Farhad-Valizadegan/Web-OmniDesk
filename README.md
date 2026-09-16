@@ -11,8 +11,10 @@ The current V1 baseline includes:
 - A unified communication workspace
 - Search, filtering, and message organization
 - User-controlled AI assistance such as conversation summaries and reply suggestions
-- Explicit user confirmation before AI-assisted sending
+- User review and explicit confirmation controls for AI-assisted content
 - Secure synchronization, authentication, testing, and deployment preparation
+
+Whether user-initiated message sending through Gmail or Telegram is included in the initial implementation remains an explicit scope decision in the authoritative Project Scope document.
 
 Additional communication providers and advanced capabilities are future-scope ideas and are **not** part of V1 unless the authoritative scope is explicitly changed.
 
