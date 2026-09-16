@@ -4,17 +4,19 @@
 
 ## Purpose
 
-This document defines the purpose, activities, outputs, and boundaries of the Requirements Engineering phase for OmniDesk AI.
+This document defines the purpose, activities, outputs, and boundaries of Requirements Engineering for OmniDesk AI.
 
 ## Role in the SDLC
 
-Requirements Engineering is the second phase in the Software Development Life Cycle, following [Project Planning](../01-project-planning/project-planning-overview.md).
+Requirements Engineering is the second numbered SDLC documentation area, following [Project Planning](../01-project-planning/project-planning-overview.md).
 
-It transforms the approved project definition and planning inputs into clear, complete, consistent, feasible, testable, and traceable requirements.
+This ordering organizes the project's engineering artifacts; it does **not** require Requirements Engineering to occur only once or as a strict Waterfall step. Requirements may be refined later when analysis, design, implementation, testing, review, or new information reveals a need for change.
+
+Requirements Engineering transforms approved Project Definition and planning inputs into clear, complete, consistent, feasible, testable, and traceable requirements.
 
 Requirements Engineering is both:
 
-- A lifecycle activity performed during this phase
+- A lifecycle activity documented in this SDLC area
 - A knowledge area applied throughout the project when requirements are elicited, analyzed, documented, validated, and managed
 
 ## Inputs
@@ -33,7 +35,7 @@ The main inputs are:
 
 ## Main Activities
 
-The Requirements Engineering phase includes:
+Requirements Engineering includes:
 
 1. Identifying and analyzing stakeholder needs
 2. Defining system capabilities
@@ -45,11 +47,11 @@ The Requirements Engineering phase includes:
 8. Writing user stories and use cases
 9. Defining acceptance criteria
 10. Reviewing and validating requirements
-11. Establishing initial requirements traceability
+11. Establishing and maintaining useful requirements traceability
 
 ## Outputs
 
-This phase will produce:
+This area produces and maintains:
 
 - Functional requirements
 - Non-functional requirements
@@ -59,7 +61,7 @@ This phase will produce:
 - Use cases
 - Acceptance criteria
 - Requirements assumptions and constraints
-- Initial requirements traceability
+- Requirements traceability
 
 ## Relevant Knowledge Areas
 
@@ -74,7 +76,7 @@ This phase will produce:
 
 ## Cross-Cutting Concerns
 
-The following concerns must be considered during this phase:
+The following concerns are considered when materially relevant:
 
 - Security
 - Privacy
@@ -97,13 +99,13 @@ The following diagrams are included when they communicate requirements more clea
 - [Requirements Lifecycle Diagram](./requirements-lifecycle-diagram.md)
 - Requirements Traceability Matrix
 
-The strict UML-style Use Case Diagram is authored in PlantUML and displayed as an SVG image. Other diagrams in this phase use Mermaid.
+The strict UML-style Use Case Diagram is authored in PlantUML and displayed as an SVG image. Other diagrams in this area may use Mermaid where it represents the required semantics accurately.
 
-## Relationship to Other Phases
+## Relationship to Other SDLC Work
 
-Requirements Engineering follows Project Planning. Its source definition artifacts remain under `docs/Project-Definition/`, outside the SDLC.
+Requirements Engineering follows Project Planning in the documentation structure. Its source definition artifacts remain under `docs/Project-Definition/`, outside the numbered SDLC folders.
 
-Its outputs will be used by:
+Its outputs inform:
 
 - System Analysis
 - System Design
@@ -111,7 +113,7 @@ Its outputs will be used by:
 - Testing
 - Deployment planning
 
-Requirements may be refined later when analysis, design, implementation, or validation reveals new information.
+Requirements may be revisited and refined during later Sprints when feedback, technical discoveries, or validation results justify changes.
 
 ## Requirements Quality Principles
 
@@ -127,6 +129,6 @@ Requirements should be:
 - Prioritized
 - Unambiguous
 
-## Phase Status
+## Status
 
-This overview is currently a draft. Detailed requirements will be documented and reviewed in the next sections.
+This overview is currently a draft. Detailed requirements are documented and reviewed in the related Requirements Engineering artifacts.
