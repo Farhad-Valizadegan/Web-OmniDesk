@@ -1,6 +1,6 @@
 # Sprint 06 Plan - Unified Inbox
 
-> Status: Planned
+> Status: In Progress
 > Primary Milestone: M3 - Unified Inbox
 
 ## Sprint Goal
@@ -22,6 +22,25 @@ Complete the unified inbox experience on top of the provider-neutral workspace a
 M3 - Unified Inbox
 
 Sprint 06 is the only primary sprint assigned to M3. Sprint 03 delivered the workspace foundation under M1; Sprint 05 delivered Gmail synchronization under M2.
+
+## Current Progress
+
+Implemented and verified so far:
+
+- Unified workspace presentation for synchronized Gmail conversations and messages.
+- Search and read/unread filtering.
+- Conversation labels are displayed when present.
+- Conversation selection, message loading, empty states, error states, and pagination behavior.
+- Lazy Gmail pagination when additional provider pages are available.
+- Provider-neutral conversation/message API usage and ownership boundaries.
+- Existing backend and frontend quality checks remain passing in CI.
+
+Remaining before Sprint 06 can be considered complete:
+
+- Add and verify label filtering in the unified inbox UI.
+- Display the conversation `status` field consistently in the UI.
+- Add/adjust frontend tests covering those remaining behaviors.
+- Record final Sprint completion evidence after all Completion Criteria are satisfied.
 
 ## Completion Criteria
 
