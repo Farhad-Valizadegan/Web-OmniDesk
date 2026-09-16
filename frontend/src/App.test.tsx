@@ -355,7 +355,7 @@ describe('App', () => {
     expect(screen.getByText('No conversations found')).toBeInTheDocument()
     expect(
       screen.getByText(
-        'Connect or synchronize a provider, or adjust the search and read-state filters.',
+        'Connect or synchronize a provider, or adjust the search, status, label, and read-state filters.',
       ),
     ).toBeInTheDocument()
   })
@@ -446,11 +446,15 @@ describe('App', () => {
       await screen.findByText('Project Manager'),
     ).toBeInTheDocument()
 
+    expect(screen.getByText('open')).toBeInTheDocument()
+
     expect(
       getConversationsMock,
     ).toHaveBeenCalledWith({
       search: undefined,
       is_read: undefined,
+      status: undefined,
+      label: undefined,
       per_page: 15,
       page: 1,
     })
@@ -581,6 +585,8 @@ describe('App', () => {
       expect(getConversationsMock).toHaveBeenLastCalledWith({
         search: undefined,
         is_read: undefined,
+        status: undefined,
+        label: undefined,
         per_page: 15,
         page: 2,
       })
@@ -616,6 +622,67 @@ describe('App', () => {
     ).not.toBeInTheDocument()
   })
 
+  test('filters conversations by status', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    render(<App />)
+
+    await screen.findByText('Welcome, Freddie')
+
+    fireEvent.change(screen.getByLabelText('Status'), {
+      target: { value: 'archived' },
+    })
+
+    await waitFor(() => {
+      expect(getConversationsMock).toHaveBeenLastCalledWith({
+        search: undefined,
+        is_read: undefined,
+        status: 'archived',
+        label: undefined,
+        per_page: 15,
+        page: 1,
+      })
+    })
+  })
+
+  test('filters conversations by label', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    getCurrentUserMock.mockResolvedValue({
+      user: {
+        id: 1,
+        name: 'Freddie',
+        email: 'freddie@example.com',
+      },
+    })
+
+    render(<App />)
+
+    await screen.findByText('Welcome, Freddie')
+
+    fireEvent.change(screen.getByLabelText('Label'), {
+      target: { value: 'INBOX' },
+    })
+
+    await waitFor(() => {
+      expect(getConversationsMock).toHaveBeenLastCalledWith({
+        search: undefined,
+        is_read: undefined,
+        status: undefined,
+        label: 'INBOX',
+        per_page: 15,
+        page: 1,
+      })
+    })
+  })
   test('searches conversations from the workspace', async () => {
     sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
 
@@ -641,6 +708,8 @@ describe('App', () => {
       expect(getConversationsMock).toHaveBeenLastCalledWith({
         search: 'Project',
         is_read: undefined,
+        status: undefined,
+        label: undefined,
         per_page: 15,
         page: 1,
       })

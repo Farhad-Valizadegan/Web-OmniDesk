@@ -21,6 +21,7 @@ type WorkspaceProps = {
 }
 
 type ReadFilter = 'all' | 'read' | 'unread'
+type StatusFilter = 'all' | 'open' | 'archived'
 type ConversationPagination = {
   current_page: number
   last_page: number
@@ -186,6 +187,8 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [readFilter, setReadFilter] = useState<ReadFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [labelFilter, setLabelFilter] = useState('')
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState<ConversationPagination>({
     current_page: 1,
@@ -231,6 +234,8 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
         search: search || undefined,
         is_read:
           readFilter === 'all' ? undefined : readFilter === 'read',
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        label: labelFilter.trim() || undefined,
         per_page: 15,
         page,
       })
@@ -262,7 +267,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
     } finally {
       setIsInboxLoading(false)
     }
-  }, [page, readFilter, search])
+  }, [labelFilter, page, readFilter, search, statusFilter])
 
   const loadMessages = useCallback(async (conversationId: number) => {
     try {
@@ -447,6 +452,36 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                 <option value="unread">Unread only</option>
               </select>
             </label>
+
+            <label className="read-filter" htmlFor="status-filter">
+              Status
+              <select
+                id="status-filter"
+                value={statusFilter}
+                onChange={(event) => {
+                  setPage(1)
+                  setStatusFilter(event.target.value as StatusFilter)
+                }}
+              >
+                <option value="all">All statuses</option>
+                <option value="open">Open</option>
+                <option value="archived">Archived</option>
+              </select>
+            </label>
+
+            <label className="read-filter" htmlFor="label-filter">
+              Label
+              <input
+                id="label-filter"
+                type="text"
+                value={labelFilter}
+                onChange={(event) => {
+                  setPage(1)
+                  setLabelFilter(event.target.value)
+                }}
+                placeholder="e.g. INBOX"
+              />
+            </label>
           </div>
 
           {inboxError && (
@@ -470,7 +505,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
               <h3>No conversations found</h3>
 
               <p>
-                Connect or synchronize a provider, or adjust the search and read-state filters.
+                Connect or synchronize a provider, or adjust the search, status, label, and read-state filters.
               </p>
             </section>
           )}
@@ -511,6 +546,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
 
                       <span className="conversation-meta">
                         <span>{conversation.provider}</span>
+                        <span>{conversation.status}</span>
                         <span>
                           {formatDate(conversation.last_message_at)}
                         </span>
