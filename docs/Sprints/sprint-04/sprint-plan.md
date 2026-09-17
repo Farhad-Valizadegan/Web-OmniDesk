@@ -4,6 +4,7 @@
 > Implementation merged: 2026-09-12
 > Formally completed: 2026-09-14
 > Audited: 2026-09-13
+> Traceability corrected: 2026-09-17
 
 ## Sprint Goal
 
@@ -17,19 +18,21 @@ M2 - Gmail Integration
 
 Sprint 04 contributes to M2 only.
 
-## Related Backlog Items
+## Canonical Backlog Traceability
 
-| ID | Backlog Item | Priority |
+The original Sprint 04 plan used temporary sprint-local `PB-*` identifiers before the current Product Backlog numbering was established. Those temporary identifiers are superseded and must not be interpreted as the current canonical Product Backlog IDs.
+
+Current canonical relationships are:
+
+| Canonical ID | Backlog Item | Sprint 04 Contribution |
 |---|---|---|
-| PB-020 | Define Gmail integration boundary | Must |
-| PB-021 | Implement Gmail OAuth authorization | Must |
-| PB-022 | Store Gmail credentials securely | Must |
-| PB-023 | Implement Gmail provider connector | Must |
-| PB-024 | Normalize Gmail account data | Must |
-| PB-025 | Classify Gmail provider errors | Must |
-| PB-026 | Implement Gmail connect and disconnect flow | Must |
-| PB-027 | Add Gmail authorization tests | Must |
-| PB-028 | Add Gmail integration interface states | Should |
+| PB-015 | Implement Gmail authorization | Completed Gmail OAuth authorization and callback flow |
+| PB-016 | Implement secure provider token storage | Completed encrypted credential persistence and hiding |
+| PB-017 | Implement the Gmail connector | Completed provider-neutral Gmail connector contract |
+| PB-018 | Normalize Gmail communication data | Established Gmail account/provider normalization foundation |
+| PB-022 | Record synchronization status and failures | Established provider status and classified provider-error handling foundation |
+
+Authorization tests, frontend integration states, account identity retrieval, disconnect behavior, and provider-error classification were Sprint implementation tasks rather than separate current Product Backlog IDs.
 
 ## Objectives
 
@@ -192,4 +195,4 @@ Sprint 04 was implemented through pull request #5 and merged into `main`.
 
 Sprint 04 is completed.
 
-The Gmail OAuth foundation, provider-neutral connector contract, classified provider errors, browser callback flow, automated verification, and real-account connect-disconnect verification are complete. Gmail message synchronization remains documented under Sprint 05.
+The Gmail OAuth foundation, provider-neutral connector contract, classified provider errors, browser callback flow, automated verification, and real-account connect-disconnect verification are complete. Gmail message synchronization remains documented under Sprint 05. Canonical backlog identifiers are defined only in the Product Backlog.
