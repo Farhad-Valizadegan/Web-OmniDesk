@@ -1,75 +1,127 @@
-# React + TypeScript + Vite
+# OmniDesk AI Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript frontend for the OmniDesk AI unified communication workspace.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React
+- TypeScript
+- Vite
+- Vitest
+- Testing Library
+- ESLint
 
-## React Compiler
+## Responsibilities
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The frontend currently provides:
 
-## Expanding the ESLint configuration
+- registration, login, logout, and authenticated application state
+- the unified communication workspace
+- Gmail connection and synchronization controls
+- conversation list and detail presentation
+- message rendering
+- search and filtering
+- loading, empty, error, and synchronization states
+- light/dark theme behavior
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The frontend must not store provider credentials such as Gmail access tokens, refresh tokens, or provider client secrets.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Requirements
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js 24 or a compatible version supported by the project toolchain
+- npm
+- running OmniDesk AI backend API
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Installation
 
+From the repository root on Windows PowerShell:
+
+```powershell
+npm.cmd --prefix frontend ci
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+From the `frontend` directory:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm.cmd ci
 ```
+
+## Development Server
+
+From the repository root:
+
+```powershell
+npm.cmd --prefix frontend run dev
+```
+
+Default local address:
+
+```text
+http://127.0.0.1:5173
+```
+
+The backend normally runs at:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Quality Checks
+
+Run frontend tests:
+
+```powershell
+npm.cmd --prefix frontend run test
+```
+
+Run ESLint:
+
+```powershell
+npm.cmd --prefix frontend run lint
+```
+
+Run the production build:
+
+```powershell
+npm.cmd --prefix frontend run build
+```
+
+These checks also run in GitHub Actions for pull requests targeting `main` and for pushes to `main`.
+
+## Main Source Areas
+
+```text
+frontend/
+├── public/
+├── src/
+│   ├── components/
+│   ├── lib/
+│   ├── test/
+│   ├── App.tsx
+│   ├── App.test.tsx
+│   ├── App.css
+│   └── main.tsx
+├── package.json
+├── vite.config.ts
+└── tsconfig*.json
+```
+
+## API Boundary
+
+Frontend API access is centralized through `src/lib/api.ts`.
+
+The frontend works with provider-neutral conversation and message data where practical. Provider-specific OAuth credentials remain on the backend.
+
+Authentication uses the application's bearer token stored in browser `sessionStorage` for the current session. A `401` response invalidates the local authentication state.
+
+## Current Workspace Limitations
+
+The sidebar currently contains Inbox plus placeholder entries for Starred, Labels, and Settings. Their implementation is tracked in the Product Backlog through PB-039 to PB-042 and must not be treated as completed functionality until selected, implemented, and verified in a future Sprint.
+
+The current label filter presents known Gmail system labels. Dynamic/custom label discovery is tracked separately in PB-041.
+
+## Documentation
+
+Project-level engineering documentation is maintained under [`../docs`](../docs/).
+
+Start with [`../docs/README.md`](../docs/README.md) for the documentation map.
