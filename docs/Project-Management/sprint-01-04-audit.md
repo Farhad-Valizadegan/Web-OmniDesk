@@ -1,73 +1,66 @@
 # Sprint 01–04 Audit
 
-> Status: Completed with Carryover
+> Status: Completed
 > Audit started: 2026-09-13
+> Carryover reconciled: 2026-09-17
 
 ## Purpose
 
 This document records implementation, verification, documentation, and carryover findings discovered during the retrospective review of Sprints 01 through 04.
 
-Completed sprint history will not be rewritten. Unfinished requirements are classified as remediation, later-sprint completion, accepted architectural decisions, or deferred backlog work.
+Completed Sprint history is preserved. Later corrections clarify traceability or record how carryover was resolved without pretending the work occurred in an earlier Sprint.
 
 ## Status Definitions
 
 - **Passed:** Implemented and supported by repository evidence.
-- **Satisfied Later:** Missing from the original sprint but implemented in a later sprint.
-- **Fix Now:** Required before closing the related milestone.
+- **Satisfied Later:** Missing from the original Sprint but implemented in a later Sprint.
+- **Resolved:** Previously open remediation that has since been completed.
 - **Accepted Decision:** Existing implementation is retained and documented.
 - **Deferred:** Intentionally moved to a later backlog item.
-- **Missing Evidence:** Implementation may exist, but completion evidence was not recorded.
+- **Missing Evidence:** Implementation may exist, but completion evidence was not recorded at the time of the audit.
 
 ## Sprint 01 — Backend and Frontend Foundation
 
 ### Result
 
-Core foundation implemented. Closeout contains carryover.
+Core foundation implemented. Historical carryover has been resolved or explicitly documented.
 
 | Finding | Classification | Resolution |
 |---|---|---|
 | Laravel and React foundations | Passed | No action |
 | PostgreSQL migrations and CI | Passed | No action |
 | Backend health endpoint and test | Passed | No action |
-| Frontend connectivity states | Passed | Add missing loading and failure tests |
-| Relative `/api` frontend URL | Accepted Decision | Document reverse-proxy and Vite-proxy assumption |
+| Frontend connectivity states | Resolved | Loading/failure verification added later |
+| Relative `/api` frontend URL | Accepted Decision | Reverse-proxy and Vite-proxy assumption retained |
 | Frontend routing library | Deferred | Add routing only when multiple real pages require it |
-| PHP formatting check | Fix Now | Add Laravel Pint verification to CI |
-| Development commands | Fix Now | Replace starter documentation with project commands |
-| Sprint verification evidence | Missing Evidence | Record commits, CI run, and check results |
-| Unresolved Sprint 01 decisions | Fix Now | Record final decisions in the sprint plan |
-
-### Proposed Status
-
-`Completed with Carryover`
+| PHP formatting check | Resolved | Laravel Pint verification is present in CI |
+| Development commands | Resolved | Project-specific backend/frontend documentation exists |
+| Sprint verification evidence | Resolved | Sprint closeout records commits and CI evidence |
+| Unresolved Sprint 01 decisions | Resolved | Final decisions recorded in Sprint documentation |
 
 ## Sprint 02 — Database and Authentication
 
 ### Result
 
-Core authentication implemented. Security and documentation carryover remains.
+Core authentication implemented. Security decisions and ownership behavior are documented and verified.
 
 | Finding | Classification | Resolution |
 |---|---|---|
 | Registration, login, logout and current-user API | Passed | No action |
 | Password hashing | Passed | No action |
-| Sanctum bearer-token authentication | Accepted Decision | Document the selected authentication approach |
-| Token storage in `sessionStorage` | Accepted Decision | Record XSS risk and migration path to HttpOnly cookies |
-| Cross-user ownership criterion | Satisfied Later | Ownership tests were implemented in Sprint 03 |
-| Authentication rate limiting | Fix Now | Add rate limits to login and registration |
-| Token expiration and abilities | Deferred | Add hardening backlog item |
-| Authentication test evidence | Missing Evidence | Record final CI and test results |
-| Unresolved Sprint 02 decisions | Fix Now | Record implemented decisions in the sprint plan |
-
-### Proposed Status
-
-`Completed with Carryover`
+| Sanctum bearer-token authentication | Accepted Decision | Selected authentication approach documented |
+| Token storage in `sessionStorage` | Accepted Decision | Known XSS trade-off retained for current implementation |
+| Cross-user ownership criterion | Satisfied Later | Ownership tests implemented with conversation APIs |
+| Authentication rate limiting | Resolved | Authentication hardening completed in later remediation |
+| Token expiration and abilities | Resolved | Token expiration/hardening behavior documented and implemented for the current boundary |
+| Authentication test evidence | Resolved | Verification evidence recorded in Sprint documentation and CI |
+| Unresolved Sprint 02 decisions | Resolved | Implemented decisions recorded |
 
 ## Sprint 03 — Workspace Foundation
 
 ### Result
 
-Core provider-neutral inbox implemented. UI and test carryover remains.
+Core provider-neutral inbox foundation implemented. Remaining unified-inbox work was completed in Sprint 06.
 
 | Finding | Classification | Resolution |
 |---|---|---|
@@ -77,16 +70,13 @@ Core provider-neutral inbox implemented. UI and test carryover remains.
 | Fixture data | Passed | No action |
 | Conversation and message display | Passed | No action |
 | Read-state frontend filter | Passed | No action |
-| Status and label frontend filters | Deferred | Complete both filters in Sprint 06 under M3 |
-| Conversation status display | Deferred | Complete status display in Sprint 06 under M3 |
-| Frontend selection, filter, loading and error tests | Deferred | Complete the remaining interaction tests in Sprint 06 under M3 |
+| Status and label frontend filters | Satisfied Later | Completed in Sprint 06 under M3 |
+| Conversation status display | Satisfied Later | Completed in Sprint 06 under M3 |
+| Frontend selection, filter, loading and error tests | Satisfied Later | Remaining interaction verification completed in Sprint 06 |
 | Frontend pagination | Satisfied Later | Implemented during Sprint 05 |
-| Sprint verification evidence | Deferred | Record consolidated evidence after Sprint 06 carryover is complete |
-| Unresolved Sprint 03 decisions | Deferred | Close remaining decisions with Sprint 06 completion evidence |
-
-### Proposed Status
-
-`Completed with Carryover`
+| Sprint verification evidence | Resolved | Sprint 06 and Sprint 03 closeout evidence recorded |
+| Unresolved Sprint 03 decisions | Resolved | Remaining inbox decisions reconciled with Sprint 06 |
+| Historical backlog identifiers | Resolved | Sprint 03 now maps historical planning work to canonical Product Backlog IDs |
 
 ## Sprint 04 — Gmail Provider Integration
 
@@ -102,49 +92,36 @@ Gmail OAuth implementation and formal closeout are complete.
 | Gmail account identity | Passed | No action |
 | Connection status and disconnect flow | Passed | No action |
 | Frontend Gmail connection states | Passed | No action |
-| Provider-neutral connector contract | Fix Now | Introduce and document the connector interface |
-| Permission and rate-limit classification | Fix Now | Add explicit provider failure classification |
-| Callback-to-frontend completion flow | Fix Now | Return the browser safely to the frontend |
-| Real Gmail authorization evidence | Missing Evidence | Record connect and disconnect verification |
-| Sprint verification evidence | Missing Evidence | Record CI and test results |
-| Unresolved Sprint 04 decisions | Fix Now | Record final implementation decisions |
+| Provider-neutral connector contract | Resolved | Connector interface implemented and documented |
+| Permission and rate-limit classification | Resolved | Explicit provider failure classification implemented |
+| Callback-to-frontend completion flow | Resolved | Browser callback returns safely to the frontend |
+| Real Gmail authorization evidence | Resolved | Real-account connect/disconnect verification recorded |
+| Sprint verification evidence | Resolved | CI and test results recorded |
+| Unresolved Sprint 04 decisions | Resolved | Final implementation decisions recorded |
+| Historical backlog identifiers | Resolved | Sprint 04 now maps historical planning work to canonical Product Backlog IDs |
 
-### Proposed Status
-
-`Completed`
-
-## Mandatory Remediation Before Milestone Closure
+## Milestone Reconciliation
 
 ### M0
 
-- Add frontend health loading and failure tests.
-- Add PHP formatting verification to CI.
-- Document development and environment commands.
-- Close Sprint 01 decisions.
+Closed. Foundation, CI, formatting, development documentation, and verification evidence are in place.
 
 ### M1
 
-- Add authentication rate limiting.
-- Document bearer-token and browser-storage decisions.
-- Reconcile ownership completion with Sprint 03.
-- Close Sprint 02 decisions.
+Closed for its defined authentication/workspace-foundation outcome. Ownership and authentication hardening have been verified and documented.
 
 ### M2
 
-- Sprint 04 and Sprint 05 acceptance evidence is complete.
-- No remaining Sprint 05 synchronization remediation is open.
+Closed. Gmail provider integration and synchronization acceptance evidence is complete.
 
 ### M3
 
-- Complete frontend status and label filters in Sprint 06.
-- Display conversation status in Sprint 06.
-- Add the remaining inbox interaction tests in Sprint 06.
+Closed for the unified-inbox baseline. Sprint 06 completed status/label filtering, status display, interaction verification, and synchronized Gmail presentation.
 
-## Next Action
+User-managed local labels and tags are not treated as historical M3 completion work; they remain separate planned backlog work under canonical PB-014.
 
-Plan and execute Sprint 06 under M3 to complete the remaining unified inbox carryover:
+## Current Follow-Up
 
-1. Implement frontend status and label filters.
-2. Display conversation status consistently.
-3. Add the remaining inbox interaction, loading, and error tests.
-4. Record Sprint 06 verification evidence.
+The historical Sprint 01–04 remediation cycle is complete.
+
+Newly discovered workspace navigation work is tracked separately under PB-039 through PB-042 and follows the normal Backlog → Refinement → Prioritization → Sprint Planning flow.
