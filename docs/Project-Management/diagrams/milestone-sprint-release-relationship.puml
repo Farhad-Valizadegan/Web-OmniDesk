@@ -6,69 +6,29 @@ skinparam componentStyle rectangle
 
 rectangle "Product Backlog" as Backlog
 rectangle "Sprint Planning" as Planning
-
-package "Milestones" {
-  rectangle "M0\nEngineering Foundation" as M0
-  rectangle "M1\nAuthentication and Workspace" as M1
-  rectangle "M2\nGmail Integration" as M2
-  rectangle "M3\nUnified Inbox" as M3
-  rectangle "M4\nTelegram Integration" as M4
-  rectangle "M5\nAI-Assisted Communication" as M5
-  rectangle "M6\nProduction Hardening" as M6
-}
-
-package "Sprints" {
-  rectangle "Sprint 00" as S00
-  rectangle "Sprint 01" as S01
-  rectangle "Sprint 02" as S02
-  rectangle "Sprint 03" as S03
-  rectangle "Sprint 04" as S04
-  rectangle "Sprint 05" as S05
-  rectangle "Sprint 06" as S06
-  rectangle "Sprint 07" as S07
-  rectangle "Sprint 08" as S08
-  rectangle "Sprint 09" as S09
-}
-
+rectangle "Selected Sprint" as Sprint
+rectangle "Primary Milestone" as Milestone
 rectangle "Release Review" as Review
 rectangle "Versioned Release" as Release
 
-Backlog --> Planning : select items
-
-Planning --> S00 : assign work
-Planning --> S01 : assign work
-Planning --> S02 : assign work
-Planning --> S03 : assign work
-Planning --> S04 : assign work
-Planning --> S05 : assign work
-Planning --> S06 : assign work
-Planning --> S07 : assign work
-Planning --> S08 : assign work
-Planning --> S09 : assign work
-
-S00 --> M0 : primary milestone
-S01 --> M0 : primary milestone
-S02 --> M1 : primary milestone
-S03 --> M1 : primary milestone
-S04 --> M2 : primary milestone
-S05 --> M2 : primary milestone
-S06 --> M3 : primary milestone
-S07 --> M4 : primary milestone
-S08 --> M5 : primary milestone
-S09 --> M6 : primary milestone
-
-M0 --> Review : outcome review
-M1 --> Review : outcome review
-M2 --> Review : outcome review
-M3 --> Review : outcome review
-M4 --> Review : outcome review
-M5 --> Review : outcome review
-M6 --> Review : outcome review
-
+Backlog --> Planning : refine and prioritize
+Planning --> Sprint : select ready work
+Sprint --> Milestone : contributes to
+Milestone --> Review : outcome review
 Review --> Release : release criteria pass
+Review --> Backlog : criteria not satisfied
+
+note bottom of Sprint
+Future Sprint numbers are not
+reserved in advance.
+
+Sprint Planning creates the next
+Sprint only after ready work is
+selected.
+end note
 
 note right of Release
-A sprint does not automatically
+A Sprint does not automatically
 create a release.
 
 A milestone may contribute to
