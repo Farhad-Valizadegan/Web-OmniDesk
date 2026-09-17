@@ -3,6 +3,7 @@
 > Status: Completed with Carryover
 > Completed: 2026-09-12
 > Audited: 2026-09-13
+> Traceability corrected: 2026-09-17
 
 ## Sprint Goal
 
@@ -14,21 +15,23 @@ Sprint 03 establishes the frontend and backend foundation for viewing conversati
 
 M1 - Authentication and Workspace
 
-Sprint 03 contributes to M1 only. Unified Inbox completion belongs to M3 and will be implemented in Sprint 06. Gmail integration belongs to M2 and is implemented in Sprints 04 and 05.
+Sprint 03 contributes to M1 only. Unified Inbox completion belongs to M3 and was completed in Sprint 06. Gmail integration belongs to M2 and was implemented in Sprints 04 and 05.
 
-## Related Backlog Items
+## Canonical Backlog Traceability
 
-| ID | Backlog Item | Priority |
+The original Sprint 03 plan used temporary sprint-local `PB-*` identifiers before the current Product Backlog numbering was established. Those temporary identifiers are superseded and must not be interpreted as the current canonical Product Backlog IDs.
+
+Current canonical relationships are:
+
+| Canonical ID | Backlog Item | Sprint 03 Contribution |
 |---|---|---|
-| PB-011 | Define conversation data model | Must |
-| PB-012 | Define message data model | Must |
-| PB-013 | Implement conversation list endpoint | Must |
-| PB-014 | Implement conversation detail endpoint | Must |
-| PB-015 | Implement message display | Must |
-| PB-016 | Implement inbox search and filtering | Should |
-| PB-017 | Implement labels and tags foundation | Should |
-| PB-018 | Implement unified inbox workspace interface | Must |
-| PB-019 | Add fixture data for inbox development | Must |
+| PB-010 | Implement the initial workspace layout | Workspace layout foundation |
+| PB-011 | Implement the conversation list | Initial list/API/UI foundation |
+| PB-012 | Implement conversation details and message display | Initial detail/message foundation |
+| PB-013 | Implement search and filtering | Initial server-side search and basic filtering |
+| PB-014 | Implement user-managed local labels and tags | Metadata foundation only; user-managed local labels/tags remain planned |
+
+Conversation/message data-model definition, fixture data, test work, and endpoint details were Sprint implementation tasks rather than separate current Product Backlog items.
 
 ## Objectives
 
@@ -42,7 +45,7 @@ Sprint 03 shall:
 - Display messages in a conversation.
 - Implement server-side conversation search exposed through the frontend.
 - Implement basic filtering.
-- Establish labels and tags as internal metadata.
+- Establish provider labels as internal metadata and prepare the model for later organization features.
 - Connect the workspace interface to backend data.
 - Add loading, empty, and error states.
 - Add backend feature tests.
@@ -63,7 +66,7 @@ Sprint 03 shall:
 - Define message timestamps.
 - Define read and unread state.
 - Define conversation status.
-- Define labels and tags representation.
+- Define label metadata representation.
 - Define provider-neutral fields.
 - Add database migrations.
 - Add model factories.
@@ -158,7 +161,7 @@ The exact schema and pagination format may be refined during implementation.
 - Search returns matching conversations.
 - Filters return the correct conversations.
 - Read and unread state is visible.
-- Labels or tags are visible.
+- Provider label metadata can be displayed when present.
 - Loading, empty, and error states are implemented.
 - Fixture data is available for development and testing.
 - Provider tokens are not exposed to the frontend.
@@ -218,7 +221,7 @@ Sprint 03 is complete when:
 ## Dependencies
 
 - M0 is complete.
-- M1 is complete.
+- M1 authentication foundation is available.
 - PostgreSQL is configured and available.
 - Laravel authentication is available.
 - Sanctum authentication is available.
@@ -238,6 +241,7 @@ Sprint 03 is complete when:
 - Production deployment.
 - Production email processing.
 - Background synchronization jobs.
+- User-managed local labels and tags beyond the metadata foundation.
 
 ## Versioning
 
@@ -268,22 +272,17 @@ Sprint 03 was implemented through pull request #3 and merged into `main`.
 - Conversations and messages use provider-neutral database models.
 - Search is performed server-side against conversation subject and provider.
 - Filters use the `status`, `is_read`, and `label` query parameters.
-- Labels are stored as JSON metadata.
+- Provider labels are stored as JSON metadata.
 - Development inbox data is created through the idempotent `InboxFixtureSeeder`.
 
 ### Satisfied Later
 
 - Frontend pagination was implemented during Sprint 05.
+- Sprint 06 completed status and label filtering, status display, and the remaining inbox interaction verification.
 
 ### Carryover
 
-- Add frontend status filtering.
-- Add frontend label filtering.
-- Display conversation status in the inbox.
-- Add explicit frontend tests for conversation selection.
-- Add explicit frontend tests for read-state filtering.
-- Add explicit frontend tests for inbox loading and error states.
-- Record these items in the remediation backlog.
+Historical carryover from Sprint 03 was completed or reclassified later. User-managed local labels and tags remain a separate planned backlog capability under canonical PB-014.
 
 ## Sprint Decisions
 
@@ -298,6 +297,6 @@ Sprint 03 was implemented through pull request #3 and merged into `main`.
 
 ## Sprint Status
 
-Sprint 03 is completed with documented carryover.
+Sprint 03 is completed with historical carryover resolved or reclassified.
 
-The provider-neutral inbox foundation passed verification. Frontend pagination was satisfied during Sprint 05. Remaining status display, frontend filters, and interaction-test work is tracked in the Sprint 01–04 audit.
+The provider-neutral inbox foundation passed verification. Sprint 06 completed the remaining unified-inbox filtering and presentation work. Canonical backlog identifiers are defined only in the Product Backlog.
