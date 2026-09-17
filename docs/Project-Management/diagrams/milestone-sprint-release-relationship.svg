@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="520" viewBox="0 0 1500 520" role="img" aria-labelledby="title desc">
+  <title id="title">OmniDesk AI Milestone, Sprint, and Release Relationship</title>
+  <desc id="desc">Product Backlog flows to Sprint Planning, then to a Selected Sprint, Primary Milestone, Release Review, and Versioned Release. If release criteria are not satisfied, work returns to the Product Backlog.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#222"/>
+    </marker>
+    <style>
+      .box { fill:#f6f6f6; stroke:#222; stroke-width:2; rx:10; ry:10; }
+      .label { font: 600 20px Arial, Helvetica, sans-serif; fill:#111; text-anchor:middle; }
+      .edge { stroke:#222; stroke-width:2.5; fill:none; marker-end:url(#arrow); }
+      .edgeLabel { font: 15px Arial, Helvetica, sans-serif; fill:#222; text-anchor:middle; }
+      .note { fill:#fffde8; stroke:#777; stroke-width:1.5; rx:8; ry:8; }
+      .noteText { font: 15px Arial, Helvetica, sans-serif; fill:#222; }
+      .title { font: 700 24px Arial, Helvetica, sans-serif; fill:#111; text-anchor:middle; }
+    </style>
+  </defs>
+
+  <text x="750" y="36" class="title">OmniDesk AI Milestone, Sprint, and Release Relationship</text>
+
+  <rect x="40" y="190" width="190" height="72" class="box"/>
+  <text x="135" y="233" class="label">Product Backlog</text>
+
+  <rect x="290" y="190" width="190" height="72" class="box"/>
+  <text x="385" y="233" class="label">Sprint Planning</text>
+
+  <rect x="540" y="190" width="190" height="72" class="box"/>
+  <text x="635" y="233" class="label">Selected Sprint</text>
+
+  <rect x="790" y="190" width="190" height="72" class="box"/>
+  <text x="885" y="233" class="label">Primary Milestone</text>
+
+  <rect x="1040" y="190" width="190" height="72" class="box"/>
+  <text x="1135" y="233" class="label">Release Review</text>
+
+  <rect x="1290" y="190" width="170" height="72" class="box"/>
+  <text x="1375" y="233" class="label">Versioned Release</text>
+
+  <line x1="230" y1="226" x2="290" y2="226" class="edge"/>
+  <text x="260" y="207" class="edgeLabel">refine and prioritize</text>
+
+  <line x1="480" y1="226" x2="540" y2="226" class="edge"/>
+  <text x="510" y="207" class="edgeLabel">select ready work</text>
+
+  <line x1="730" y1="226" x2="790" y2="226" class="edge"/>
+  <text x="760" y="207" class="edgeLabel">contributes to</text>
+
+  <line x1="980" y1="226" x2="1040" y2="226" class="edge"/>
+  <text x="1010" y="207" class="edgeLabel">outcome review</text>
+
+  <line x1="1230" y1="226" x2="1290" y2="226" class="edge"/>
+  <text x="1260" y="207" class="edgeLabel">release criteria pass</text>
+
+  <path d="M1135 262 C1135 360, 135 360, 135 262" class="edge"/>
+  <text x="635" y="348" class="edgeLabel">criteria not satisfied</text>
+
+  <rect x="520" y="315" width="230" height="125" class="note"/>
+  <text x="540" y="344" class="noteText">Future Sprint numbers are not</text>
+  <text x="540" y="367" class="noteText">reserved in advance.</text>
+  <text x="540" y="402" class="noteText">Sprint Planning creates the next Sprint</text>
+  <text x="540" y="425" class="noteText">only after ready work is selected.</text>
+
+  <rect x="1250" y="315" width="230" height="125" class="note"/>
+  <text x="1270" y="344" class="noteText">A Sprint does not automatically</text>
+  <text x="1270" y="367" class="noteText">create a release.</text>
+  <text x="1270" y="402" class="noteText">A milestone may contribute to</text>
+  <text x="1270" y="425" class="noteText">one or more releases.</text>
+</svg>
