@@ -6,29 +6,74 @@ skinparam componentStyle rectangle
 
 rectangle "Product Backlog" as Backlog
 rectangle "Sprint Planning" as Planning
-rectangle "Selected Sprint" as Sprint
-rectangle "Primary Milestone" as Milestone
+
+package "Milestones" {
+  rectangle "M0\nEngineering Foundation" as M0
+  rectangle "M1\nAuthentication and Workspace" as M1
+  rectangle "M2\nGmail Integration" as M2
+  rectangle "M3\nUnified Inbox" as M3
+  rectangle "M4\nTelegram Integration" as M4
+  rectangle "M5\nAI-Assisted Communication" as M5
+  rectangle "M6\nProduction Hardening" as M6
+}
+
+package "Sprints" {
+  rectangle "Sprint 00" as S00
+  rectangle "Sprint 01" as S01
+  rectangle "Sprint 02" as S02
+  rectangle "Sprint 03" as S03
+  rectangle "Sprint 04" as S04
+  rectangle "Sprint 05" as S05
+  rectangle "Sprint 06" as S06
+  rectangle "Future Sprint(s)\nAssigned during Sprint Planning" as SF
+}
+
 rectangle "Release Review" as Review
 rectangle "Versioned Release" as Release
 
-Backlog --> Planning : refine and prioritize
-Planning --> Sprint : select ready work
-Sprint --> Milestone : contributes to
-Milestone --> Review : outcome review
-Review --> Release : release criteria pass
-Review --> Backlog : criteria not satisfied
+Backlog --> Planning : select items
 
-note bottom of Sprint
+Planning --> S00 : historical assignment
+Planning --> S01 : historical assignment
+Planning --> S02 : historical assignment
+Planning --> S03 : historical assignment
+Planning --> S04 : historical assignment
+Planning --> S05 : historical assignment
+Planning --> S06 : historical assignment
+Planning --> SF : future assignment
+
+S00 --> M0 : primary milestone
+S01 --> M0 : primary milestone
+S02 --> M1 : primary milestone
+S03 --> M1 : primary milestone
+S04 --> M2 : primary milestone
+S05 --> M2 : primary milestone
+S06 --> M3 : primary milestone
+
+SF ..> M4 : allocation TBD
+SF ..> M5 : allocation TBD
+SF ..> M6 : allocation TBD
+
+M0 --> Review : outcome review
+M1 --> Review : outcome review
+M2 --> Review : outcome review
+M3 --> Review : outcome review
+M4 --> Review : outcome review
+M5 --> Review : outcome review
+M6 --> Review : outcome review
+
+Review --> Release : release criteria pass
+
+note bottom of SF
 Future Sprint numbers are not
 reserved in advance.
 
-Sprint Planning creates the next
-Sprint only after ready work is
-selected.
+Sprint numbers and scope are assigned
+only during Sprint Planning.
 end note
 
 note right of Release
-A Sprint does not automatically
+A sprint does not automatically
 create a release.
 
 A milestone may contribute to
