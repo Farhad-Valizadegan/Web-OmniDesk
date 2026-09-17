@@ -83,6 +83,21 @@ function formatGmailLabel(label: string): string {
     .replace(/_/g, ' ')
 }
 
+const labelFilterOptions = [
+  { value: '', label: 'All labels' },
+  { value: 'INBOX', label: 'Inbox' },
+  { value: 'IMPORTANT', label: 'Important' },
+  { value: 'STARRED', label: 'Starred' },
+  { value: 'UNREAD', label: 'Unread' },
+  { value: 'CATEGORY_PERSONAL', label: 'Personal' },
+  { value: 'CATEGORY_SOCIAL', label: 'Social' },
+  { value: 'CATEGORY_PROMOTIONS', label: 'Promotions' },
+  { value: 'CATEGORY_UPDATES', label: 'Updates' },
+  { value: 'CATEGORY_FORUMS', label: 'Forums' },
+  { value: 'SPAM', label: 'Spam' },
+  { value: 'TRASH', label: 'Trash' },
+]
+
 function renderMessageBody(body: string): ReactNode {
   const normalizedBody = body.replace(/\r\n/g, '\n').trim()
   const parts = normalizedBody.split(/(https?:\/\/[^\s<]+)/g)
@@ -471,16 +486,20 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
 
             <label className="read-filter" htmlFor="label-filter">
               Label
-              <input
+              <select
                 id="label-filter"
-                type="text"
                 value={labelFilter}
                 onChange={(event) => {
                   setPage(1)
                   setLabelFilter(event.target.value)
                 }}
-                placeholder="e.g. INBOX"
-              />
+              >
+                {labelFilterOptions.map((option) => (
+                  <option key={option.value || 'all'} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
 
