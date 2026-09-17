@@ -11,52 +11,11 @@ This document explains how product backlog items, sprints, milestones, and relea
 
 ## Diagram
 
-The authoritative diagram source is PlantUML:
+![Milestone, Sprint, and Release Relationship](./diagrams/milestone-sprint-release-relationship.svg)
 
-```plantuml
-@startuml
-title OmniDesk AI Milestone, Sprint, and Release Relationship
+The editable and authoritative diagram source is [milestone-sprint-release-relationship.puml](./diagrams/milestone-sprint-release-relationship.puml).
 
-left to right direction
-skinparam componentStyle rectangle
-
-rectangle "Product Backlog" as Backlog
-rectangle "Sprint Planning" as Planning
-rectangle "Selected Sprint" as Sprint
-rectangle "Primary Milestone" as Milestone
-rectangle "Release Review" as Review
-rectangle "Versioned Release" as Release
-
-Backlog --> Planning : refine and prioritize
-Planning --> Sprint : select ready work
-Sprint --> Milestone : contributes to
-Milestone --> Review : outcome review
-Review --> Release : release criteria pass
-Review --> Backlog : criteria not satisfied
-
-note bottom of Sprint
-Future Sprint numbers are not
-reserved in advance.
-
-Sprint Planning creates the next
-Sprint only after ready work is
-selected.
-end note
-
-note right of Release
-A Sprint does not automatically
-create a release.
-
-A milestone may contribute to
-one or more releases.
-end note
-
-@enduml
-```
-
-The editable source file is [milestone-sprint-release-relationship.puml](./diagrams/milestone-sprint-release-relationship.puml).
-
-The diagram is intentionally generic. Future Sprint numbers are not reserved in advance; Sprint Planning creates the next Sprint only after backlog items are refined, prioritized, and selected.
+The rendered diagram is intentionally generic. Future Sprint numbers are not reserved in advance; Sprint Planning creates the next Sprint only after backlog items are refined, prioritized, and selected.
 
 ## Relationship Model
 
@@ -123,4 +82,4 @@ MAJOR.MINOR.PATCH
 
 The editable PlantUML source is available in [milestone-sprint-release-relationship.puml](./diagrams/milestone-sprint-release-relationship.puml).
 
-PlantUML is the source of truth for this diagram. Generated visual files, when included, must be regenerated from this `.puml` source rather than edited independently.
+PlantUML is the source of truth for this diagram. The SVG is the rendered visual checked into the repository for GitHub display and should stay synchronized with the `.puml` source.
