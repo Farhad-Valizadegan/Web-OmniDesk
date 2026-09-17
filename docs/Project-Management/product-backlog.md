@@ -4,9 +4,17 @@
 
 ## Purpose
 
-This document contains the prioritized product backlog for OmniDesk AI.
+This document contains the canonical prioritized Product Backlog for OmniDesk AI.
 
-Backlog items represent capabilities, improvements, technical work, and verification work. They will later be selected for sprint planning.
+Backlog items represent capabilities, improvements, technical work, and verification work. They are selected for Sprint Planning only after sufficient refinement and prioritization.
+
+## Identifier Governance
+
+`PB-###` identifiers in this document are canonical and unique across the project.
+
+Historical Sprint documents created before the current backlog numbering was established may contain superseded sprint-local `PB-*` references. Those legacy references are not canonical and must not be reused for new work. Where needed, historical Sprint documents contain an explicit traceability correction to the current Product Backlog.
+
+Once a canonical Product Backlog ID is assigned, it must not be reassigned to unrelated work.
 
 ## Priorities
 
@@ -31,7 +39,7 @@ Backlog items represent capabilities, improvements, technical work, and verifica
 | PB-011 | Implement the conversation list | Must | M3 | Completed |
 | PB-012 | Implement conversation details and message display | Must | M3 | Completed |
 | PB-013 | Implement search and filtering | Should | M3 | Completed |
-| PB-014 | Implement local labels and tags | Should | M3 | Planned |
+| PB-014 | Implement user-managed local labels and tags | Should | TBD | Planned |
 | PB-015 | Implement Gmail authorization | Must | M2 | Completed |
 | PB-016 | Implement secure provider token storage | Must | M2 | Completed |
 | PB-017 | Implement the Gmail connector | Must | M2 | Completed |
@@ -66,7 +74,7 @@ Backlog items represent capabilities, improvements, technical work, and verifica
 Each selected backlog item should have:
 
 - A clear description
-- A related milestone
+- A related milestone when the milestone relationship has been approved
 - A priority
 - Acceptance criteria
 - Known dependencies
@@ -86,7 +94,7 @@ The following items are outside the current approved scope:
 
 ## Backlog Management
 
-The backlog will be refined before sprint planning.
+The backlog is refined before Sprint Planning.
 
 Items may be:
 
@@ -97,9 +105,9 @@ Items may be:
 - Combined when appropriate
 - Deferred until more information is available
 
-A backlog item is not committed to a sprint until it has been reviewed and selected.
+A backlog item is not committed to a Sprint until it has been reviewed and selected during Sprint Planning.
 
-Newly discovered work from a completed sprint is added to the Product Backlog rather than silently expanding or reopening that sprint.
+Newly discovered work from a completed Sprint is added to the Product Backlog rather than silently expanding or reopening that Sprint.
 
 ## Relationship to Milestones and Sprints
 
@@ -107,18 +115,21 @@ Milestones describe meaningful project outcomes.
 
 Backlog items describe individual capabilities or work items.
 
-Sprints select a limited group of backlog items and produce a reviewable increment.
+Sprints select a limited group of ready backlog items and produce a reviewable Increment.
 
-One milestone may contain many backlog items and several sprints.
+One milestone may contain many backlog items and several Sprints.
 
-The workspace-navigation items PB-039 through PB-042 have been refined but are not assigned to a sprint or milestone yet. They must now be prioritized against the existing M4 Telegram work before Sprint Planning.
+PB-014 is intentionally not assigned to M3. M3 was completed with provider-label presentation and filtering; user-managed local labels and tags remain separate planned work and require prioritization before milestone or Sprint assignment.
+
+The workspace-navigation items PB-039 through PB-042 have been refined but are not assigned to a Sprint or milestone yet. They must be prioritized against the existing M4 Telegram work before Sprint Planning.
 
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
-| BACKLOG-001 | Final backlog prioritization | To be reviewed |
-| BACKLOG-002 | Acceptance criteria for each item | To be defined during refinement |
-| BACKLOG-003 | Final sprint assignments | To be defined during sprint planning |
+| BACKLOG-001 | Final backlog prioritization | Ongoing through refinement and Sprint Planning |
+| BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
+| BACKLOG-003 | Future Sprint assignments | Defined only during Sprint Planning |
 | BACKLOG-004 | Telegram scope | Requires provider validation |
 | BACKLOG-005 | Final AI provider | Unresolved |
 | BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Requires prioritization before Sprint Planning |
+| BACKLOG-007 | Milestone and priority for PB-014 local labels/tags | Requires prioritization before Sprint Planning |

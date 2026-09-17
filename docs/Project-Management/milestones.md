@@ -2,6 +2,7 @@
 
 > Status: Approved
 > Approved: 2026-09-09
+> Agile allocation corrected: 2026-09-17
 
 ## Purpose
 
@@ -16,6 +17,8 @@ A milestone may contain multiple sprints.
 A milestone may result in one release, multiple releases, or no public release.
 
 A release may include work from more than one milestone.
+
+Future Sprint numbers are not reserved in advance. Sprint assignments are made only during Sprint Planning after backlog items are refined and prioritized.
 
 ## Milestones
 
@@ -74,7 +77,9 @@ Includes:
 - Conversation details
 - Message display
 - Search and filtering
-- Labels and tags
+- Provider labels and label-based filtering
+
+User-managed local labels and tags are a separate planned capability in PB-014 and are not required for M3 completion.
 
 ### M4 - Telegram Integration
 
@@ -121,75 +126,67 @@ Includes:
 
 ## Sprint Allocation
 
-| Milestone | Sprints | Main Result |
+Completed historical allocations are recorded below. Future milestone work remains unassigned until Sprint Planning.
+
+| Milestone | Sprint Allocation | Main Result |
 |---|---|---|
-| M0 - Engineering Foundation | Sprint 0 and Sprint 1 | Development foundation |
-| M1 - Authentication and Workspace | Sprint 02 and Sprint 03 | Secure communication workspace |
-| M2 - Gmail Integration | Sprint 4 and Sprint 5 | Gmail connection and synchronization |
+| M0 - Engineering Foundation | Sprint 00 and Sprint 01 | Development foundation |
+| M1 - Authentication and Workspace | Sprint 02 and Sprint 03 | Secure communication workspace foundation |
+| M2 - Gmail Integration | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
 | M3 - Unified Inbox | Sprint 06 | Unified communication workspace |
-| M4 - Telegram Integration | Sprint 07 | Telegram connection and synchronization |
-| M5 - AI-Assisted Communication | Sprint 08 | User-controlled AI assistance |
-| M6 - Production Hardening | Sprint 09 | Release readiness |
+| M4 - Telegram Integration | TBD through Sprint Planning | Telegram connection and synchronization |
+| M5 - AI-Assisted Communication | TBD through Sprint Planning | User-controlled AI assistance |
+| M6 - Production Hardening | TBD through Sprint Planning | Release readiness |
 
-### M0 Sprint Structure
+### Completed Sprint Structure
 
-#### Sprint 0 - Repository and Environment Preparation
+#### Sprint 00 - Repository and Environment Preparation
 
-Prepares the repository, development environment, backend, frontend, database, tools, quality checks, and implementation workflow.
+Prepared the repository, development environment, backend, frontend, database, tools, quality checks, and implementation workflow.
 
-#### Sprint 1 - Backend and Frontend Foundation
+#### Sprint 01 - Backend and Frontend Foundation
 
-Establishes the Laravel backend, React frontend, REST API foundation, frontend-backend communication, testing, linting, formatting, and CI baseline.
+Established the Laravel backend, React frontend, REST API foundation, frontend-backend communication, testing, linting, formatting, and CI baseline.
 
-### M1 Sprint Structure
+#### Sprint 02 - Database and Authentication
 
-#### Sprint 2 - Database and Authentication
+Implemented the database foundation, registration, login, logout, sessions, authentication, and ownership checks.
 
-Implements the database foundation, registration, login, logout, sessions, authentication, and ownership checks.
+#### Sprint 03 - Workspace Foundation
 
-#### Sprint 3 - Workspace Foundation
+Implemented the initial workspace, provider-neutral conversation/message foundation, conversation list/detail behavior, search, filtering foundation, and label metadata foundation.
 
-Implements the initial workspace, conversation list, conversation details, message display, search, filtering, labels, and tags.
+Sprint 03 contributes to M1 only. Unified Inbox completion was assigned to Sprint 06 under M3.
 
-Sprint 3 contributes to M1 only. Unified Inbox completion is assigned to Sprint 06 under M3.
+#### Sprint 04 - Gmail Provider Integration
 
-### M2 Sprint Structure
+Implemented Gmail authorization, secure token storage, the Gmail connector, account/provider normalization foundation, and provider error classification.
 
-#### Sprint 4 - Gmail Provider Integration
+#### Sprint 05 - Gmail Synchronization
 
-Implements Gmail authorization, secure token storage, the Gmail connector, data mapping, and provider error classification.
+Implemented Gmail synchronization coordination, validation, normalization, duplicate prevention, and incremental synchronization.
 
-#### Sprint 5 - Gmail Synchronization
+Sprint 05 contributes to M2 only.
 
-Implements Gmail synchronization coordination, validation, normalization, duplicate prevention, and incremental synchronization.
+#### Sprint 06 - Unified Inbox
 
-Sprint 5 contributes to M2 only.
+Completed the unified inbox experience, including conversation organization, search, filtering, provider labels, synchronization presentation, and user-facing inbox workflows.
 
-### M3 Sprint Structure
+Sprint 06 contributes to M3 only.
 
-#### Sprint 6 - Unified Inbox
+## Future Sprint Assignment Rule
 
-Completes the unified inbox experience, including conversation organization, search, filtering, labels, synchronization presentation, and user-facing inbox workflows.
+M4, M5, and M6 do not reserve Sprint 07, Sprint 08, or Sprint 09.
 
-Sprint 6 contributes to M3 only.
+Before future work enters a Sprint:
 
-### M4 Sprint Structure
+1. Backlog items are refined.
+2. Dependencies and unresolved decisions are reviewed.
+3. Priority is compared with other ready work.
+4. Sprint Planning selects a limited scope.
+5. Only then is a Sprint number and Sprint Goal created.
 
-#### Sprint 7 - Telegram Integration
-
-Implements the validated Telegram connection flow, connector, supported data normalization, synchronization, and failure isolation.
-
-### M5 Sprint Structure
-
-#### Sprint 8 - AI Assistance
-
-Implements summaries, editable reply suggestions, context minimization, AI provider abstraction, suggestion lifecycle, and AI failure handling.
-
-### M6 Sprint Structure
-
-#### Sprint 9 - Hardening and Release Preparation
-
-Completes security verification, integration testing, end-to-end testing, performance checks, deployment preparation, monitoring review, and release candidate preparation.
+This rule also applies to PB-039 through PB-042. Their refinement does not pre-commit them to the next Sprint.
 
 ## Relationship to Releases and Versions
 
@@ -220,4 +217,4 @@ Example:
 
 A milestone is complete only when its defined outcome and acceptance conditions have been satisfied.
 
-Sprint assignments, release mapping, and acceptance criteria will be reviewed and updated as implementation progresses.
+Sprint assignments, release mapping, and acceptance criteria are reviewed and updated as implementation progresses.

@@ -1,47 +1,76 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# OmniDesk AI Backend Agent Guidelines
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+These instructions apply to automated coding assistants working in the `backend` directory.
 
-## Prerequisites
+## Project Context
 
-Verify that PHP and Composer are available:
+OmniDesk AI is a Laravel-based backend for a provider-neutral unified communication workspace.
 
-```sh
-php -v
-composer -V
-```
+Current Version 1 providers are Gmail and Telegram. Gmail is implemented; Telegram work remains subject to backlog prioritization and provider validation.
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+## Required Working Rules
 
-macOS:
+- Preserve the provider-neutral domain model.
+- Keep provider-specific behavior behind connector/service boundaries.
+- Do not expose OAuth credentials, access tokens, refresh tokens, client secrets, or other provider secrets to frontend code or API responses.
+- Preserve authenticated-user ownership boundaries for conversations, messages, and provider connections.
+- Use official provider APIs and documented authorization flows.
+- Do not introduce undocumented scraping or browser automation as a core provider integration.
+- Do not implement autonomous AI message sending.
+- Do not expand Version 1 scope without an explicit backlog/scope decision.
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
+## Development Workflow
 
-Windows PowerShell:
+Repository changes should follow the project workflow:
+
+1. Work on a dedicated branch.
+2. Make the smallest coherent change.
+3. Run relevant local verification.
+4. Commit and push the branch.
+5. Open a pull request.
+6. Require CI to pass before merge.
+7. Merge through the repository workflow.
+8. Synchronize local `main` after merge.
+
+Do not mutate the user's shell execution policy or install global system dependencies automatically.
+
+Do not install new Composer packages unless the requested change requires them and the dependency decision is explicit.
+
+## Backend Verification
+
+From the repository root on Windows PowerShell:
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
+Push-Location backend
+php artisan test
+vendor\bin\pint.bat --test
+Pop-Location
 ```
 
-Linux:
+Linux/CI formatting check:
 
 ```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
+cd backend
+./vendor/bin/pint --test
+php artisan test
 ```
 
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
+For schema changes, also verify migrations against PostgreSQL.
 
-## Agent Setup
+## Architecture
 
-Install Laravel Boost from the application root before making application changes:
+Current backend baseline:
 
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
+- Laravel
+- PostgreSQL
+- Redis where required for queue/cache responsibilities
+- Laravel Sanctum authentication
+- REST/JSON API boundaries
+- modular-monolith architecture
+- provider connector/adapter abstractions
 
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+## Documentation
+
+Engineering decisions, requirements, Sprint history, backlog state, and release documentation live under `../docs`.
+
+Do not use Sprint documents as the canonical Product Backlog. Canonical `PB-###` identifiers are defined in `../docs/Project-Management/product-backlog.md`.
