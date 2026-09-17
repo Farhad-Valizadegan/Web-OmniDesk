@@ -67,7 +67,7 @@ The Sprint 06 review identified non-functional or incomplete sidebar navigation 
 - PB-041: implement a Labels workspace view with dynamic/custom label support.
 - PB-042: define and implement the Settings workspace view, or remove the placeholder until its scope is approved.
 
-These items are currently **Needs Refinement**. They are not committed to the next sprint and are not assigned to a milestone yet. They must be prioritized against the existing M4 Telegram backlog before Sprint Planning.
+These items have now been **Refined**. Their purpose, scope, acceptance criteria, dependencies, implementation tasks, testing expectations, and Definition of Done are documented in dedicated backlog-item refinement files. They are not committed to the next sprint and are not assigned to a milestone yet. They must now be prioritized against the existing M4 Telegram backlog before Sprint Planning.
 
 ## Relationship to Sprints
 

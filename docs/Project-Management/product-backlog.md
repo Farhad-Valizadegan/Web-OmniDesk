@@ -56,10 +56,10 @@ Backlog items represent capabilities, improvements, technical work, and verifica
 | PB-036 | Add integration and end-to-end tests | Must | M6 | Planned |
 | PB-037 | Prepare deployment and recovery documentation | Must | M6 | Planned |
 | PB-038 | Prepare release notes and release candidate | Must | M6 | Planned |
-| PB-039 | Complete functional workspace sidebar navigation and active-state behavior | Should | TBD | Needs Refinement |
-| PB-040 | Implement a Starred workspace view | Should | TBD | Needs Refinement |
-| PB-041 | Implement a Labels workspace view with dynamic/custom label support | Should | TBD | Needs Refinement |
-| PB-042 | Define and implement the Settings workspace view or remove the placeholder until its scope is approved | Could | TBD | Needs Refinement |
+| PB-039 | Complete functional workspace sidebar navigation and active-state behavior | Should | TBD | Refined |
+| PB-040 | Implement a Starred workspace view | Should | TBD | Refined |
+| PB-041 | Implement a Labels workspace view with dynamic/custom label support | Should | TBD | Refined |
+| PB-042 | Define and implement the Settings workspace view or remove the placeholder until its scope is approved | Could | TBD | Refined |
 
 ## Backlog Item Expectations
 
@@ -111,7 +111,7 @@ Sprints select a limited group of backlog items and produce a reviewable increme
 
 One milestone may contain many backlog items and several sprints.
 
-The newly discovered workspace-navigation items PB-039 through PB-042 are not assigned to a sprint or milestone yet. They must first be refined and prioritized against the existing M4 Telegram work.
+The workspace-navigation items PB-039 through PB-042 have been refined but are not assigned to a sprint or milestone yet. They must now be prioritized against the existing M4 Telegram work before Sprint Planning.
 
 ## Unresolved Decisions
 | ID | Decision | Current State |
@@ -121,4 +121,4 @@ The newly discovered workspace-navigation items PB-039 through PB-042 are not as
 | BACKLOG-003 | Final sprint assignments | To be defined during sprint planning |
 | BACKLOG-004 | Telegram scope | Requires provider validation |
 | BACKLOG-005 | Final AI provider | Unresolved |
-| BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Requires backlog refinement |
+| BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Requires prioritization before Sprint Planning |
