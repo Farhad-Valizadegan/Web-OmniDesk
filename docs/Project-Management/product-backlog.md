@@ -125,13 +125,59 @@ PB-014 is intentionally not assigned to M3. M3 was completed with provider-label
 
 The workspace-navigation items PB-039 through PB-042 have been refined but are not assigned to a Sprint or milestone yet. They must be prioritized against the existing M4 Telegram work before Sprint Planning.
 
+## Current Prioritization for the Next Planning Cycle
+
+The next planning cycle prioritizes required Version 1 milestone work before optional workspace enhancements.
+
+### Priority Band 1 - M4 Telegram Integration
+
+The current highest-priority work is M4 because PB-023 through PB-026 are `Must` items required for the Version 1 communication-provider baseline.
+
+Dependency order:
+
+1. PB-023 - Validate the Telegram integration mode.
+2. PB-024 - Implement the Telegram connector.
+3. PB-025 - Implement Telegram synchronization.
+4. PB-026 - Isolate failures between providers.
+
+This ordering does not pre-assign all four items to one Sprint. PB-023 must resolve the Telegram integration approach before dependent implementation work is selected.
+
+### Priority Band 2 - Workspace and Organization Improvements
+
+After M4 work is sufficiently resolved, the following `Should` items are considered:
+
+- PB-039 - Workspace sidebar navigation.
+- PB-040 - Starred workspace view.
+- PB-041 - Labels workspace view.
+- PB-014 - User-managed local labels and tags.
+
+Dependency guidance:
+
+- PB-039 precedes PB-040 and PB-041 because those views require functional workspace navigation.
+- PB-041 remains separate from PB-014: PB-041 concerns synchronized provider labels, while PB-014 concerns OmniDesk-managed local labels/tags.
+- PB-041 should be reconsidered after Telegram integration semantics are known so the provider-neutral label model can be validated against more than Gmail.
+
+### Priority Band 3 - Deferred Settings Cleanup
+
+PB-042 remains `Could` priority.
+
+Its V1 decision is already resolved: a dedicated Settings workspace is deferred. The remaining work is limited to removing or clearly disabling the false Settings destination. It may be selected alongside PB-039 when capacity allows, but it is not automatically committed to the same Sprint.
+
+### Next Planning Gate
+
+The highest-priority uncompleted item is PB-023.
+
+Before creating the next Sprint, PB-023 must be refined to the project's readiness standard, including acceptance criteria, dependencies, validation tasks, testing expectations, and Definition of Done.
+
+No future Sprint number is reserved until that refinement and Sprint Planning are complete.
+
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
-| BACKLOG-001 | Final backlog prioritization | Ongoing through refinement and Sprint Planning |
+| BACKLOG-001 | Final backlog prioritization | Next-cycle ordering resolved; reprioritized continuously through refinement and Sprint Planning |
 | BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
 | BACKLOG-003 | Future Sprint assignments | Defined only during Sprint Planning |
 | BACKLOG-004 | Telegram scope | Requires provider validation |
 | BACKLOG-005 | Final AI provider | Unresolved |
-| BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Requires prioritization before Sprint Planning |
-| BACKLOG-007 | Milestone and priority for PB-014 local labels/tags | Requires prioritization before Sprint Planning |
+| BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Prioritization resolved: deferred behind M4; milestone remains TBD until future selection |
+| BACKLOG-007 | Milestone and priority for PB-014 local labels/tags | Should priority retained; deferred behind M4; milestone remains TBD until future selection |
