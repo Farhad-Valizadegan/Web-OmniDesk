@@ -32,6 +32,7 @@ SEC-001; deployment design.
 - Define key rotation, revocation, backup/recovery, and incident procedures.
 - Keep provider secrets out of frontend code, logs, and repository history.
 - Verify encrypted-at-rest handling for provider credentials/session material.
+- If SEC-015 later selects application-level encryption for communication content, define the required key lifecycle without treating advanced KMS/HSM controls as automatically required.
 
 ## Security Tests
 
