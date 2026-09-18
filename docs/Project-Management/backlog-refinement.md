@@ -8,9 +8,24 @@ This document describes how OmniDesk AI backlog items are prepared before sprint
 
 The canonical backlog remains [product-backlog.md](./product-backlog.md). Detailed refinement specifications for individual items live under [backlog-items/](./backlog-items/) and do not constitute a second backlog.
 
+These refinement and lifecycle rules apply to both canonical `PB-###` and `SEC-###` items.
+
 ## Workflow
 
 ![OmniDesk AI Backlog Refinement Workflow](./diagrams/backlog-refinement.svg)
+
+## Backlog Status Semantics
+
+The project uses the following lifecycle meanings:
+
+- **Candidate** - discovered or proposed work that has not yet been accepted into the canonical Product Backlog.
+- **Planned** - accepted into the canonical Product Backlog, but not automatically refined, Sprint-selected, or implemented.
+- **Refined** - sufficiently analyzed for prioritization and Sprint Planning.
+- **Selected for Sprint** - committed only through Sprint Planning and recorded in the relevant Sprint plan; selection is separate from backlog acceptance.
+- **In Progress** - active execution is underway.
+- **Completed** - the applicable Definition of Done and completion evidence are satisfied.
+
+A P1, Must, V1 Required, or other high-priority classification does not itself assign an item to a Sprint. Likewise, documentation of a control does not imply that the control is implemented.
 
 ## Refinement Activities
 
@@ -69,7 +84,7 @@ The Sprint 06 review identified non-functional or incomplete sidebar navigation 
 - [PB-041](./backlog-items/PB-041-labels-workspace-view.md): implement a Labels workspace view with dynamic/custom label support.
 - [PB-042](./backlog-items/PB-042-settings-workspace-view.md): define and implement the Settings workspace view, or remove the placeholder until its scope is approved.
 
-These items have now been **Refined**. Their purpose, scope, acceptance criteria, dependencies, implementation tasks, testing expectations, and Definition of Done are documented in the linked backlog-item refinement specifications. They are not committed to the next sprint and are not assigned to a milestone yet. They must now be prioritized against the existing M4 Telegram backlog before Sprint Planning.
+These items have now been **Refined**. Their purpose, scope, acceptance criteria, dependencies, implementation tasks, testing expectations, and Definition of Done are documented in the linked backlog-item refinement specifications. They remain unassigned to a Sprint and milestone. They were deprioritized behind the active M4 Telegram validation work and may be reconsidered during a future refinement, prioritization, and Sprint Planning cycle.
 
 ## Relationship to Sprints
 

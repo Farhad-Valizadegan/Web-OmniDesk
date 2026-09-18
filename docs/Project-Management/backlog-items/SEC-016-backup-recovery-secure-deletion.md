@@ -1,6 +1,6 @@
 # SEC-016 - Backup Security, Recovery, and Secure Deletion
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-15 Backup, Recovery & Data Lifecycle
 > Priority: P1
 > Release Classification: V1 Required before production data
@@ -28,6 +28,7 @@ SEC-002; SEC-008; production storage design.
 ## Acceptance Criteria
 
 - Encrypt backups and restrict backup access.
+- Ensure backup protection is consistent with the selected SEC-015 persisted-data protection model and does not silently weaken application/storage protections.
 - Define retention, rotation, and expiration/deletion rules.
 - Define who may initiate a restore.
 - Ensure decryption keys required for recovery are protected and recoverable.

@@ -1,6 +1,6 @@
 # SEC-008 - Provider Credential and Encryption-Key Management Baseline
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-06 Provider Credential & OAuth Security / SEC-EPIC-08 Encryption & Key Management
 > Priority: P1
 > Release Classification: V1 Required baseline
@@ -32,6 +32,7 @@ SEC-001; deployment design.
 - Define key rotation, revocation, backup/recovery, and incident procedures.
 - Keep provider secrets out of frontend code, logs, and repository history.
 - Verify encrypted-at-rest handling for provider credentials/session material.
+- If SEC-015 later selects application-level encryption for communication content, define the required key lifecycle without treating advanced KMS/HSM controls as automatically required.
 
 ## Security Tests
 

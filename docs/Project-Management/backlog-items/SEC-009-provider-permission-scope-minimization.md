@@ -1,6 +1,6 @@
 # SEC-009 - Provider Permission and Scope Minimization
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-06 Provider Credential & OAuth Security
 > Priority: P1
 > Release Classification: V1 Required

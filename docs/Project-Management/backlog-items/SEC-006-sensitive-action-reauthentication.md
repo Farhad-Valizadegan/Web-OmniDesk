@@ -1,6 +1,6 @@
 # SEC-006 - Sensitive-Action Reauthentication
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-02 Identity & Authentication / SEC-EPIC-05 Session & MFA Security
 > Priority: P1
 > Release Classification: V1 Required

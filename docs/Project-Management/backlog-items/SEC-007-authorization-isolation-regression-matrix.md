@@ -1,6 +1,6 @@
 # SEC-007 - Expand Authorization and Cross-User Isolation Testing
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-03 Authorization & User Isolation / SEC-EPIC-17 Security Testing & Verification
 > Priority: P1
 > Release Classification: V1 Required

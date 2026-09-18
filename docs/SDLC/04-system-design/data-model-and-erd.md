@@ -110,32 +110,61 @@ AI suggestions remain assistive and user-controlled.
 
 ## Deletion and Retention
 
-The following decisions remain unresolved:
-- Retention period for synchronized communication data.
-- Deletion behavior after provider disconnection.
-- Account deletion behavior.
-- Retention period for AI suggestions.
-- Deletion of provider credentials after disconnection.
-- Treatment of locally created labels after related data is deleted.
+SEC-002 is the authoritative V1 data-classification and lifecycle baseline. The lifecycle model is therefore no longer wholly undecided.
+
+The following implementation/operational values remain unresolved:
+- exact retention period for synchronized communication data;
+- exact account-deletion workflow and retention exceptions;
+- exact retention period for AI suggestions;
+- backup retention/expiration timing;
+- provider-specific lifecycle details that depend on implementation;
+- treatment of locally created labels after related data is deleted.
+
+Current Gmail disconnect behavior removes the authenticated user's local Gmail connection, conversations, and messages while attempting provider-side authorization revocation.
 
 ## Security Considerations
 - Every protected entity must be associated with an ownership boundary.
 - Queries must enforce user ownership.
 - External provider data must be treated as untrusted input.
-- Sensitive fields must be protected at rest.
+- Sensitive fields must be protected at rest according to the approved control for their data class.
 - Database access must be restricted to authorized application services.
 - Audit and diagnostic records must avoid sensitive content.
+
+## Persisted Communication Content Protection
+
+Message bodies are classified as Highly Sensitive by SEC-002. The repository does not currently select application-level/field-level encryption or client-side/end-to-end encryption for persisted message bodies.
+
+These protection layers are distinct:
+
+1. **Transport encryption** - protects data in transit and is governed by SEC-014.
+2. **Infrastructure/disk/storage encryption** - protects storage media and snapshots according to the production storage baseline under SEC-015.
+3. **Database-native encryption** - may be part of the selected production storage model but is not yet finalized.
+4. **Application-level/field-level encryption** - is already used for Gmail provider tokens, but is not currently selected for message bodies.
+5. **Client-side/end-to-end encryption** - is not part of the approved V1 scope.
+
+SEC-015 owns the unresolved V1 architectural decision for persisted communication-content protection. If application-level message encryption is selected later, SEC-008 owns key-management implications and SEC-016 owns backup/recovery implications.
+
+The decision must consider:
+
+- breach blast radius;
+- search and indexing behavior;
+- synchronization and duplicate detection;
+- AI context retrieval where later approved;
+- application/runtime complexity;
+- key rotation and recovery;
+- backup and restore behavior.
 
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
-| DATA-001 | Final database schema and migrations | To be finalized during implementation |
-| DATA-002 | Exact token encryption strategy | Requires security design |
-| DATA-003 | Communication data retention period | Requires privacy decision |
-| DATA-004 | Deletion behavior after provider disconnection | Requires privacy decision |
-| DATA-005 | Exact provider-specific metadata to preserve | To be finalized during integration design |
-| DATA-006 | Exact database uniqueness constraints | To be finalized during implementation |
-| DATA-007 | AI suggestion retention period | Requires privacy decision |
+| DATA-001 | Final database schema and migrations | Partially implemented; future schema evolution remains change-controlled |
+| DATA-002 | Provider credential encryption/key lifecycle | Gmail access/refresh-token field encryption is implemented; production key lifecycle remains under SEC-008; Telegram session protection remains under SEC-019 |
+| DATA-003 | Communication data retention period | SEC-002 lifecycle baseline exists; exact operational duration remains unresolved |
+| DATA-004 | Deletion behavior after provider disconnection | SEC-002 baseline exists; Gmail local disconnect cleanup is implemented; remaining provider-specific behavior is pending |
+| DATA-005 | Exact provider-specific metadata to preserve | To be finalized during integration implementation/refinement |
+| DATA-006 | Exact database uniqueness constraints | Implemented where required by current features; future provider constraints remain change-controlled |
+| DATA-007 | AI suggestion retention period | Exact duration remains unresolved and is gated by SEC-018/SEC-020 |
+| DATA-008 | Persisted communication-content protection model | Unresolved security architecture decision owned by SEC-015; application-level message encryption and E2EE are not implicitly required |
 
 ## PlantUML Source
 

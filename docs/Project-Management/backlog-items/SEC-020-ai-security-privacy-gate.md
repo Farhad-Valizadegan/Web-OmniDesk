@@ -1,6 +1,6 @@
 # SEC-020 - AI Security and Privacy Gate
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-16 AI Security & Privacy
 > Priority: P1
 > Release Classification: V1 Required before M5 AI features

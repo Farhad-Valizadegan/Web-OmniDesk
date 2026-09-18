@@ -32,9 +32,9 @@ Traceability helps verify that documented requirements are derived from stakehol
 | ID | Decision | Current State |
 |---|---|---|
 | TD-001 | Whether the MVP will support sending messages | Unresolved |
-| TD-002 | Exact integration mode for Telegram | Requires validation before implementation |
+| TD-002 | Exact integration mode for Telegram | Telegram API/MTProto through official TDLib behind a long-lived adapter is the selected direction; PB-023 runtime evidence remains pending before PB-024 |
 | TD-003 | Final AI service provider | Unresolved |
-| TD-004 | Data retention period for synchronized communication | Requires privacy and design decision |
+| TD-004 | Data retention period for synchronized communication | SEC-002 provides the authoritative classification/lifecycle baseline; exact operational retention durations remain unresolved |
 ## Traceability Status
 The current matrix provides initial traceability for the Requirements Engineering phase.
 It should be updated when requirements change and reviewed before requirements approval.

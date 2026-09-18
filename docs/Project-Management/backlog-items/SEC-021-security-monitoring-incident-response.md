@@ -1,6 +1,6 @@
 # SEC-021 - Security Monitoring and Incident Response Baseline
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-12 Logging, Auditing & Monitoring / SEC-EPIC-18 Incident Response & Operational Security
 > Priority: P2
 > Release Classification: V1 Recommended

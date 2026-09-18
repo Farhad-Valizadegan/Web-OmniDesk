@@ -1,6 +1,6 @@
 # SEC-003 - Harden Browser Authentication Session Architecture
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-05 Session & MFA Security
 > Priority: P1
 > Release Classification: V1 Required

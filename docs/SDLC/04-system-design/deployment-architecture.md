@@ -43,6 +43,28 @@ The initial deployment may use one application host containing:
 
 These processes may be separated across different hosts when operational requirements justify it.
 
+## Infrastructure Trust Assumption
+
+The V1 server-side architecture requires the application runtime to process application-readable communication data. The approved production hosting, database/storage, snapshot, and backup operational boundary is therefore a trusted infrastructure boundary.
+
+Authorized infrastructure or platform administrators with sufficiently privileged access may technically be capable of accessing plaintext application data where the application itself must be able to read that data.
+
+Reducing hosting-provider/operator visibility would require a materially different security architecture, such as application-level encryption with separately controlled keys, client-side encryption, confidential computing, or equivalent controls. Those controls are not silently included in V1 and require separate risk/design approval.
+
+This assumption is traced to SEC-001, SEC-008, SEC-015, and SEC-016.
+
+## Data Protection Layers
+
+The deployment distinguishes:
+
+- transport encryption for network paths;
+- infrastructure/storage encryption for disks, volumes, managed storage, and snapshots;
+- database-native encryption where selected by the production platform;
+- application-level/field-level encryption for specifically approved fields such as current Gmail provider tokens;
+- client-side/end-to-end encryption, which is not part of the approved V1 scope.
+
+The exact persisted-message protection model remains an unresolved SEC-015 design decision. Backup protection remains governed by SEC-016.
+
 ## Data Services
 
 ### PostgreSQL

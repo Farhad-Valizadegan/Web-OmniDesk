@@ -1,6 +1,6 @@
 # SEC-015 - Database, Redis, and Storage Hardening
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-09 Database & Storage Security / SEC-EPIC-13 Infrastructure & Cloud Security
 > Priority: P1
 > Release Classification: V1 Required
@@ -32,6 +32,8 @@ Deployment design; SEC-001; SEC-002.
 - Use unique production credentials and restrict administrative access.
 - Use TLS where network boundaries require it.
 - Document encryption-at-rest and storage permissions.
+- Make an explicit V1 architectural decision for persisted communication-content protection, distinguishing infrastructure/storage encryption, database-native encryption, and application-level/field-level encryption.
+- Record search/indexing, synchronization, AI-processing, key-management, backup, operational-complexity, and breach-blast-radius trade-offs for that decision.
 - Separate application and administrative privileges.
 
 ## Security Tests

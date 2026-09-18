@@ -18,6 +18,15 @@ Historical Sprint documents created before the current backlog numbering was est
 
 Once a canonical Product Backlog ID is assigned, it must not be reassigned to unrelated work.
 
+## Status Semantics
+
+- **Candidate** describes proposed work that has not yet been accepted into this canonical Product Backlog.
+- **Planned** means accepted into this Product Backlog; it does not mean Sprint-selected or implemented.
+- **Refined** means sufficiently analyzed for prioritization and Sprint Planning.
+- **In Progress** means active Sprint/execution work is underway.
+- **Completed** requires the applicable Definition of Done and completion evidence.
+- Sprint commitment is recorded by Sprint Planning and the Sprint plan, not by the `Planned` status alone.
+
 Security backlog items use the separate canonical `SEC-###` namespace. They remain part of this same Product Backlog and follow the same refinement, prioritization, Sprint Planning, traceability, and identifier-governance rules as `PB-###` items.
 
 ## Priorities
