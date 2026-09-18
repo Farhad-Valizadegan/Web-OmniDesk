@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1320" viewBox="0 0 1000 1320" role="img" aria-labelledby="title desc">
+  <title id="title">OmniDesk AI Sprint Workflow</title>
+  <desc id="desc">Flow from milestone context and Product Backlog through refinement, Sprint Planning, Sprint Goal, engineering work, verification, Sprint Review, Increment, and return of incomplete or discovered work to the Product Backlog.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#334155"/></marker>
+    <style>
+      .title{font:700 28px Arial,sans-serif;fill:#0f172a}.h{font:700 18px Arial,sans-serif;fill:#0f172a}.t{font:14px Arial,sans-serif;fill:#334155}.small{font:13px Arial,sans-serif;fill:#475569}.box{stroke:#64748b;stroke-width:1.5;rx:12}.line{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1000" height="1320" fill="#fff"/>
+  <text x="500" y="45" text-anchor="middle" class="title">OmniDesk AI Sprint Workflow</text>
+
+  <rect x="250" y="80" width="500" height="70" class="box" fill="#eef2ff"/>
+  <text x="500" y="108" text-anchor="middle" class="h">Product Goal / Milestone Context</text>
+  <text x="500" y="132" text-anchor="middle" class="t">Review the relevant milestone outcome</text>
+
+  <path d="M500 150 V185" class="line"/>
+  <rect x="250" y="190" width="500" height="70" class="box" fill="#e0f2fe"/>
+  <text x="500" y="218" text-anchor="middle" class="h">Product Backlog</text>
+  <text x="500" y="242" text-anchor="middle" class="t">Prioritized source of product and engineering work</text>
+
+  <path d="M500 260 V295" class="line"/>
+  <rect x="250" y="300" width="500" height="70" class="box" fill="#ecfccb"/>
+  <text x="500" y="328" text-anchor="middle" class="h">Backlog Refinement</text>
+  <text x="500" y="352" text-anchor="middle" class="t">Clarify scope, acceptance criteria, dependencies and readiness</text>
+
+  <path d="M500 370 V405" class="line"/>
+  <rect x="250" y="410" width="500" height="70" class="box" fill="#dcfce7"/>
+  <text x="500" y="438" text-anchor="middle" class="h">Sprint Planning</text>
+  <text x="500" y="462" text-anchor="middle" class="t">Select sufficiently refined backlog items</text>
+
+  <path d="M500 480 V515" class="line"/>
+  <rect x="250" y="520" width="500" height="70" class="box" fill="#fef3c7"/>
+  <text x="500" y="548" text-anchor="middle" class="h">Sprint Goal + Acceptance Criteria</text>
+  <text x="500" y="572" text-anchor="middle" class="t">Define the objective and confirm completion expectations</text>
+
+  <path d="M500 590 V625" class="line"/>
+  <rect x="110" y="630" width="780" height="180" class="box" fill="#faf5ff"/>
+  <text x="500" y="660" text-anchor="middle" class="h">Sprint Execution</text>
+  <text x="500" y="684" text-anchor="middle" class="t">Perform only the lifecycle activities required by the Sprint Goal</text>
+  <g>
+    <rect x="140" y="715" width="110" height="55" class="box" fill="#f8fafc"/><text x="195" y="748" text-anchor="middle" class="small">Requirements</text>
+    <rect x="262" y="715" width="100" height="55" class="box" fill="#f8fafc"/><text x="312" y="748" text-anchor="middle" class="small">Analysis</text>
+    <rect x="374" y="715" width="100" height="55" class="box" fill="#f8fafc"/><text x="424" y="748" text-anchor="middle" class="small">Design</text>
+    <rect x="486" y="715" width="120" height="55" class="box" fill="#f8fafc"/><text x="546" y="748" text-anchor="middle" class="small">Implementation</text>
+    <rect x="618" y="715" width="100" height="55" class="box" fill="#f8fafc"/><text x="668" y="748" text-anchor="middle" class="small">Testing</text>
+    <rect x="730" y="715" width="130" height="55" class="box" fill="#f8fafc"/><text x="795" y="748" text-anchor="middle" class="small">Documentation</text>
+  </g>
+
+  <path d="M500 810 V845" class="line"/>
+  <rect x="250" y="850" width="500" height="70" class="box" fill="#dcfce7"/>
+  <text x="500" y="878" text-anchor="middle" class="h">Verification + Quality / Security Checks</text>
+  <text x="500" y="902" text-anchor="middle" class="t">Run applicable automated and manual verification</text>
+
+  <path d="M500 920 V955" class="line"/>
+  <rect x="250" y="960" width="500" height="70" class="box" fill="#e0f2fe"/>
+  <text x="500" y="988" text-anchor="middle" class="h">Sprint Review</text>
+  <text x="500" y="1012" text-anchor="middle" class="t">Review the Increment against the Sprint Goal and acceptance criteria</text>
+
+  <path d="M500 1030 V1065" class="line"/>
+  <rect x="90" y="1070" width="370" height="100" class="box" fill="#dcfce7"/>
+  <text x="275" y="1100" text-anchor="middle" class="h">Completed Work → Increment</text>
+  <text x="275" y="1126" text-anchor="middle" class="t">Completed items satisfy their applicable DoD</text>
+  <text x="275" y="1150" text-anchor="middle" class="small">A Sprint does not automatically create a release</text>
+
+  <rect x="540" y="1070" width="370" height="100" class="box" fill="#fee2e2"/>
+  <text x="725" y="1100" text-anchor="middle" class="h">Incomplete / Discovered Work</text>
+  <text x="725" y="1126" text-anchor="middle" class="t">Return to Product Backlog for reassessment</text>
+  <text x="725" y="1150" text-anchor="middle" class="small">Not automatically assigned to the next Sprint</text>
+
+  <path d="M500 1030 C500 1050 275 1040 275 1070" class="line"/>
+  <path d="M500 1030 C500 1050 725 1040 725 1070" class="line"/>
+  <path d="M910 1120 H950 V225 H755" class="line"/>
+
+  <rect x="140" y="1210" width="720" height="70" class="box" fill="#f8fafc"/>
+  <text x="500" y="1238" text-anchor="middle" class="h">Key Principle</text>
+  <text x="500" y="1262" text-anchor="middle" class="t">Sprint ≠ SDLC phase · Sprint ≠ Milestone · Sprint ≠ Release</text>
+</svg>
