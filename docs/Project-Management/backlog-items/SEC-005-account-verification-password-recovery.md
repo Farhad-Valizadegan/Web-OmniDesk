@@ -1,6 +1,6 @@
 # SEC-005 - Secure Email Verification, Password Change, and Account Recovery
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-04 Password & Account Recovery Security
 > Priority: P1
 > Release Classification: V1 Required
