@@ -1,6 +1,6 @@
 # SEC-002 - Data Classification, Retention, and Deletion Model
 
-> Status: Refined
+> Status: Completed
 > Security Epic: SEC-EPIC-07 Sensitive Data Protection / SEC-EPIC-11 Privacy & GDPR Engineering / SEC-EPIC-15 Backup, Recovery & Data Lifecycle
 > Priority: P1
 > Release Classification: V1 Required
@@ -262,8 +262,10 @@ Completion requires the authoritative lifecycle artifact and concrete retention/
 
 V1 Required. The product stores private communication data and provider credentials locally, so lifecycle behavior must be explicit before production release.
 
-## Planning Readiness
+## Completion Evidence
 
-SEC-002 is **ready for Sprint Planning**.
+SEC-002 is completed for the V1 baseline.
 
-It should be refined/implemented alongside privacy, deletion, backup, provider, and AI work rather than treated as an isolated documentation-only activity.
+The authoritative SDLC artifact is [Data Classification, Retention, and Deletion Baseline](../../SDLC/02-requirements-engineering/data-classification-retention-deletion.md).
+
+Exact operational retention durations remain intentionally delegated to the relevant deployment/privacy/security implementation backlog items rather than invented in this baseline.

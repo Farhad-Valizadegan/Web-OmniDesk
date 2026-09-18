@@ -1,6 +1,6 @@
 # PB-023 - Validate the Telegram Integration Mode
 
-> Status: Refined
+> Status: In Progress
 > Priority: Must
 > Milestone: M4
 
@@ -252,10 +252,28 @@ No real user message content, verification code, password, session key, `api_has
 - No secrets or private Telegram message content are committed.
 - Documentation is updated to reflect the validated decision.
 
-## Sprint Planning Readiness
+## Sprint 07 Execution Status
 
-PB-023 is now sufficiently refined for Sprint Planning.
+PB-023 is selected in Sprint 07 and is **In Progress**.
 
-It remains unassigned to a Sprint until Sprint Planning selects it.
+Completed validation work:
 
-PB-024, PB-025, and PB-026 remain downstream work and must not be treated as automatically committed merely because PB-023 is selected.
+- Telegram API / MTProto retained as the protocol family.
+- TDLib retained as the preferred official client-library path.
+- a long-lived Telegram adapter process is selected as the preferred Laravel runtime boundary.
+- chat/history retrieval and stable identifier paths are documented.
+- TDLib update streaming is selected as the basis for incremental synchronization.
+- a sanitized TDLib validation probe is implemented under `spikes/telegram-tdlib/`.
+- Telegram API Terms and AI restrictions are recorded.
+
+Runtime evidence still required before completion:
+
+- successful authorization of a dedicated test Telegram account;
+- successful bounded chat-list retrieval;
+- successful bounded message-history retrieval;
+- sanitized local evidence from the runtime;
+- restart/session-recovery observation.
+
+See [Sprint 07 Telegram Validation](../../Sprints/sprint-07/telegram-validation.md).
+
+PB-024, PB-025, and PB-026 remain downstream work. PB-024 remains blocked until PB-023 runtime evidence is complete and SEC-019 is finalized against the validated runtime/session boundary.
