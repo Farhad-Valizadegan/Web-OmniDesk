@@ -1,6 +1,6 @@
 # SEC-018 - Privacy and GDPR Engineering Baseline
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-11 Privacy & GDPR Engineering
 > Priority: P1
 > Release Classification: V1 Required
