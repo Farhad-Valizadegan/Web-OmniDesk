@@ -1,6 +1,6 @@
 # Sprint 07 Plan - Security Foundation and Telegram Validation
 
-> Status: Planned
+> Status: In Progress
 > Primary Milestone: M4 - Telegram Integration
 > Cross-Cutting Focus: Security and Privacy
 
@@ -131,6 +131,25 @@ git diff --check
 ```
 
 If technical-spike code is introduced, it must remain bounded, non-production, and be verified with the relevant backend/runtime checks before merge.
+
+## Execution Progress
+
+Completed:
+
+- SEC-001 authoritative threat/risk baseline created.
+- SEC-002 authoritative data-classification/lifecycle baseline created.
+- PB-023 official-documentation validation completed.
+- PB-023 TDLib runtime boundary selected.
+- PB-023 sanitized local TDLib probe added.
+
+Remaining before Sprint completion:
+
+- execute the TDLib probe with an OmniDesk Telegram API application and dedicated test account;
+- capture sanitized runtime evidence;
+- observe restart/session recovery;
+- close PB-023 after runtime evidence satisfies its acceptance criteria.
+
+PB-024 remains outside Sprint 07 and blocked.
 
 ## Planning Decision
 
