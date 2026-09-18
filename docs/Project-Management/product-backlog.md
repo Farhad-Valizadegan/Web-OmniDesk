@@ -8,6 +8,8 @@ This document contains the canonical prioritized Product Backlog for OmniDesk AI
 
 Backlog items represent capabilities, improvements, technical work, and verification work. They are selected for Sprint Planning only after sufficient refinement and prioritization.
 
+Detailed refinement specifications for selected backlog items are stored under [backlog-items/](./backlog-items/). Those files expand individual items; they do not form a separate backlog. This document remains the single canonical Product Backlog.
+
 ## Identifier Governance
 
 `PB-###` identifiers in this document are canonical and unique across the project.
@@ -64,10 +66,10 @@ Once a canonical Product Backlog ID is assigned, it must not be reassigned to un
 | PB-036 | Add integration and end-to-end tests | Must | M6 | Planned |
 | PB-037 | Prepare deployment and recovery documentation | Must | M6 | Planned |
 | PB-038 | Prepare release notes and release candidate | Must | M6 | Planned |
-| PB-039 | Complete functional workspace sidebar navigation and active-state behavior | Should | TBD | Refined |
-| PB-040 | Implement a Starred workspace view | Should | TBD | Refined |
-| PB-041 | Implement a Labels workspace view with dynamic/custom label support | Should | TBD | Refined |
-| PB-042 | Define and implement the Settings workspace view or remove the placeholder until its scope is approved | Could | TBD | Refined |
+| PB-039 | [Complete functional workspace sidebar navigation and active-state behavior](./backlog-items/PB-039-workspace-sidebar-navigation.md) | Should | TBD | Refined |
+| PB-040 | [Implement a Starred workspace view](./backlog-items/PB-040-starred-workspace-view.md) | Should | TBD | Refined |
+| PB-041 | [Implement a Labels workspace view with dynamic/custom label support](./backlog-items/PB-041-labels-workspace-view.md) | Should | TBD | Refined |
+| PB-042 | [Define and implement the Settings workspace view or remove the placeholder until its scope is approved](./backlog-items/PB-042-settings-workspace-view.md) | Could | TBD | Refined |
 
 ## Backlog Item Expectations
 
