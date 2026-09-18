@@ -123,21 +123,50 @@ The current V1 implementation applies authenticated-user scoping to Gmail connec
 - Authentication and authorization failures must be observable without exposing sensitive data.
 - Security controls must remain effective when AI services or external providers are unavailable.
 
+## Authentication Hardening Relationship
+
+The current implemented login flow verifies the password and then issues a Sanctum bearer token. The following V1 hardening items are approved backlog requirements but are not implemented merely because they are documented:
+
+```text
+Password verification
+        ↓
+SEC-004 email-based one-time verification
+        ↓
+Authenticated session/token
+        ↓
+Sensitive operation
+        ↓
+SEC-006 recent reauthentication / step-up
+        ↓
+Operation permitted
+```
+
+SEC-005 separately governs registered-email ownership verification, password change, password reset, and account recovery security around this authentication lifecycle.
+
+Email OTP is the selected V1 two-step verification mechanism under SEC-004. TOTP, WebAuthn, Passkeys, and other stronger independent-factor mechanisms are not current V1 requirements unless separately approved.
+
 ## Current V1 Decisions
 | ID | Decision | Current State |
 |---|---|---|
 | AUTH-001 | Exact authentication mechanism | Implemented: Laravel Sanctum personal access bearer tokens |
 | AUTH-002 | Session-based or token-based API authentication | Implemented: bearer-token API authentication; web token stored in `sessionStorage` |
-| AUTH-005 | Provider token encryption strategy | Implemented: Laravel encrypted model casts; token fields hidden from serialization |
+| AUTH-003 | Email verification, password change, and account recovery | V1 Required through SEC-005; security objectives and acceptance criteria are defined, while detailed design and implementation remain pending |
+| AUTH-004 | Email-based two-step verification | V1 Required through SEC-004; selected mechanism is email OTP; not implemented |
+| AUTH-005 | Provider token encryption strategy | Gmail implementation uses Laravel encrypted model casts with token fields hidden from serialization; production key lifecycle remains governed by SEC-008 |
+| AUTH-006 | Account deletion and credential removal behavior | SEC-002 provides the authoritative lifecycle baseline; detailed account-deletion workflow, exact retention handling, and implementation remain pending |
 | AUTH-007 | Authentication-token expiration | Implemented: finite Sanctum expiration configured by `SANCTUM_TOKEN_EXPIRATION`; documented default 480 minutes |
 | AUTH-008 | Gmail provider revocation on disconnect | Implemented: revoke refresh token when available, otherwise access token; local cleanup proceeds with explicit warning on remote failure |
 
-## Unresolved Decisions
-| ID | Decision | Current State |
-|---|---|---|
-| AUTH-003 | Password recovery process | Not yet designed |
-| AUTH-004 | Multi-factor authentication | Outside current MVP unless required |
-| AUTH-006 | Account deletion and credential removal behavior | Requires privacy and data lifecycle decision |
+## Pending Security Design / Implementation
+
+The following approved V1 security backlog work remains pending:
+
+- SEC-003 - browser authentication/session hardening.
+- SEC-004 - email-based two-step verification.
+- SEC-005 - email verification, password lifecycle, and recovery.
+- SEC-006 - recent reauthentication for sensitive operations.
+
+These backlog states must not be interpreted as implementation completion.
 
 ## PlantUML Source
 
