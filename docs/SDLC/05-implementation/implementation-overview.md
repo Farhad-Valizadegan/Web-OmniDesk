@@ -440,7 +440,10 @@ Completed implementation increments include:
 - M1 authentication and workspace foundation.
 - M2 Gmail authorization and provider integration.
 - Sprint 05 Gmail synchronization under M2.
+- M3 unified inbox completion through Sprint 06.
 
-The current planned implementation increment is Sprint 06 under M3 - Unified Inbox. Telegram integration, AI assistance, and production hardening remain planned for later milestones.
+Sprint 07 under M4 - Telegram Integration is currently in progress as a validation/de-risking Sprint. PB-023 is the active Telegram integration-mode validation item; SEC-001 and SEC-002 baseline work is completed. PB-024 Telegram connector implementation has not started and remains gated by PB-023 completion and SEC-019.
+
+AI assistance and production hardening remain planned for later milestones.
 
 Implementation progress is recorded incrementally and verified against the Requirements Traceability Matrix.
