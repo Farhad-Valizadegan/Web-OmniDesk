@@ -26,6 +26,11 @@ These requirements protect user accounts, external provider connections, communi
 | SPR-018 | Transport Security | The system shall use secure communication channels for authentication, synchronization, and external API requests. | Must Have |
 | SPR-019 | Dependency Security | The project shall track and review security-relevant dependencies. | Should Have |
 | SPR-020 | Security Testing | Security-sensitive functionality shall be covered by appropriate automated or manual tests. | Must Have |
+| SPR-021 | Email Two-Step Verification | The system shall require the approved email-delivered one-time verification step before creating the normal authenticated session, as governed by SEC-004. | Must Have |
+| SPR-022 | Account Verification and Recovery | The system shall protect email ownership verification, password change, password reset, and account recovery against replay, enumeration, and unauthorized use, as governed by SEC-005. | Must Have |
+| SPR-023 | Sensitive-Action Reauthentication | The system shall require recent authentication or approved step-up verification before security-sensitive operations defined by SEC-006. | Must Have |
+| SPR-024 | Persisted Sensitive Data Protection | The system shall define and apply an approved protection model for highly sensitive persisted communication data; the exact V1 storage/encryption architecture remains governed by SEC-015 and related key-management decisions. | Must Have |
+| SPR-025 | Backup Protection | Production backups containing sensitive application data shall be protected, access-controlled, recoverable, and lifecycle-managed as governed by SEC-016. | Must Have |
 ## Protected Information
 The system may process:
 - User account information
@@ -53,7 +58,7 @@ The system may process:
 
 ## Current V1 Security Implementation
 
-The following security decisions are implemented in the current V1 codebase:
+The following security decisions are implemented in the current V1 codebase. This section records implementation evidence only; it does not imply that all V1 Required security backlog items are complete:
 
 - OmniDesk AI user authentication uses Laravel Sanctum personal access bearer tokens for the REST API.
 - The web client keeps the bearer token in `sessionStorage`; authentication tokens are not stored in `localStorage`.
@@ -64,6 +69,15 @@ The following security decisions are implemented in the current V1 codebase:
 - Gmail disconnect attempts Google authorization revocation through the official Google OAuth client. The refresh token is preferred when available; otherwise the access token is used.
 - If Google revocation fails, local Gmail conversations, messages, and the local provider connection are still removed to honor the local disconnect and data-removal request. The API returns an explicit warning response rather than silently treating remote revocation as successful.
 - Gmail disconnect and provider operations remain scoped to the authenticated user's Gmail connection.
+
+The following approved V1 requirements remain planned rather than implemented:
+
+- SEC-003 browser authentication/session hardening.
+- SEC-004 email-based two-step verification.
+- SEC-005 email verification, password change, and account recovery security.
+- SEC-006 sensitive-action reauthentication.
+- SEC-015 final production storage/data-plane protection baseline.
+- SEC-016 production backup protection/recovery lifecycle.
 
 ## Relationship to Later Documents
 These security and privacy requirements will provide input for:
