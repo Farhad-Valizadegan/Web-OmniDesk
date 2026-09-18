@@ -1,6 +1,6 @@
 # SEC-004 - Implement Email-Based Two-Step Verification
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-02 Identity & Authentication / SEC-EPIC-05 Session & MFA Security
 > Priority: P1
 > Release Classification: V1 Required
