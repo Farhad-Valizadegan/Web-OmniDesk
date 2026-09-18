@@ -276,20 +276,28 @@ The following items are currently sufficiently refined for Sprint Planning:
 
 For the immediate next Sprint, required de-risking work takes precedence over optional workspace improvements.
 
-### Next Planning Gate
+### Sprint 07 Selection
 
-Sprint Planning may now proceed.
+Sprint Planning is complete for the next bounded Sprint.
 
-A coherent next Sprint should select only a bounded subset of planning-ready work. It must not automatically include all P1 security items or all M4 items.
+Sprint 07 selected:
 
-No downstream PB-024/PB-025/PB-026 implementation should be selected until PB-023 produces the validated Telegram integration decision and SEC-019 is finalized against that decision.
+1. PB-023 - Validate Telegram integration mode.
+2. SEC-001 - Establish Threat Model and Risk Register.
+3. SEC-002 - Data Classification, Retention, and Deletion Model.
+
+Sprint Goal: establish the V1 security/data-risk baseline and validate the Telegram integration mode before connector implementation expands the attack surface.
+
+No other P1 security item, M4 implementation item, or workspace enhancement is automatically committed to Sprint 07.
+
+PB-024/PB-025/PB-026 remain outside Sprint 07. SEC-019 must be finalized against the PB-023 outcome before PB-024 can be selected into a later Sprint.
 
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
 | BACKLOG-001 | Final backlog prioritization | Security foundation and M4 validation ordering updated; reprioritized continuously through refinement and Sprint Planning |
 | BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
-| BACKLOG-003 | Future Sprint assignments | Sprint Planning is now unblocked for the next bounded Sprint; assignments remain defined only during Sprint Planning |
+| BACKLOG-003 | Future Sprint assignments | Sprint 07 assigned through completed Sprint Planning; later Sprint numbers remain unassigned until future Sprint Planning |
 | BACKLOG-004 | Telegram scope | PB-023 refined; final mode validated during technical spike before PB-024 implementation |
 | BACKLOG-005 | Final AI provider | Unresolved |
 | BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Prioritization resolved: deferred behind M4; milestone remains TBD until future selection |
