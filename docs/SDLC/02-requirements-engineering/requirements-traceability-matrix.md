@@ -21,6 +21,20 @@ Traceability helps verify that documented requirements are derived from stakehol
 | SN-013 | FR-025, IR-015, NFR-017 | US-019 | Cross-cutting architecture concern | AC-017 |
 | SN-014 | NFR-016, NFR-018 | US-020 | Cross-cutting engineering concern | AC-018 |
 | SN-015 | Documentation and traceability practices | US-021 | Cross-cutting documentation concern | N/A - documentation review |
+## Security-Specific Traceability
+
+Security/privacy requirements do not require artificial user-story or use-case links when the control is primarily cross-cutting.
+
+| Security Requirement | Risk | SEC Control | Design / Current State | Verification / Evidence State |
+|---|---|---|---|---|
+| SPR-021 - Email Two-Step Verification | RISK-002 | SEC-004 | Authentication and Authorization Design; email OTP selected for V1; implementation pending | OTP security tests and completion evidence pending |
+| SPR-022 - Account Verification and Recovery | RISK-003 | SEC-005 | Account/password lifecycle design remains pending beyond approved security criteria | Recovery/password lifecycle tests and completion evidence pending |
+| SPR-023 - Sensitive-Action Reauthentication | RISK-004 | SEC-006 | Authentication and Authorization Design; recent-authentication details pending | Sensitive-operation tests and completion evidence pending |
+| SPR-024 - Persisted Sensitive Data Protection | RISK-013 | SEC-015 | Data Model and Deployment Architecture; final protection model pending | Production storage/security validation pending |
+| SPR-025 - Backup Protection | RISK-014 | SEC-016 | Deployment Architecture and SEC-002 lifecycle baseline; production backup design pending | Restore/access/retention validation and deployment evidence pending |
+
+The broader risk-to-control state remains in Project Management traceability, and SEC-001 remains the authoritative threat/risk baseline.
+
 ## Coverage Rules
 1. Every Must Have stakeholder need should trace to at least one requirement.
 2. Every functional requirement should trace to a user story, use case, or acceptance criterion.

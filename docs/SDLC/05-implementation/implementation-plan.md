@@ -56,7 +56,7 @@ Milestones represent outcomes. They are not SDLC phases, sprints, releases, or v
 
 ## Sprint Structure
 
-The initial sprint sequence is:
+Historical and current Sprint assignments are recorded below. Future milestone work does not reserve Sprint numbers before Sprint Planning.
 
 | Sprint | Main Focus | Milestone |
 |---|---|---|
@@ -67,11 +67,11 @@ The initial sprint sequence is:
 | Sprint 4 | Gmail provider integration | M2 |
 | Sprint 5 | Gmail synchronization | M2 |
 | Sprint 6 | Unified inbox completion | M3 |
-| Sprint 7 | Telegram integration | M4 |
-| Sprint 8 | AI assistance | M5 |
-| Sprint 9 | Hardening and release preparation | M6 |
+| Sprint 7 | Security Foundation and Telegram Validation | M4 primary; cross-cutting security/privacy |
 
-This sprint sequence is a planning baseline and may be adjusted when implementation evidence identifies new dependencies.
+Future M4, M5, and M6 implementation direction remains unassigned until backlog refinement, prioritization, and Sprint Planning create a later Sprint.
+
+Milestone != Sprint. Sprint != Release. Release != Version.
 
 ## Sprint 0 - Repository and Environment Preparation
 
@@ -260,89 +260,63 @@ Complete the unified inbox experience under M3 using the provider-neutral worksp
 - No provider credentials are exposed.
 - Sprint 06 verification evidence is recorded.
 
-## Sprint 7 - Telegram Integration
+## Sprint 7 - Security Foundation and Telegram Validation
 
 ### Objective
 
-Implement supported Telegram integration for M4.
+Establish the V1 security/data-risk baseline and validate the Telegram integration mode without implementing the production Telegram connector.
+
+### Selected Scope
+
+- PB-023 - Validate the Telegram integration mode.
+- SEC-001 - Establish Threat Model and Risk Register.
+- SEC-002 - Data Classification, Retention, and Deletion Model.
 
 ### Tasks
 
-- Validate the Telegram integration mode.
-- Finalize Telegram permissions.
-- Implement the Telegram connector.
-- Implement the authorization or connection flow.
-- Normalize supported Telegram data.
-- Implement Telegram synchronization.
-- Isolate Telegram failures from Gmail.
-- Add Telegram integration tests.
+- Validate the Telegram API / MTProto + TDLib direction.
+- Run the bounded TDLib technical probe.
+- Capture sanitized runtime evidence.
+- Verify chat/history retrieval and restart/session-recovery behavior.
+- Maintain the authoritative threat/risk baseline.
+- Maintain the authoritative data-classification/lifecycle baseline.
+- Preserve the dependency that SEC-019 must be finalized against the validated runtime/session boundary before PB-024.
 
 ### Completion Criteria
 
-- The supported Telegram flow is documented.
-- Telegram connections belong to the authenticated user.
-- Supported Telegram data can be synchronized.
-- Telegram failures do not disable Gmail functionality.
+- SEC-001 and SEC-002 baseline artifacts remain completed and authoritative.
+- PB-023 runtime evidence satisfies its acceptance criteria.
+- No secrets or private Telegram message content are committed.
+- SEC-019 can be refined/finalized against the validated runtime boundary before PB-024.
+- PB-024, PB-025, and PB-026 remain outside Sprint 07.
 
-## Sprint 8 - AI Assistance
+PB-023 is currently **In Progress** because real runtime evidence is still required. Sprint 07 therefore remains **In Progress**.
 
-### Objective
+## Future M4 Implementation Direction
 
-Implement user-controlled AI assistance for M5.
+After PB-023 runtime validation:
 
-### Tasks
+1. refine/finalize SEC-019 against the actual Telegram runtime/session boundary;
+2. prioritize the resulting work;
+3. select later M4 work only through Sprint Planning;
+4. implement PB-024 before PB-025;
+5. preserve PB-026 provider-failure isolation as separate planned work.
 
-- Implement summary requests.
-- Implement editable reply suggestions.
-- Verify conversation ownership.
-- Minimize context before external processing.
-- Implement the AI provider abstraction.
-- Validate AI responses.
-- Implement suggestion states.
-- Store user decisions.
-- Handle AI failures safely.
-- Prevent autonomous message sending.
-- Add AI security and integration tests.
+This direction does not reserve a future Sprint number.
 
-### Completion Criteria
+## Future M5 Implementation Direction - AI Assistance
 
-- Users can request summaries.
-- Users can request reply suggestions.
-- Generated content is editable.
-- Users can accept or discard suggestions.
-- Minimum required context is sent.
-- AI failure does not block communication features.
-- AI cannot send messages autonomously.
+Future M5 work may include the already-approved Product Backlog items for summaries, reply suggestions, context minimization, AI provider abstraction, suggestion lifecycle, and prevention of autonomous sending.
 
-## Sprint 9 - Hardening and Release Preparation
+SEC-020 remains a required security/privacy gate before applicable M5 AI functionality is enabled.
 
-### Objective
+No Sprint number is assigned here.
 
-Prepare the application for M6 release verification.
+## Future M6 Implementation Direction - Production Hardening and Release Preparation
 
-### Tasks
+Future M6 work may include security verification, integration/end-to-end testing, performance checks, backup/recovery validation, deployment preparation, monitoring/logging readiness, release documentation, and release-candidate preparation.
 
-- Run full automated tests.
-- Run integration tests.
-- Run end-to-end tests.
-- Verify authorization boundaries.
-- Verify secret protection.
-- Verify provider failure isolation.
-- Verify AI data minimization.
-- Review logging and diagnostics.
-- Review backup and recovery procedures.
-- Review deployment configuration.
-- Resolve release-blocking defects.
-- Prepare release notes.
-
-### Completion Criteria
-
-- Mandatory tests pass.
-- Security checks pass.
-- Release-blocking defects are resolved.
-- Deployment instructions are documented.
-- Monitoring requirements are documented.
-- A release candidate can be prepared.
+No Sprint number is assigned here. Production evidence must be created only when the relevant deployment environment and controls actually exist.
 
 ## Definition of Done
 
@@ -384,7 +358,7 @@ Implementation tasks should be traceable to approved requirements, System Analys
 | IMP-002 | Exact branch strategy | To be finalized |
 | IMP-003 | Exact Redis usage | To be decided during implementation |
 | IMP-004 | Exact Gmail scopes | Resolved in Sprint 04 |
-| IMP-005 | Exact Telegram integration mode | Requires validation in Sprint 07 |
+| IMP-005 | Exact Telegram integration mode | Telegram API/MTProto through official TDLib behind a long-lived adapter is the selected direction; PB-023 runtime evidence remains pending in Sprint 07 |
 | IMP-006 | Final AI provider | Unresolved |
 | IMP-007 | Exact release schedule | To be finalized during release planning |
 | IMP-008 | Production deployment method | To be finalized during deployment planning |

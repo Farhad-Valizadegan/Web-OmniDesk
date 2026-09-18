@@ -31,6 +31,16 @@ These requirements protect user accounts, external provider connections, communi
 | SPR-023 | Sensitive-Action Reauthentication | The system shall require recent authentication or approved step-up verification before security-sensitive operations defined by SEC-006. | Must Have |
 | SPR-024 | Persisted Sensitive Data Protection | The system shall define and apply an approved protection model for highly sensitive persisted communication data; the exact V1 storage/encryption architecture remains governed by SEC-015 and related key-management decisions. | Must Have |
 | SPR-025 | Backup Protection | Production backups containing sensitive application data shall be protected, access-controlled, recoverable, and lifecycle-managed as governed by SEC-016. | Must Have |
+## Clarification of Data Minimization and Removal
+
+SPR-016 remains **Should Have** for general local storage minimization. This priority does not make all minimization optional: stricter mandatory minimization still applies where separately required, including log minimization, secret handling, temporary authorization data, and AI context minimization through the applicable security/privacy controls.
+
+SPR-016 concerns avoiding unnecessary durable storage while still permitting communication data and metadata required by approved V1 functionality such as synchronization, search, filtering, and message display.
+
+SPR-017 remains **Should Have** and applies specifically to removal of locally stored provider data on disconnect where applicable. It must not be read as equivalent to all lifecycle operations. Provider authorization revocation, credential/session deletion, account deletion, retention expiration, backup expiration, and user-requested deletion are distinct behaviors governed by SEC-002 and the relevant provider/security controls.
+
+Current Gmail behavior is implementation evidence for Gmail only: disconnect attempts remote Google revocation, prefers the refresh token when available, falls back to the access token where required, performs local Gmail data/connection cleanup even when remote revocation fails, and returns an explicit warning for remote revocation failure. Telegram behavior must not be inferred from this Gmail-specific implementation and remains governed by PB-023/SEC-019.
+
 ## Protected Information
 The system may process:
 - User account information
