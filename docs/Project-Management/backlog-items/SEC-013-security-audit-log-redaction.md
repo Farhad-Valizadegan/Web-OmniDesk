@@ -1,6 +1,6 @@
 # SEC-013 - Security Audit Trail and Log Redaction
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-12 Logging, Auditing & Monitoring
 > Priority: P1
 > Release Classification: V1 Required baseline
