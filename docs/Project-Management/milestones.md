@@ -134,7 +134,7 @@ Completed historical allocations are recorded below. Future milestone work remai
 | M1 - Authentication and Workspace | Sprint 02 and Sprint 03 | Secure communication workspace foundation |
 | M2 - Gmail Integration | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
 | M3 - Unified Inbox | Sprint 06 | Unified communication workspace |
-| M4 - Telegram Integration | TBD through Sprint Planning | Telegram connection and synchronization |
+| M4 - Telegram Integration | Sprint 07 for validation; later M4 Sprint(s) TBD through Sprint Planning | Telegram connection and synchronization |
 | M5 - AI-Assisted Communication | TBD through Sprint Planning | User-controlled AI assistance |
 | M6 - Production Hardening | TBD through Sprint Planning | Release readiness |
 
@@ -174,9 +174,15 @@ Completed the unified inbox experience, including conversation organization, sea
 
 Sprint 06 contributes to M3 only.
 
+#### Sprint 07 - Security Foundation and Telegram Validation
+
+Selected PB-023, SEC-001, and SEC-002 to validate the Telegram integration mode and establish the V1 threat/risk and data-lifecycle baselines before Telegram connector implementation.
+
+Sprint 07 has M4 as its primary milestone. SEC-001 and SEC-002 are cross-cutting security/privacy work that support V1 beyond M4.
+
 ## Future Sprint Assignment Rule
 
-M4, M5, and M6 do not reserve Sprint 07, Sprint 08, or Sprint 09.
+Sprint 07 was created only after refinement, prioritization, and Sprint Planning selected PB-023, SEC-001, and SEC-002. M5, M6, and any later M4 work do not reserve future Sprint numbers in advance.
 
 Before future work enters a Sprint:
 
