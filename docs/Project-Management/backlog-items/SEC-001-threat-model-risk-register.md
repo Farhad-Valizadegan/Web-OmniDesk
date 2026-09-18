@@ -1,6 +1,6 @@
 # SEC-001 - Establish Threat Model and Risk Register
 
-> Status: Refined
+> Status: Completed
 > Security Epic: SEC-EPIC-01 Security Architecture & Threat Modeling
 > Priority: P1
 > Release Classification: V1 Required
@@ -240,8 +240,10 @@ Completion requires the authoritative threat/risk artifact to be reviewed and ac
 
 V1 Required. OmniDesk centralizes communication content and provider credentials, so security prioritization must be based on an explicit threat/risk model rather than isolated controls.
 
-## Planning Readiness
+## Completion Evidence
 
-SEC-001 is **ready for Sprint Planning**.
+SEC-001 is completed for the V1 baseline.
 
-It should be selected before or alongside dependent security implementation work, but it does not require a separate Security Sprint.
+The authoritative SDLC artifact is [Security Threat Model and Risk Register](../../SDLC/03-system-analysis/security-threat-model-and-risk-register.md).
+
+The baseline remains a living artifact and must be revisited when one of its documented review triggers occurs.
