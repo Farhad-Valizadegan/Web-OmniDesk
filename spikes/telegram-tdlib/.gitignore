@@ -1,0 +1,6 @@
+runtime/
+tdjson.dll
+libtdjson.so
+libtdjson.dylib
+__pycache__/
+*.pyc
