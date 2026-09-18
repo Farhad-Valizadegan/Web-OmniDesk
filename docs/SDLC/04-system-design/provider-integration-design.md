@@ -39,7 +39,7 @@ The core application must not depend directly on Gmail or Telegram API details.
 | Provider | Initial Scope | Integration Status |
 |---|---|---|
 | Gmail | Retrieve supported Gmail communication data | Planned |
-| Telegram | Retrieve supported Telegram communication data | Requires validation |
+| Telegram | Retrieve supported Telegram communication data | TDLib/MTProto selected; runtime evidence pending PB-023 |
 
 Future providers are outside the current MVP commitment.
 
@@ -135,9 +135,9 @@ The system should:
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
-| PI-001 | Exact Telegram integration mode | Requires provider validation |
+| PI-001 | Exact Telegram integration mode | Selected direction: Telegram API/MTProto through official TDLib behind a long-lived adapter; PB-023 runtime evidence still pending |
 | PI-002 | Exact Gmail scopes | To be finalized during implementation |
-| PI-003 | Exact Telegram permissions | To be finalized after integration mode selection |
+| PI-003 | Exact Telegram permissions | User-account client authorization through TDLib; exact production session/security controls finalized by SEC-019 |
 | PI-004 | Provider token encryption strategy | To be finalized during security implementation |
 | PI-005 | Supported provider message types | To be finalized during implementation |
 | PI-006 | Provider pagination and rate-limit strategy | To be finalized during implementation |
