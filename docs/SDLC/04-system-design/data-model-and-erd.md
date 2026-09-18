@@ -110,13 +110,17 @@ AI suggestions remain assistive and user-controlled.
 
 ## Deletion and Retention
 
-The following decisions remain unresolved:
-- Retention period for synchronized communication data.
-- Deletion behavior after provider disconnection.
-- Account deletion behavior.
-- Retention period for AI suggestions.
-- Deletion of provider credentials after disconnection.
-- Treatment of locally created labels after related data is deleted.
+SEC-002 is the authoritative V1 data-classification and lifecycle baseline. The lifecycle model is therefore no longer wholly undecided.
+
+The following implementation/operational values remain unresolved:
+- exact retention period for synchronized communication data;
+- exact account-deletion workflow and retention exceptions;
+- exact retention period for AI suggestions;
+- backup retention/expiration timing;
+- provider-specific lifecycle details that depend on implementation;
+- treatment of locally created labels after related data is deleted.
+
+Current Gmail disconnect behavior removes the authenticated user's local Gmail connection, conversations, and messages while attempting provider-side authorization revocation.
 
 ## Security Considerations
 - Every protected entity must be associated with an ownership boundary.
