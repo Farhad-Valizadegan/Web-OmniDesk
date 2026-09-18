@@ -1,6 +1,6 @@
 # SEC-016 - Backup Security, Recovery, and Secure Deletion
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-15 Backup, Recovery & Data Lifecycle
 > Priority: P1
 > Release Classification: V1 Required before production data
