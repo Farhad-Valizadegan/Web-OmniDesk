@@ -113,6 +113,34 @@ Security-relevant verification should include, where applicable:
 - message-content rendering protections
 - explicit user control over AI-assisted external actions
 
+## Planned Security Verification Coverage
+
+The current automated-test inventory above describes tests that exist now. The security backlog defines additional verification that remains **planned** until the corresponding control is designed and implemented.
+
+Future security verification should reference the accepted SEC backlog items rather than duplicate their full acceptance criteria:
+
+- SEC-003 - browser authentication/session security.
+- SEC-004 - email two-step verification.
+- SEC-005 - email verification, password change/reset, and account recovery.
+- SEC-006 - sensitive-action reauthentication.
+- SEC-007 - object-level authorization and cross-user isolation regression coverage.
+- SEC-008 - provider credential protection and production key-management verification.
+- SEC-009 - provider least-privilege/scope verification.
+- SEC-010 - untrusted message/HTML rendering.
+- SEC-011 - remote-content privacy behavior.
+- SEC-012 - rate limiting and abuse protection for sensitive endpoints.
+- SEC-013 - security audit trail and log-redaction verification.
+- SEC-014 - production TLS, security headers, and browser-security validation.
+- SEC-015 - database, Redis, storage, and persisted-sensitive-data protection.
+- SEC-016 - backup protection, restore, retention, and deletion verification.
+- SEC-017 - dependency, supply-chain, secret-scanning/static-analysis, and CI/CD security controls as approved.
+- SEC-018 - privacy, deletion/export, retention, and user-control behavior where implemented.
+- SEC-019 - Telegram credential/session protection after PB-023 establishes the runtime boundary.
+- SEC-020 - AI authorization, context minimization, provider-data-use/privacy, prompt-injection, and output-handling defenses before applicable M5 functionality.
+- SEC-021 - monitoring and incident-response verification appropriate to the deployed environment.
+
+A listed verification category is not evidence that a corresponding test already exists. Test existence and completion must be supported by repository or deployment evidence.
+
 ## Regression Rule
 
 A change is not considered complete if it introduces a regression in previously verified functionality.
