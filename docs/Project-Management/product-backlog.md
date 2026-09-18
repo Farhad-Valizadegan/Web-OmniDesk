@@ -18,6 +18,8 @@ Historical Sprint documents created before the current backlog numbering was est
 
 Once a canonical Product Backlog ID is assigned, it must not be reassigned to unrelated work.
 
+Security backlog items use the separate canonical `SEC-###` namespace. They remain part of this same Product Backlog and follow the same refinement, prioritization, Sprint Planning, traceability, and identifier-governance rules as `PB-###` items.
+
 ## Priorities
 
 - Must: Required for the initial product scope
@@ -70,6 +72,44 @@ Once a canonical Product Backlog ID is assigned, it must not be reassigned to un
 | PB-040 | [Implement a Starred workspace view](./backlog-items/PB-040-starred-workspace-view.md) | Should | TBD | Refined |
 | PB-041 | [Implement a Labels workspace view with dynamic/custom label support](./backlog-items/PB-041-labels-workspace-view.md) | Should | TBD | Refined |
 | PB-042 | [Define and implement the Settings workspace view or remove the placeholder until its scope is approved](./backlog-items/PB-042-settings-workspace-view.md) | Could | TBD | Refined |
+
+## Security Backlog Items
+
+These items were accepted from the read-only Security & Privacy Gap Analysis. Security remains a cross-cutting concern; these items are not a separate Security Sprint and are selected into normal Sprints according to risk, dependencies, and Sprint Goals.
+
+| ID | Security Backlog Item | Priority | Release Classification | Status |
+|---|---|---|---|---|
+| SEC-001 | [Establish Threat Model and Risk Register](./backlog-items/SEC-001-threat-model-risk-register.md) | P1 | V1 Required | Planned |
+| SEC-002 | [Data Classification, Retention, and Deletion Model](./backlog-items/SEC-002-data-classification-retention-deletion.md) | P1 | V1 Required | Planned |
+| SEC-003 | [Harden Browser Authentication Session Architecture](./backlog-items/SEC-003-browser-auth-session-hardening.md) | P1 | V1 Required | Planned |
+| SEC-004 | [Implement Email-Based Two-Step Verification](./backlog-items/SEC-004-email-two-step-verification.md) | P1 | V1 Required | Planned |
+| SEC-005 | [Secure Email Verification, Password Change, and Account Recovery](./backlog-items/SEC-005-account-verification-password-recovery.md) | P1 | V1 Required | Planned |
+| SEC-006 | [Sensitive-Action Reauthentication](./backlog-items/SEC-006-sensitive-action-reauthentication.md) | P1 | V1 Required | Planned |
+| SEC-007 | [Expand Authorization and Cross-User Isolation Testing](./backlog-items/SEC-007-authorization-isolation-regression-matrix.md) | P1 | V1 Required | Planned |
+| SEC-008 | [Provider Credential and Encryption-Key Management Baseline](./backlog-items/SEC-008-provider-credential-key-management.md) | P1 | V1 Required baseline | Planned |
+| SEC-009 | [Provider Permission and Scope Minimization](./backlog-items/SEC-009-provider-permission-scope-minimization.md) | P1 | V1 Required | Planned |
+| SEC-010 | [Harden Untrusted Message and HTML Rendering](./backlog-items/SEC-010-untrusted-message-html-rendering.md) | P1 | V1 Required | Planned |
+| SEC-011 | [Block Remote Message Content by Default](./backlog-items/SEC-011-remote-message-content-privacy.md) | P1 | V1 Required | Planned |
+| SEC-012 | [Sensitive Endpoint Rate Limiting and Abuse Protection](./backlog-items/SEC-012-sensitive-endpoint-rate-limiting.md) | P1 | V1 Required | Planned |
+| SEC-013 | [Security Audit Trail and Log Redaction](./backlog-items/SEC-013-security-audit-log-redaction.md) | P1 | V1 Required baseline | Planned |
+| SEC-014 | [Production TLS, Security Headers, and Browser Security](./backlog-items/SEC-014-production-transport-browser-security.md) | P1 | V1 Required | Planned |
+| SEC-015 | [Database, Redis, and Storage Hardening](./backlog-items/SEC-015-database-redis-storage-hardening.md) | P1 | V1 Required | Planned |
+| SEC-016 | [Backup Security, Recovery, and Secure Deletion](./backlog-items/SEC-016-backup-recovery-secure-deletion.md) | P1 | V1 Required before production data | Planned |
+| SEC-017 | [Security Controls in CI/CD](./backlog-items/SEC-017-security-ci-cd.md) | P1 | V1 Required baseline | Planned |
+| SEC-018 | [Privacy and GDPR Engineering Baseline](./backlog-items/SEC-018-privacy-gdpr-engineering.md) | P1 | V1 Required | Planned |
+| SEC-019 | [Telegram Credential and Session Security Gate](./backlog-items/SEC-019-telegram-credential-session-security.md) | P1 | V1 Required before PB-024 | Planned |
+| SEC-020 | [AI Security and Privacy Gate](./backlog-items/SEC-020-ai-security-privacy-gate.md) | P1 | V1 Required before M5 AI features | Planned |
+| SEC-021 | [Security Monitoring and Incident Response Baseline](./backlog-items/SEC-021-security-monitoring-incident-response.md) | P2 | V1 Recommended | Planned |
+
+### Security Prioritization Rules
+
+- No security item is automatically assigned to a Sprint merely because it is P1 or V1 Required.
+- SEC-001 and SEC-002 establish the security/risk/data baseline and should precede dependent controls.
+- SEC-019 is a security gate before PB-024 Telegram connector implementation.
+- SEC-020 is a security gate before M5 AI features.
+- SEC-016 must be satisfied before production data relies on backup/recovery.
+- Security findings are integrated into normal development Sprints rather than collected into one oversized Security Sprint.
+- P0 findings, if discovered later, become immediate release-blocking candidates and trigger reprioritization.
 
 ## Backlog Item Expectations
 
