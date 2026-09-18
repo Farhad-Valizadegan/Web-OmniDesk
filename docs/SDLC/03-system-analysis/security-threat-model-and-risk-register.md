@@ -49,6 +49,7 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 9. Application -> filesystem/object storage/backups.
 10. CI/CD -> build/deployment environment.
 11. developer/operator -> production infrastructure/secrets.
+12. hosting/cloud platform -> application host -> managed database/storage -> snapshots/backups -> infrastructure administrators.
 
 ## Entry Points
 
@@ -92,7 +93,8 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 - sensitive logging;
 - remote-content tracking;
 - over-broad AI context;
-- backup/database compromise.
+- backup/database compromise;
+- privileged infrastructure/operator access to application-readable communication data.
 
 ### Denial of Service
 
@@ -140,13 +142,19 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 | RISK-010 | expensive/sensitive APIs abused | auth throttling exists | sync/MFA/recovery/AI limits incomplete | P1 | SEC-012 |
 | RISK-011 | logs expose private/secrets | requirements prohibit it | centralized redaction/audit verification absent | P1 | SEC-013 |
 | RISK-012 | weak production browser/transport config | HTTPS required by design | concrete headers/TLS/CORS baseline incomplete | P1 | SEC-014 |
-| RISK-013 | DB/Redis/storage exposed | restricted access required by design | production hardening incomplete | P1 | SEC-015 |
+| RISK-013 | DB/Redis/storage or privileged infrastructure access exposes sensitive application data | restricted access required by design | production hardening and the persisted-message protection model remain incomplete; privileged infrastructure access may reach application-readable data | P1 | SEC-015 |
 | RISK-014 | backups become weakest copy | backup need documented | encryption/access/retention/restore incomplete | P1 | SEC-016 |
 | RISK-015 | vulnerable dependency/secret reaches main | CI tests/lint/build | dedicated security gates absent | P1 | SEC-017 |
 | RISK-016 | privacy lifecycle inconsistent | minimization/privacy requirements exist | lifecycle implementation incomplete | P1 | SEC-018 |
 | RISK-017 | Telegram session theft compromises account | PB-023 security constraints | production session boundary not implemented | P1 | SEC-019 |
 | RISK-018 | AI leaks context or follows malicious content | user initiation; no autonomous sending | AI boundary not implemented/security-gated | P1 | SEC-020 |
 | RISK-019 | compromise is not detected/contained | safe failures/CI exist | monitoring/incident process incomplete | P2 | SEC-021 |
+
+## Infrastructure Trust Assumption
+
+The current V1 server-side architecture assumes trust in the approved application-hosting, database/storage, snapshot, and backup operational boundary. Where OmniDesk must process readable message content, sufficiently privileged infrastructure/platform administrators may technically be capable of accessing plaintext application data.
+
+Reducing this trust would require a materially different architecture, such as application-level encryption with externally separated keys, client-side encryption, confidential computing, or equivalent controls. These are not automatically V1 requirements. The V1 protection decision is governed by SEC-015, with key-lifecycle implications under SEC-008 and backup implications under SEC-016.
 
 ## Current Assessment
 
