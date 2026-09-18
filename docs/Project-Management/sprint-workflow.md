@@ -6,7 +6,7 @@
 
 This document describes the standard workflow used to plan, execute, verify, and complete an OmniDesk AI Sprint.
 
-A Sprint is an execution iteration, not an SDLC phase. Depending on the Sprint Goal, it may involve Requirements, Analysis, Design, Implementation, Testing, and Documentation activities as needed.
+A Sprint is a fixed/defined timeboxed execution iteration, not an SDLC phase. Depending on the Sprint Goal, it may involve Requirements, Analysis, Design, Implementation, Testing, and Documentation activities as needed.
 
 ## Workflow
 
@@ -21,30 +21,27 @@ The editable workflow source is [sprint-workflow.puml](./diagrams/sprint-workflo
 3. Select backlog items for the Sprint.
 4. Define the Sprint Goal.
 5. Confirm or define acceptance criteria.
-6. Break selected items into engineering tasks.
-7. Perform the lifecycle work required by the Sprint Goal, such as requirements refinement, analysis, design, implementation, testing, or documentation.
-8. Run relevant automated and manual verification.
-9. Run applicable quality and security checks.
-10. Review the Sprint Increment against the Sprint Goal and acceptance criteria.
-11. Record completed and incomplete work and any resulting decisions or discoveries.
+6. Confirm the fixed/defined Sprint timebox.
+7. Break selected items into engineering tasks.
+8. Start the Sprint and perform the lifecycle work required by the Sprint Goal, such as requirements refinement, analysis, design, implementation, testing, or documentation.
+9. Run relevant automated and manual verification and applicable quality and security checks during the Sprint.
+10. End the Sprint when the defined timebox ends.
+11. Review the Sprint Increment and evaluate the Sprint Goal against the available Done work.
+12. Record completed and incomplete work and any resulting decisions or discoveries.
 
 A Sprint is not required to mechanically execute every SDLC activity. The necessary engineering activities are selected according to the Sprint Goal and the work being delivered.
 
-## Completion Rule
+## Sprint Closure and Work Completion Rule
 
-A Sprint is complete when:
+A Sprint closes when its defined timebox ends and the Sprint review/closure activities are performed. Sprint Goal achievement is evaluated at closure; it does not determine whether the timebox ends.
 
-- Its Sprint Goal is achieved.
-- Acceptance criteria for completed work are satisfied.
-- Relevant tests and verification pass.
-- Applicable quality and security checks pass.
-- Required documentation is updated.
-- The Increment is reviewable.
-- Completed and incomplete work is recorded.
+A selected work item counts as **Done** only when its acceptance criteria and applicable Definition of Done are satisfied. Applicable verification, quality and security checks, and required documentation remain part of that work-completion decision. Done work remains Done.
+
+Incomplete work does not keep the Sprint open. It returns to the Product Backlog for reassessment and is not automatically carried into the next Sprint.
 
 ## Review and Adaptation
 
-Sprint review, feedback, technical discoveries, and changing priorities may refine or reprioritize future Product Backlog items. Incomplete work returns to the appropriate backlog or future Sprint rather than being treated as complete.
+Sprint review, feedback, technical discoveries, and changing priorities may refine or reprioritize future Product Backlog items. Future Sprint selection occurs through Sprint Planning.
 
 ## Release Relationship
 
