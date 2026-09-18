@@ -21,7 +21,7 @@ These requirements protect user accounts, external provider connections, communi
 | SPR-013 | AI Privacy | The system shall send communication data to an AI service only when required by an approved AI feature. | Must Have |
 | SPR-014 | AI User Control | The system shall require user initiation before generating an AI summary or reply suggestion. | Must Have |
 | SPR-015 | AI Sending Control | The system shall never allow AI to send content autonomously. | Must Have |
-| SPR-016 | Data Minimization | The system shall store only communication data and metadata required by supported features. | Should Have |
+| SPR-016 | Data Minimization | The system should store only communication data and metadata required by supported features. | Should Have |
 | SPR-017 | Data Removal | The system should support removal of locally stored provider data when the user disconnects an account, where applicable. | Should Have |
 | SPR-018 | Transport Security | The system shall use secure communication channels for authentication, synchronization, and external API requests. | Must Have |
 | SPR-019 | Dependency Security | The project shall track and review security-relevant dependencies. | Should Have |
@@ -60,7 +60,7 @@ The system may process:
 8. Security controls shall apply to all supported providers.
 ## Privacy Principles
 1. Communication data shall be processed only for documented product features.
-2. The system shall minimize the amount of stored communication data.
+2. The system should minimize the amount of stored communication data.
 3. The system shall not use communication data for unrelated purposes.
 4. AI processing shall be limited to user-requested features.
 5. Provider disconnection shall invalidate access where applicable.

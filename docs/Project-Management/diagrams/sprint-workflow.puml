@@ -14,7 +14,9 @@ end note
 
 :Define Sprint Goal;
 :Confirm acceptance criteria and applicable Definition of Done;
+:Confirm fixed/defined Sprint timebox;
 :Break selected items into engineering tasks;
+:Start Sprint;
 
 partition "Sprint Execution" {
   :Perform lifecycle work required by the Sprint Goal;
@@ -29,18 +31,21 @@ partition "Sprint Execution" {
   Only the activities needed
   for the Sprint Goal are performed.
   end note
+
+  :Run relevant automated and manual verification;
+  :Run applicable quality and security checks;
 }
 
-:Run relevant automated and manual verification;
-:Run applicable quality and security checks;
+:Timebox ends;
 :Perform Sprint Review;
 note right
-Review the Increment against
-the Sprint Goal and
-acceptance criteria.
+Review the Increment and evaluate
+the Sprint Goal using Done work.
+Sprint Goal achievement does not
+extend the Sprint timebox.
 end note
 
-if (Work completed and applicable DoD satisfied?) then (yes)
+if (Selected work item satisfies acceptance criteria and applicable DoD?) then (yes)
   :Record completed work as part of the Sprint Increment;
   note right
   A Sprint produces a meaningful,
@@ -66,6 +71,8 @@ Key principles:
 - Sprint != SDLC phase
 - Sprint != Milestone
 - Sprint != Release
+- Sprint closes when its timebox ends.
+- Incomplete work returns to the Product Backlog.
 - Future Sprint selection occurs
   through Sprint Planning.
 end note

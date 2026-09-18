@@ -110,9 +110,11 @@ The Sprint intentionally does not implement PB-024, Telegram synchronization, AI
 - workspace-navigation enhancements PB-039 through PB-042.
 - user-managed local labels/tags PB-014.
 
-## Definition of Done
+## Sprint Closure and Selected-Work Completion
 
-Sprint 07 is complete when:
+Sprint 07 follows the project timebox rule: the Sprint closes when its defined timebox ends and the Sprint review/closure activities are performed. Sprint Goal achievement is evaluated at closure and does not extend the timebox.
+
+Selected work counts as Done only when its acceptance criteria and applicable Definition of Done are satisfied:
 
 - PB-023 has a validated, documented Telegram integration decision and technical-spike evidence.
 - SEC-001 has an accepted authoritative threat/risk baseline.
@@ -142,7 +144,7 @@ Completed:
 - PB-023 TDLib runtime boundary selected.
 - PB-023 sanitized local TDLib probe added.
 
-Remaining before Sprint completion:
+Remaining selected work:
 
 - execute the TDLib probe with an OmniDesk Telegram API application and dedicated test account;
 - capture sanitized runtime evidence;

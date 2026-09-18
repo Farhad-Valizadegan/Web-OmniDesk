@@ -32,12 +32,12 @@
   <path d="M500 480 V515" class="line"/>
   <rect x="250" y="520" width="500" height="70" class="box" fill="#fef3c7"/>
   <text x="500" y="548" text-anchor="middle" class="h">Sprint Goal + Acceptance Criteria</text>
-  <text x="500" y="572" text-anchor="middle" class="t">Define the objective and confirm completion expectations</text>
+  <text x="500" y="572" text-anchor="middle" class="t">Define objective, acceptance criteria, and fixed Sprint timebox</text>
 
   <path d="M500 590 V625" class="line"/>
   <rect x="110" y="630" width="780" height="180" class="box" fill="#faf5ff"/>
   <text x="500" y="660" text-anchor="middle" class="h">Sprint Execution</text>
-  <text x="500" y="684" text-anchor="middle" class="t">Perform only the lifecycle activities required by the Sprint Goal</text>
+  <text x="500" y="684" text-anchor="middle" class="t">Start the timeboxed Sprint and perform activities required by the Sprint Goal</text>
   <g>
     <rect x="140" y="715" width="110" height="55" class="box" fill="#f8fafc"/><text x="195" y="748" text-anchor="middle" class="small">Requirements</text>
     <rect x="262" y="715" width="100" height="55" class="box" fill="#f8fafc"/><text x="312" y="748" text-anchor="middle" class="small">Analysis</text>
@@ -49,13 +49,13 @@
 
   <path d="M500 810 V845" class="line"/>
   <rect x="250" y="850" width="500" height="70" class="box" fill="#dcfce7"/>
-  <text x="500" y="878" text-anchor="middle" class="h">Verification + Quality / Security Checks</text>
-  <text x="500" y="902" text-anchor="middle" class="t">Run applicable automated and manual verification</text>
+  <text x="500" y="878" text-anchor="middle" class="h">Sprint Execution: Verification + Quality / Security Checks</text>
+  <text x="500" y="902" text-anchor="middle" class="t">Run applicable verification within the Sprint timebox</text>
 
   <path d="M500 920 V955" class="line"/>
   <rect x="250" y="960" width="500" height="70" class="box" fill="#e0f2fe"/>
   <text x="500" y="988" text-anchor="middle" class="h">Sprint Review</text>
-  <text x="500" y="1012" text-anchor="middle" class="t">Review the Increment against the Sprint Goal and acceptance criteria</text>
+  <text x="500" y="1012" text-anchor="middle" class="t">Timebox ended: review Increment and evaluate the Sprint Goal</text>
 
   <path d="M500 1030 V1065" class="line"/>
   <rect x="90" y="1070" width="370" height="100" class="box" fill="#dcfce7"/>
@@ -74,5 +74,5 @@
 
   <rect x="140" y="1210" width="720" height="70" class="box" fill="#f8fafc"/>
   <text x="500" y="1238" text-anchor="middle" class="h">Key Principle</text>
-  <text x="500" y="1262" text-anchor="middle" class="t">Sprint ≠ SDLC phase · Sprint ≠ Milestone · Sprint ≠ Release</text>
+  <text x="500" y="1262" text-anchor="middle" class="t">Sprint ≠ SDLC phase · Sprint ≠ Milestone · Sprint ≠ Release · Timebox ends regardless of incomplete work</text>
 </svg>
