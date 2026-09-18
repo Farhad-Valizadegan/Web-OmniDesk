@@ -1,6 +1,6 @@
 # SEC-010 - Harden Untrusted Message and HTML Rendering
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-10 API & Application Security / SEC-EPIC-07 Sensitive Data Protection
 > Priority: P1
 > Release Classification: V1 Required
