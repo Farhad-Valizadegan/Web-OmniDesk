@@ -1,6 +1,6 @@
 # SEC-011 - Block Remote Message Content by Default
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-07 Sensitive Data Protection / SEC-EPIC-11 Privacy & GDPR Engineering
 > Priority: P1
 > Release Classification: V1 Required
