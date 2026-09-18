@@ -1,6 +1,6 @@
 # SEC-015 - Database, Redis, and Storage Hardening
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-09 Database & Storage Security / SEC-EPIC-13 Infrastructure & Cloud Security
 > Priority: P1
 > Release Classification: V1 Required
