@@ -38,7 +38,7 @@ The core application must not depend directly on Gmail or Telegram API details.
 ## Supported Providers
 | Provider | Initial Scope | Integration Status |
 |---|---|---|
-| Gmail | Retrieve supported Gmail communication data | Planned |
+| Gmail | Retrieve supported Gmail communication data | Implemented: OAuth, connector, normalization, synchronization, and disconnect/revocation behavior are present in the current repository |
 | Telegram | Retrieve supported Telegram communication data | TDLib/MTProto selected; runtime evidence pending PB-023 |
 
 Future providers are outside the current MVP commitment.
@@ -132,16 +132,28 @@ The system should:
 - New providers must not require unrelated core modules to change.
 - Provider support must be validated before being added to the MVP scope.
 
+## Current Gmail Security Evidence
+
+The current repository provides the following implemented Gmail controls:
+
+- OAuth client scopes are supplied through `GOOGLE_SCOPES`; the committed default is `openid,email,profile,https://www.googleapis.com/auth/gmail.readonly`.
+- access and refresh tokens are stored with Laravel encrypted model casts.
+- token fields are hidden from serialization.
+- automated tests verify that provider credentials are not stored as plaintext and are not serialized.
+- Gmail disconnect attempts provider-side revocation and removes the authenticated user's local Gmail connection and synchronized data.
+
+These implemented controls do not complete SEC-008 or SEC-009. SEC-008 still owns production encryption-key lifecycle and environment separation. SEC-009 still owns the formal least-privilege mapping/review. Telegram session material has different security characteristics and remains gated by SEC-019.
+
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
 | PI-001 | Exact Telegram integration mode | Selected direction: Telegram API/MTProto through official TDLib behind a long-lived adapter; PB-023 runtime evidence still pending |
-| PI-002 | Exact Gmail scopes | To be finalized during implementation |
+| PI-002 | Gmail scopes | Current implemented default: `openid`, `email`, `profile`, and `https://www.googleapis.com/auth/gmail.readonly`; formal feature-to-scope least-privilege review remains pending under SEC-009 |
 | PI-003 | Exact Telegram permissions | User-account client authorization through TDLib; exact production session/security controls finalized by SEC-019 |
-| PI-004 | Provider token encryption strategy | To be finalized during security implementation |
+| PI-004 | Provider credential protection | Gmail access/refresh-token encryption is implemented with Laravel encrypted model casts and hidden serialization; production key lifecycle remains under SEC-008; Telegram credential/session protection remains under SEC-019 |
 | PI-005 | Supported provider message types | To be finalized during implementation |
 | PI-006 | Provider pagination and rate-limit strategy | To be finalized during implementation |
-| PI-007 | Local data deletion after disconnection | Requires privacy and data lifecycle decision |
+| PI-007 | Local data deletion after disconnection | SEC-002 now provides the authoritative lifecycle baseline; Gmail local cleanup is implemented; remaining provider/account lifecycle implementation and exact retention rules remain pending |
 
 ## PlantUML Source
 
