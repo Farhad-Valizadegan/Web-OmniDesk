@@ -50,7 +50,7 @@ Once a canonical Product Backlog ID is assigned, it must not be reassigned to un
 | PB-020 | Implement incremental synchronization | Must | M2 | Completed |
 | PB-021 | Prevent duplicate synchronized records | Must | M2 | Completed |
 | PB-022 | Record synchronization status and failures | Must | M2 | Completed |
-| PB-023 | Validate the Telegram integration mode | Must | M4 | Planned |
+| PB-023 | [Validate the Telegram integration mode](./backlog-items/PB-023-telegram-integration-mode.md) | Must | M4 | Refined |
 | PB-024 | Implement the Telegram connector | Must | M4 | Planned |
 | PB-025 | Implement Telegram synchronization | Must | M4 | Planned |
 | PB-026 | Isolate failures between providers | Must | M4 | Planned |
@@ -177,7 +177,7 @@ No future Sprint number is reserved until that refinement and Sprint Planning ar
 | BACKLOG-001 | Final backlog prioritization | Next-cycle ordering resolved; reprioritized continuously through refinement and Sprint Planning |
 | BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
 | BACKLOG-003 | Future Sprint assignments | Defined only during Sprint Planning |
-| BACKLOG-004 | Telegram scope | Requires provider validation |
+| BACKLOG-004 | Telegram scope | PB-023 refined; final mode validated during technical spike before PB-024 implementation |
 | BACKLOG-005 | Final AI provider | Unresolved |
 | BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Prioritization resolved: deferred behind M4; milestone remains TBD until future selection |
 | BACKLOG-007 | Milestone and priority for PB-014 local labels/tags | Should priority retained; deferred behind M4; milestone remains TBD until future selection |
