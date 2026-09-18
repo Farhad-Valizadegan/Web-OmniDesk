@@ -1,6 +1,6 @@
 # SEC-012 - Sensitive Endpoint Rate Limiting and Abuse Protection
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-10 API & Application Security
 > Priority: P1
 > Release Classification: V1 Required
