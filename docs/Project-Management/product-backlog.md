@@ -172,7 +172,7 @@ One milestone may contain many backlog items and several Sprints.
 
 PB-014 is intentionally not assigned to M3. M3 was completed with provider-label presentation and filtering; user-managed local labels and tags remain separate planned work and require prioritization before milestone or Sprint assignment.
 
-The workspace-navigation items PB-039 through PB-042 have been refined but are not assigned to a Sprint or milestone yet. They must be prioritized against the existing M4 Telegram work before Sprint Planning.
+The workspace-navigation items PB-039 through PB-042 have been refined but are not assigned to a Sprint or milestone. They were deprioritized behind the active M4 Telegram validation work and may be reconsidered during a future refinement, prioritization, and Sprint Planning cycle.
 
 ## Current Prioritization for the Next Planning Cycle
 
@@ -201,7 +201,7 @@ Security dependency:
 
 - SEC-019 - Telegram Credential and Session Security Gate is mandatory before PB-024.
 - SEC-019 depends on the PB-023 validation outcome for the final runtime/session boundary.
-- Therefore SEC-019 must be finalized immediately after or as part of the PB-023 validation work, before implementation of PB-024 begins.
+- Therefore SEC-019 must be refined/finalized against PB-023 runtime evidence after that evidence satisfies PB-023 acceptance criteria, before PB-024 can be selected for implementation. This dependency does not add SEC-019 to Sprint 07 or pre-assign it to a future Sprint.
 
 Downstream M4 order remains:
 
@@ -303,7 +303,7 @@ PB-024/PB-025/PB-026 remain outside Sprint 07. SEC-019 must be finalized against
 | BACKLOG-001 | Final backlog prioritization | Security foundation and M4 validation ordering updated; reprioritized continuously through refinement and Sprint Planning |
 | BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
 | BACKLOG-003 | Future Sprint assignments | Sprint 07 assigned through completed Sprint Planning; later Sprint numbers remain unassigned until future Sprint Planning |
-| BACKLOG-004 | Telegram scope | PB-023 refined; final mode validated during technical spike before PB-024 implementation |
+| BACKLOG-004 | Telegram scope | TDLib/MTProto long-lived-adapter direction selected; PB-023 runtime evidence remains pending before SEC-019 finalization and PB-024 implementation |
 | BACKLOG-005 | Final AI provider | Unresolved |
 | BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Prioritization resolved: deferred behind M4; milestone remains TBD until future selection |
 | BACKLOG-007 | Milestone and priority for PB-014 local labels/tags | Should priority retained; deferred behind M4; milestone remains TBD until future selection |
