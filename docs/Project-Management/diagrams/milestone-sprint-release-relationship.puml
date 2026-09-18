@@ -25,7 +25,6 @@ package "Sprints" {
   rectangle "Sprint 04" as S04
   rectangle "Sprint 05" as S05
   rectangle "Sprint 06" as S06
-  rectangle "Sprint 07\nSecurity Foundation + Telegram Validation" as S07
   rectangle "Future Sprint(s)\nAssigned during Sprint Planning" as SF
 }
 
@@ -41,7 +40,6 @@ Planning --> S03 : historical assignment
 Planning --> S04 : historical assignment
 Planning --> S05 : historical assignment
 Planning --> S06 : historical assignment
-Planning --> S07 : selected in Sprint Planning
 Planning --> SF : future assignment
 
 S00 --> M0 : primary milestone
@@ -51,9 +49,8 @@ S03 --> M1 : primary milestone
 S04 --> M2 : primary milestone
 S05 --> M2 : primary milestone
 S06 --> M3 : primary milestone
-S07 --> M4 : primary milestone
 
-SF ..> M4 : later allocation TBD
+SF ..> M4 : allocation TBD
 SF ..> M5 : allocation TBD
 SF ..> M6 : allocation TBD
 
@@ -71,9 +68,8 @@ note bottom of SF
 Future Sprint numbers are not
 reserved in advance.
 
-Sprint 07 exists because its scope
-was selected during Sprint Planning.
-Later Sprint numbers remain unassigned.
+Sprint numbers and scope are assigned
+only during Sprint Planning.
 end note
 
 note right of Release
