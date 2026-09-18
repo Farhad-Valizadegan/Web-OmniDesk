@@ -1,6 +1,6 @@
 # SEC-017 - Security Controls in CI/CD
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-14 Supply-Chain & CI/CD Security / SEC-EPIC-17 Security Testing & Verification
 > Priority: P1
 > Release Classification: V1 Required baseline
