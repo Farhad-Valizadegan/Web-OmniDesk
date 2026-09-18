@@ -3,37 +3,73 @@ title OmniDesk AI Sprint Workflow
 
 start
 
-:Review relevant milestone outcome;
+:Review Product Goal / relevant milestone context;
+:Review prioritized Product Backlog;
 :Refine Product Backlog as needed;
-:Select Sprint backlog items;
-:Define Sprint Goal;
-:Confirm or define acceptance criteria;
-:Break selected items into engineering tasks;
-:Perform lifecycle work required by Sprint Goal;
+:Perform Sprint Planning;
 note right
-Requirements, Analysis, Design,
-Implementation, Testing, or
-Documentation as needed.
+Select sufficiently refined
+Product Backlog items.
 end note
+
+:Define Sprint Goal;
+:Confirm acceptance criteria and applicable Definition of Done;
+:Break selected items into engineering tasks;
+
+partition "Sprint Execution" {
+  :Perform lifecycle work required by the Sprint Goal;
+  note right
+  Requirements
+  Analysis
+  Design
+  Implementation
+  Testing
+  Documentation
+
+  Only the activities needed
+  for the Sprint Goal are performed.
+  end note
+}
+
 :Run relevant automated and manual verification;
 :Run applicable quality and security checks;
+:Perform Sprint Review;
+note right
+Review the Increment against
+the Sprint Goal and
+acceptance criteria.
+end note
 
-if (Sprint Goal and acceptance criteria satisfied?) then (yes)
-  :Review Sprint Increment;
-  :Record completed and incomplete work;
+if (Work completed and applicable DoD satisfied?) then (yes)
+  :Record completed work as part of the Sprint Increment;
+  note right
+  A Sprint produces a meaningful,
+  reviewable Increment.
+
+  A Sprint does not automatically
+  create a release.
+  end note
 else (no)
-  :Return incomplete work to the backlog;
-  :Record discoveries and required follow-up;
+  :Record incomplete work and discoveries;
+  :Return incomplete/discovered work to the Product Backlog for reassessment;
+  note right
+  Incomplete work is not
+  automatically assigned
+  to the next Sprint.
+  end note
 endif
 
-stop
+:Record resulting decisions, discoveries, and backlog adaptations;
 
 note right
-A Sprint produces a meaningful,
-reviewable Increment.
-
-A Sprint does not automatically
-create a release.
+Key principles:
+- Sprint != SDLC phase
+- Sprint != Milestone
+- Sprint != Release
+- Future Sprint selection occurs
+  through Sprint Planning.
 end note
+
+stop
 
 @enduml
