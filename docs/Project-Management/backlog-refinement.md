@@ -6,6 +6,8 @@
 
 This document describes how OmniDesk AI backlog items are prepared before sprint planning.
 
+The canonical backlog remains [product-backlog.md](./product-backlog.md). Detailed refinement specifications for individual items live under [backlog-items/](./backlog-items/) and do not constitute a second backlog.
+
 ## Workflow
 
 ![OmniDesk AI Backlog Refinement Workflow](./diagrams/backlog-refinement.svg)
@@ -62,12 +64,12 @@ It should be:
 
 The Sprint 06 review identified non-functional or incomplete sidebar navigation entries that require backlog treatment:
 
-- PB-039: complete functional workspace sidebar navigation and active-state behavior.
-- PB-040: implement a Starred workspace view.
-- PB-041: implement a Labels workspace view with dynamic/custom label support.
-- PB-042: define and implement the Settings workspace view, or remove the placeholder until its scope is approved.
+- [PB-039](./backlog-items/PB-039-workspace-sidebar-navigation.md): complete functional workspace sidebar navigation and active-state behavior.
+- [PB-040](./backlog-items/PB-040-starred-workspace-view.md): implement a Starred workspace view.
+- [PB-041](./backlog-items/PB-041-labels-workspace-view.md): implement a Labels workspace view with dynamic/custom label support.
+- [PB-042](./backlog-items/PB-042-settings-workspace-view.md): define and implement the Settings workspace view, or remove the placeholder until its scope is approved.
 
-These items have now been **Refined**. Their purpose, scope, acceptance criteria, dependencies, implementation tasks, testing expectations, and Definition of Done are documented in dedicated backlog-item refinement files. They are not committed to the next sprint and are not assigned to a milestone yet. They must now be prioritized against the existing M4 Telegram backlog before Sprint Planning.
+These items have now been **Refined**. Their purpose, scope, acceptance criteria, dependencies, implementation tasks, testing expectations, and Definition of Done are documented in the linked backlog-item refinement specifications. They are not committed to the next sprint and are not assigned to a milestone yet. They must now be prioritized against the existing M4 Telegram backlog before Sprint Planning.
 
 ## Relationship to Sprints
 
