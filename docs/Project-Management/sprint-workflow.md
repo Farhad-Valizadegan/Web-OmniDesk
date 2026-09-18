@@ -10,6 +10,8 @@ A Sprint is an execution iteration, not an SDLC phase. Depending on the Sprint G
 
 ## Workflow
 
+![OmniDesk AI Sprint Workflow](./diagrams/sprint-workflow.svg)
+
 The editable workflow source is [sprint-workflow.puml](./diagrams/sprint-workflow.puml).
 
 ## Sprint Activities
