@@ -1,6 +1,6 @@
 # SEC-008 - Provider Credential and Encryption-Key Management Baseline
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-06 Provider Credential & OAuth Security / SEC-EPIC-08 Encryption & Key Management
 > Priority: P1
 > Release Classification: V1 Required baseline
