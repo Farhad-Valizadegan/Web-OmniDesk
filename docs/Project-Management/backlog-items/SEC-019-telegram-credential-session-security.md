@@ -1,6 +1,6 @@
 # SEC-019 - Telegram Credential and Session Security Gate
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-06 Provider Credential & OAuth Security / SEC-EPIC-07 Sensitive Data Protection
 > Priority: P1
 > Release Classification: V1 Required before PB-024
