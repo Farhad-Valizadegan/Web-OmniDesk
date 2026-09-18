@@ -79,8 +79,8 @@ These items were accepted from the read-only Security & Privacy Gap Analysis. Se
 
 | ID | Security Backlog Item | Priority | Release Classification | Status |
 |---|---|---|---|---|
-| SEC-001 | [Establish Threat Model and Risk Register](./backlog-items/SEC-001-threat-model-risk-register.md) | P1 | V1 Required | Planned |
-| SEC-002 | [Data Classification, Retention, and Deletion Model](./backlog-items/SEC-002-data-classification-retention-deletion.md) | P1 | V1 Required | Planned |
+| SEC-001 | [Establish Threat Model and Risk Register](./backlog-items/SEC-001-threat-model-risk-register.md) | P1 | V1 Required | Refined |
+| SEC-002 | [Data Classification, Retention, and Deletion Model](./backlog-items/SEC-002-data-classification-retention-deletion.md) | P1 | V1 Required | Refined |
 | SEC-003 | [Harden Browser Authentication Session Architecture](./backlog-items/SEC-003-browser-auth-session-hardening.md) | P1 | V1 Required | Planned |
 | SEC-004 | [Implement Email-Based Two-Step Verification](./backlog-items/SEC-004-email-two-step-verification.md) | P1 | V1 Required | Planned |
 | SEC-005 | [Secure Email Verification, Password Change, and Account Recovery](./backlog-items/SEC-005-account-verification-password-recovery.md) | P1 | V1 Required | Planned |
@@ -167,56 +167,129 @@ The workspace-navigation items PB-039 through PB-042 have been refined but are n
 
 ## Current Prioritization for the Next Planning Cycle
 
-The next planning cycle prioritizes required Version 1 milestone work before optional workspace enhancements.
+The next planning cycle must de-risk both the V1 security foundation and the M4 Telegram integration before implementation expands.
 
-### Priority Band 1 - M4 Telegram Integration
+### Priority Band 0 - Security Foundation
 
-The current highest-priority work is M4 because PB-023 through PB-026 are `Must` items required for the Version 1 communication-provider baseline.
+These items are now refined and planning-ready:
 
-Dependency order:
+1. SEC-001 - Establish Threat Model and Risk Register.
+2. SEC-002 - Data Classification, Retention, and Deletion Model.
+
+They do not require a separate Security Sprint. Their purpose is to establish the authoritative risk and data-lifecycle baseline that later security implementation depends on.
+
+SEC-001 and SEC-002 may be selected in the same Sprint as a bounded technical-validation item when the Sprint Goal is coherent and capacity allows.
+
+### Priority Band 1 - M4 Telegram Validation
+
+The highest-priority product item remains:
 
 1. PB-023 - Validate the Telegram integration mode.
-2. PB-024 - Implement the Telegram connector.
-3. PB-025 - Implement Telegram synchronization.
-4. PB-026 - Isolate failures between providers.
 
-This ordering does not pre-assign all four items to one Sprint. PB-023 must resolve the Telegram integration approach before dependent implementation work is selected.
+PB-023 is already refined. Its technical spike must resolve the Telegram runtime/integration boundary before PB-024 connector implementation.
 
-### Priority Band 2 - Workspace and Organization Improvements
+Security dependency:
 
-After M4 work is sufficiently resolved, the following `Should` items are considered:
+- SEC-019 - Telegram Credential and Session Security Gate is mandatory before PB-024.
+- SEC-019 depends on the PB-023 validation outcome for the final runtime/session boundary.
+- Therefore SEC-019 must be finalized immediately after or as part of the PB-023 validation work, before implementation of PB-024 begins.
+
+Downstream M4 order remains:
+
+1. PB-023 - Validate Telegram integration mode.
+2. SEC-019 - Finalize Telegram credential/session security gate using the validated mode.
+3. PB-024 - Implement Telegram connector.
+4. PB-025 - Implement Telegram synchronization.
+5. PB-026 - Isolate failures between providers.
+
+This dependency order does not pre-assign all items to one Sprint.
+
+### Priority Band 2 - Identity and Application Security
+
+The following P1 security items remain high priority but require their normal refinement/implementation timing:
+
+- SEC-003 - Browser authentication session hardening.
+- SEC-004 - Email-based two-step verification.
+- SEC-005 - Email verification/password recovery.
+- SEC-006 - Sensitive-action reauthentication.
+- SEC-007 - Authorization/isolation regression matrix.
+- SEC-008 - Provider credential/key-management baseline.
+- SEC-009 - Provider permission minimization.
+- SEC-010 - Untrusted message/HTML rendering.
+- SEC-011 - Remote message content privacy.
+- SEC-012 - Sensitive endpoint abuse protection.
+- SEC-013 - Security audit/log redaction.
+
+Risk review confirms these remain P1. No evidence currently justifies downgrading them.
+
+### Priority Band 3 - Production and Release Security
+
+These items become release/deployment gates according to exposure timing:
+
+- SEC-014 - Production TLS/security headers/browser security.
+- SEC-015 - Database/Redis/storage hardening.
+- SEC-016 - Backup security/recovery/deletion.
+- SEC-017 - Security controls in CI/CD.
+- SEC-018 - Privacy/GDPR engineering baseline.
+
+They remain V1-oriented, but deployment-specific implementation should be synchronized with the actual deployment architecture rather than performed prematurely.
+
+### Priority Band 4 - AI Security Gate
+
+Before M5 AI functionality:
+
+- SEC-020 - AI Security and Privacy Gate.
+
+SEC-020 remains P1 before AI functionality is enabled. It must resolve context minimization, authorization, prompt-injection risk, provider data-use/retention, and Telegram-derived-data constraints.
+
+### Priority Band 5 - Workspace and Organization Improvements
+
+After required M4/security-gate work is sufficiently resolved:
 
 - PB-039 - Workspace sidebar navigation.
 - PB-040 - Starred workspace view.
 - PB-041 - Labels workspace view.
 - PB-014 - User-managed local labels and tags.
 
-Dependency guidance:
+Dependency guidance remains:
 
-- PB-039 precedes PB-040 and PB-041 because those views require functional workspace navigation.
-- PB-041 remains separate from PB-014: PB-041 concerns synchronized provider labels, while PB-014 concerns OmniDesk-managed local labels/tags.
-- PB-041 should be reconsidered after Telegram integration semantics are known so the provider-neutral label model can be validated against more than Gmail.
+- PB-039 precedes PB-040 and PB-041.
+- PB-041 remains separate from PB-014.
+- PB-041 should be reconsidered after Telegram integration semantics are known.
 
-### Priority Band 3 - Deferred Settings Cleanup
+### Priority Band 6 - Deferred Settings Cleanup and Operational Maturity
 
-PB-042 remains `Could` priority.
+- PB-042 remains Could priority; dedicated Settings workspace remains deferred.
+- SEC-021 remains P2 / V1 Recommended and should follow SEC-013 because monitoring/incident response depends on useful security event evidence.
 
-Its V1 decision is already resolved: a dedicated Settings workspace is deferred. The remaining work is limited to removing or clearly disabling the false Settings destination. It may be selected alongside PB-039 when capacity allows, but it is not automatically committed to the same Sprint.
+### Current Planning-Ready Items
+
+The following items are currently sufficiently refined for Sprint Planning:
+
+- PB-023 - Validate Telegram integration mode.
+- SEC-001 - Establish Threat Model and Risk Register.
+- SEC-002 - Data Classification, Retention, and Deletion Model.
+- PB-039 - Workspace sidebar navigation, subject to current prioritization.
+- PB-040 - Starred workspace view, subject to current prioritization.
+- PB-041 - Labels workspace view, subject to current prioritization.
+- PB-042 - Settings placeholder cleanup, subject to current prioritization.
+
+For the immediate next Sprint, required de-risking work takes precedence over optional workspace improvements.
 
 ### Next Planning Gate
 
-The highest-priority uncompleted item is PB-023.
+Sprint Planning may now proceed.
 
-Before creating the next Sprint, PB-023 must be refined to the project's readiness standard, including acceptance criteria, dependencies, validation tasks, testing expectations, and Definition of Done.
+A coherent next Sprint should select only a bounded subset of planning-ready work. It must not automatically include all P1 security items or all M4 items.
 
-No future Sprint number is reserved until that refinement and Sprint Planning are complete.
+No downstream PB-024/PB-025/PB-026 implementation should be selected until PB-023 produces the validated Telegram integration decision and SEC-019 is finalized against that decision.
 
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
-| BACKLOG-001 | Final backlog prioritization | Next-cycle ordering resolved; reprioritized continuously through refinement and Sprint Planning |
+| BACKLOG-001 | Final backlog prioritization | Security foundation and M4 validation ordering updated; reprioritized continuously through refinement and Sprint Planning |
 | BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
-| BACKLOG-003 | Future Sprint assignments | Defined only during Sprint Planning |
+| BACKLOG-003 | Future Sprint assignments | Sprint Planning is now unblocked for the next bounded Sprint; assignments remain defined only during Sprint Planning |
 | BACKLOG-004 | Telegram scope | PB-023 refined; final mode validated during technical spike before PB-024 implementation |
 | BACKLOG-005 | Final AI provider | Unresolved |
 | BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Prioritization resolved: deferred behind M4; milestone remains TBD until future selection |
