@@ -8,69 +8,104 @@
 
 Define the role of the Settings workspace view and prevent the sidebar from exposing a non-functional placeholder without an approved scope.
 
-## Scope
+## Approved V1 Decision
 
-- Decide which settings belong in the initial product.
-- Implement only approved settings.
-- Remove or disable the Settings navigation item if no approved settings exist yet.
-- Keep settings provider-neutral where practical.
-- Avoid duplicating provider connection controls that already exist elsewhere unless intentionally centralized.
+A dedicated Settings workspace is **deferred from V1**.
+
+The current application already exposes the only concrete user preference implemented today — light/dark theme — directly in the workspace header. Gmail connection management is also already handled by the existing Gmail connection panel.
+
+Creating a Settings destination in V1 would therefore duplicate existing controls or introduce placeholder options without approved behavior.
+
+The V1 rule is:
+
+```text
+Do not expose a functional Settings workspace until at least one approved
+setting exists that belongs there and is not already intentionally managed
+elsewhere.
+```
+
+For the current V1 implementation, the sidebar Settings item must be removed or explicitly disabled so it cannot appear functional.
+
+## V1 Scope
+
+Included:
+
+- Remove or clearly disable the non-functional Settings sidebar destination.
+- Preserve the existing light/dark theme control in the workspace header.
+- Preserve Gmail connection/disconnection/synchronization controls in the existing Gmail integration panel.
+- Keep navigation semantics consistent with PB-039.
+
+Deferred:
+
+- Dedicated workspace display-preference management.
+- Centralized provider connection management.
+- Account/profile preference editing.
+- AI-assistance preferences.
+- Notification preferences.
+- Any persistence model or API created solely for future Settings capabilities.
 
 ## Acceptance Criteria
 
-- The Settings navigation item has a clearly defined purpose.
-- If Settings is implemented, only approved settings are shown.
-- If Settings is not yet implemented, the navigation item is removed or clearly disabled.
-- The UI does not present a false functional destination.
-- Existing Gmail connection/disconnection behavior is not duplicated accidentally.
+- The sidebar does not present Settings as a functional destination in V1.
+- If the Settings item remains visible, it is clearly disabled and cannot enter an active navigation state.
+- No empty or placeholder Settings screen is presented.
+- The existing theme toggle remains functional in the workspace header.
+- Existing Gmail integration controls remain in the Gmail connection panel.
+- Gmail controls are not duplicated into Settings.
+- No new settings persistence/API is introduced without an approved setting that requires it.
 - Navigation active-state behavior remains consistent.
-- Frontend tests cover the approved Settings behavior.
+- Frontend tests cover the approved disabled/removed Settings behavior.
 
 ## Dependencies
 
 - PB-039 Workspace Sidebar Navigation.
-- Approved V1 settings scope.
+- Existing theme toggle behavior.
 - Existing Gmail integration controls.
-- Future provider configuration requirements.
 
 ## Implementation Tasks
 
-- Identify candidate settings for V1.
-- Separate workspace preferences from provider integration controls.
-- Decide whether Settings is required now or should be deferred.
-- Define the Settings view structure if approved.
-- Connect or remove/disable the sidebar item accordingly.
-- Add tests for navigation and rendering behavior.
+- Remove the Settings navigation item from V1, or render it explicitly disabled.
+- Ensure PB-039 navigation state cannot select Settings while it is deferred.
+- Preserve the current theme control in the workspace header.
+- Preserve Gmail provider controls in the Gmail connection panel.
+- Add tests proving no false Settings destination is exposed.
 - Run frontend test, lint, and build checks.
 
-## Candidate Settings for Review
+## Deferred Settings Candidates
 
-- Theme preference.
+The following remain possible future backlog candidates but are not approved for V1:
+
 - Workspace display preferences.
 - Provider connection management.
 - Account/profile preferences.
-- Future AI-assistance preferences.
+- AI-assistance preferences.
+- Notification preferences.
 
-These candidates are not automatically approved for V1.
+Theme preference is not moved into Settings in V1 because the existing header control is already functional and does not require a dedicated settings workflow.
 
 ## Testing
 
-- Verify Settings behavior matches the approved scope.
-- Verify no dead or misleading navigation state exists.
-- Verify provider controls are not duplicated incorrectly.
-- Verify navigation back to Inbox.
+- Verify Settings is removed or explicitly disabled.
+- Verify Settings cannot become the active workspace view.
+- Verify no placeholder Settings content is rendered.
+- Verify theme switching still works.
+- Verify Gmail connection/disconnection/synchronization behavior remains unchanged.
+- Verify navigation back to Inbox and other implemented workspace views.
 - Verify existing workspace tests still pass.
 
 ## Definition of Done
 
-- The Settings scope decision is documented.
-- No misleading placeholder remains.
-- Approved behavior is implemented or explicitly deferred.
+- The V1 Settings scope decision is documented.
+- No misleading Settings destination remains.
+- Existing theme and Gmail controls remain functional in their current locations.
+- No unnecessary Settings persistence/API is introduced.
 - Tests pass.
 - Lint passes.
 - Production build passes.
-- Documentation reflects the final Settings decision.
+- Documentation reflects the deferred Settings decision.
 
 ## Sprint Planning Readiness
 
-Ready for prioritization after the V1 Settings scope is approved or explicitly deferred.
+The V1 Settings scope is now resolved by explicit deferral.
+
+PB-042 is ready for prioritization as a small UX/navigation cleanup item. It remains unassigned to a milestone or Sprint until it is compared with the other ready/refined backlog items during backlog prioritization and selected during Sprint Planning.
