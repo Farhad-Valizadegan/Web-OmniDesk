@@ -73,6 +73,8 @@ Future M4, M5, and M6 implementation direction remains unassigned until backlog 
 
 Milestone != Sprint. Sprint != Release. Release != Version.
 
+The per-Sprint completion criteria below describe acceptance expectations for selected work; they do not extend a Sprint beyond its defined timebox.
+
 ## Sprint 0 - Repository and Environment Preparation
 
 ### Objective
@@ -170,7 +172,7 @@ Create the initial communication workspace.
 - Implement conversation details.
 - Implement message display.
 - Implement search and filtering foundations.
-- Implement local labels and tags.
+- Establish conversation organization foundations.
 - Add empty, loading, and error states.
 - Add backend and frontend tests.
 
@@ -179,7 +181,7 @@ Create the initial communication workspace.
 - Users can view their communication data.
 - Users can open a conversation.
 - Users can view messages.
-- Users can organize conversations locally.
+- Conversation organization foundations are established.
 - Ownership checks remain effective.
 
 ## Sprint 4 - Gmail Provider Integration
@@ -290,7 +292,7 @@ Establish the V1 security/data-risk baseline and validate the Telegram integrati
 - SEC-019 can be refined/finalized against the validated runtime boundary before PB-024.
 - PB-024, PB-025, and PB-026 remain outside Sprint 07.
 
-PB-023 is currently **In Progress** because real runtime evidence is still required. Sprint 07 therefore remains **In Progress**.
+PB-023 is currently **In Progress** because real runtime evidence is still required. Sprint 07 is recorded as **In Progress**; its closure is governed by the defined timebox and Sprint review, not by waiting indefinitely for PB-023 completion.
 
 ## Future M4 Implementation Direction
 
