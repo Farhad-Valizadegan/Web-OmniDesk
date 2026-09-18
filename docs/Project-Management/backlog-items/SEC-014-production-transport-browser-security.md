@@ -1,6 +1,6 @@
 # SEC-014 - Production TLS, Security Headers, and Browser Security
 
-> Status: Candidate
+> Status: Planned
 > Security Epic: SEC-EPIC-10 API & Application Security / SEC-EPIC-13 Infrastructure & Cloud Security
 > Priority: P1
 > Release Classification: V1 Required
