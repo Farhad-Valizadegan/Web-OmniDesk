@@ -52,7 +52,7 @@ Security backlog items use the separate canonical `SEC-###` namespace. They rema
 | PB-020 | Implement incremental synchronization | Must | M2 | Completed |
 | PB-021 | Prevent duplicate synchronized records | Must | M2 | Completed |
 | PB-022 | Record synchronization status and failures | Must | M2 | Completed |
-| PB-023 | [Validate the Telegram integration mode](./backlog-items/PB-023-telegram-integration-mode.md) | Must | M4 | Refined |
+| PB-023 | [Validate the Telegram integration mode](./backlog-items/PB-023-telegram-integration-mode.md) | Must | M4 | In Progress |
 | PB-024 | Implement the Telegram connector | Must | M4 | Planned |
 | PB-025 | Implement Telegram synchronization | Must | M4 | Planned |
 | PB-026 | Isolate failures between providers | Must | M4 | Planned |
@@ -79,8 +79,8 @@ These items were accepted from the read-only Security & Privacy Gap Analysis. Se
 
 | ID | Security Backlog Item | Priority | Release Classification | Status |
 |---|---|---|---|---|
-| SEC-001 | [Establish Threat Model and Risk Register](./backlog-items/SEC-001-threat-model-risk-register.md) | P1 | V1 Required | Refined |
-| SEC-002 | [Data Classification, Retention, and Deletion Model](./backlog-items/SEC-002-data-classification-retention-deletion.md) | P1 | V1 Required | Refined |
+| SEC-001 | [Establish Threat Model and Risk Register](./backlog-items/SEC-001-threat-model-risk-register.md) | P1 | V1 Required | Completed |
+| SEC-002 | [Data Classification, Retention, and Deletion Model](./backlog-items/SEC-002-data-classification-retention-deletion.md) | P1 | V1 Required | Completed |
 | SEC-003 | [Harden Browser Authentication Session Architecture](./backlog-items/SEC-003-browser-auth-session-hardening.md) | P1 | V1 Required | Planned |
 | SEC-004 | [Implement Email-Based Two-Step Verification](./backlog-items/SEC-004-email-two-step-verification.md) | P1 | V1 Required | Planned |
 | SEC-005 | [Secure Email Verification, Password Change, and Account Recovery](./backlog-items/SEC-005-account-verification-password-recovery.md) | P1 | V1 Required | Planned |
@@ -171,7 +171,7 @@ The next planning cycle must de-risk both the V1 security foundation and the M4 
 
 ### Priority Band 0 - Security Foundation
 
-These items are now refined and planning-ready:
+These baseline items are completed:
 
 1. SEC-001 - Establish Threat Model and Risk Register.
 2. SEC-002 - Data Classification, Retention, and Deletion Model.
@@ -264,11 +264,7 @@ Dependency guidance remains:
 
 ### Current Planning-Ready Items
 
-The following items are currently sufficiently refined for Sprint Planning:
-
-- PB-023 - Validate Telegram integration mode.
-- SEC-001 - Establish Threat Model and Risk Register.
-- SEC-002 - Data Classification, Retention, and Deletion Model.
+Sprint 07 is already in progress. SEC-001 and SEC-002 are completed baseline work; PB-023 remains the active validation item.
 - PB-039 - Workspace sidebar navigation, subject to current prioritization.
 - PB-040 - Starred workspace view, subject to current prioritization.
 - PB-041 - Labels workspace view, subject to current prioritization.
