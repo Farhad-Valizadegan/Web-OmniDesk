@@ -41,11 +41,11 @@ Completed historical Sprint allocations are recorded below. Future milestone wor
 | M1 | Sprint 02 and Sprint 03 | Authentication and workspace foundation |
 | M2 | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
 | M3 | Sprint 06 | Unified communication workspace |
-| M4 | TBD through Sprint Planning | Telegram connection and synchronization |
+| M4 | Sprint 07 for validation; later M4 Sprint(s) TBD | Telegram connection and synchronization |
 | M5 | TBD through Sprint Planning | User-controlled AI assistance |
 | M6 | TBD through Sprint Planning | Production hardening and release readiness |
 
-This allocation is consistent with the approved milestone governance: M4, M5, and M6 do not reserve Sprint 07, Sprint 08, or Sprint 09 in advance.
+This allocation remains consistent with the approved milestone governance: Sprint 07 exists because Sprint Planning selected its scope; no later Sprint number is reserved for remaining M4, M5, or M6 work.
 
 ## Sprint Assignment Rule
 
