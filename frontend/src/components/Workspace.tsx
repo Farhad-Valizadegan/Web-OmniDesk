@@ -9,6 +9,7 @@ import {
   type AuthUser,
   type Conversation,
   type Message,
+  type TelegramChat,
   type TelegramMessage,
 } from '../lib/api'
 
@@ -247,6 +248,11 @@ function Workspace({
   const [isLazySyncLoading, setIsLazySyncLoading] = useState(false)
   const [gmailHasMore, setGmailHasMore] = useState(false)
 
+  const [telegramChats, setTelegramChats] = useState<
+    TelegramChat[]
+  >([])
+  const [selectedTelegramChatId, setSelectedTelegramChatId] =
+    useState<number | null>(null)
   const [telegramMessages, setTelegramMessages] = useState<
     TelegramMessage[]
   >([])
@@ -415,8 +421,10 @@ function Workspace({
 
       const response = await getTelegramSample()
 
+      setTelegramChats(response.data.chats)
+      setSelectedTelegramChatId(response.data.selected_chat.id)
       setTelegramMessages(response.data.messages)
-      setTelegramChatTitle(response.data.chat.title)
+      setTelegramChatTitle(response.data.selected_chat.title)
     } catch (error) {
       setTelegramMessages([])
       setTelegramChatTitle(null)
@@ -545,74 +553,165 @@ function Workspace({
           )}
 
           {activeProvider === 'telegram' && (
-          <section className="provider-panel telegram-panel">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">Telegram</p>
-                <h3>Telegram content demo</h3>
+            <section
+              className="telegram-workspace"
+              role="tabpanel"
+              aria-label="Telegram provider"
+            >
+              <div className="telegram-toolbar">
+                <input
+                  type="search"
+                  placeholder="Search Telegram"
+                  aria-label="Search Telegram chats"
+                />
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => void handleTelegramLoad()}
+                  disabled={isTelegramLoading}
+                >
+                  {isTelegramLoading ? 'Loading...' : 'Refresh'}
+                </button>
               </div>
 
-              <button
-                type="button"
-                className="primary-button"
-                onClick={() => void handleTelegramLoad()}
-                disabled={isTelegramLoading}
-              >
-                {isTelegramLoading
-                  ? 'Loading...'
-                  : 'Load Telegram'}
-              </button>
-            </div>
-
-            {telegramError && (
-              <p className="inbox-error" role="alert">
-                {telegramError}
-              </p>
-            )}
-
-            {!telegramError &&
-              telegramMessages.length === 0 && (
-                <p className="inbox-status">
-                  Click â€œLoad Telegramâ€ to retrieve a bounded
-                  Telegram sample.
+              {telegramError && (
+                <p className="inbox-error" role="alert">
+                  {telegramError}
                 </p>
               )}
 
-            {telegramMessages.length > 0 && (
-              <div className="telegram-sample">
-                <p className="telegram-chat-title">
-                  Chat: {telegramChatTitle ?? 'Untitled chat'}
-                </p>
-
-                {telegramMessages.map((message) => (
-                  <article
-                    className="message-card telegram-message-card"
-                    key={message.id}
+              {!telegramError && telegramChats.length === 0 && (
+                <div className="telegram-empty">
+                  <h3>Telegram</h3>
+                  <p>Load your chats, groups, and channels.</p>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={() => void handleTelegramLoad()}
+                    disabled={isTelegramLoading}
                   >
-                    <div className="message-heading">
-                      <strong>Telegram message</strong>
+                    {isTelegramLoading ? 'Loading...' : 'Load Telegram'}
+                  </button>
+                </div>
+              )}
 
-                      <time
-                        dateTime={new Date(
-                          message.date * 1000,
-                        ).toISOString()}
-                      >
-                        {formatDate(
-                          new Date(
-                            message.date * 1000,
-                          ).toISOString(),
-                        )}
-                      </time>
+              {telegramChats.length > 0 && (
+                <div className="telegram-layout">
+                  <aside className="telegram-chat-list" aria-label="Telegram chats">
+                    <div className="telegram-list-heading">
+                      <strong>Chats</strong>
+                      <span>{telegramChats.length}</span>
                     </div>
 
-                    <p className="message-body">
-                      {renderMessageBody(message.text)}
+                    <div className="telegram-chat-items">
+                      {telegramChats.map((chat) => (
+                        <button
+                          type="button"
+                          key={chat.id}
+                          className={
+                            selectedTelegramChatId === chat.id
+                              ? 'telegram-chat-item active'
+                              : 'telegram-chat-item'
+                          }
+                          onClick={() => {
+                            setSelectedTelegramChatId(chat.id)
+                            setTelegramChatTitle(chat.title)
+                          }}
+                        >
+                          <span className="telegram-chat-avatar">
+                            {initials(chat.title)}
+                          </span>
+                          <span className="telegram-chat-copy">
+                            <strong>{chat.title}</strong>
+                            <small>
+                              {chat.type === 'group' ? 'Group' : 'Private chat'}
+                            </small>
+                            <span>
+                              {chat.last_message || 'No text preview'}
+                            </span>
+                          </span>
+                          {chat.unread_count > 0 && (
+                            <b>{chat.unread_count}</b>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </aside>
+
+                  <section className="telegram-conversation" aria-label="Selected Telegram chat">
+                    <header className="telegram-conversation-header">
+                      <div>
+                        <p className="eyebrow">Telegram</p>
+                        <h3>{telegramChatTitle ?? 'Selected chat'}</h3>
+                        <span>
+                          {telegramChats.find(
+                            (chat) => chat.id === selectedTelegramChatId,
+                          )?.type === 'group'
+                            ? 'Group or channel'
+                            : 'Private chat'}
+                        </span>
+                      </div>
+                      <button type="button" className="secondary-button">
+                        Chat info
+                      </button>
+                    </header>
+
+                    <div className="telegram-message-list">
+                      {telegramMessages.length === 0 ? (
+                        <p className="inbox-status">No text messages found.</p>
+                      ) : (
+                        telegramMessages.map((message) => (
+                          <article className="telegram-bubble" key={message.id}>
+                            <p>{renderMessageBody(message.text)}</p>
+                            <time>
+                              {formatDate(
+                                new Date(message.date * 1000).toISOString(),
+                              )}
+                            </time>
+                          </article>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="telegram-composer">
+                      <input
+                        type="text"
+                        placeholder="Read-only demo: sending is disabled"
+                        disabled
+                      />
+                      <button type="button" className="secondary-button" disabled>
+                        Send
+                      </button>
+                    </div>
+                  </section>
+
+                  <aside className="telegram-info-panel" aria-label="Telegram chat information">
+                    <h3>Chat information</h3>
+                    <dl>
+                      <div>
+                        <dt>Name</dt>
+                        <dd>{telegramChatTitle ?? 'Unknown'}</dd>
+                      </div>
+                      <div>
+                        <dt>Type</dt>
+                        <dd>
+                          {telegramChats.find(
+                            (chat) => chat.id === selectedTelegramChatId,
+                          )?.type ?? 'Unknown'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Messages loaded</dt>
+                        <dd>{telegramMessages.length}</dd>
+                      </div>
+                    </dl>
+                    <p className="telegram-readonly-note">
+                      This integration is currently read-only.
                     </p>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
+                  </aside>
+                </div>
+              )}
+            </section>
           )}
 
           <div
