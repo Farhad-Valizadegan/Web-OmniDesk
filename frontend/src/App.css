@@ -1999,3 +1999,135 @@ button:disabled {
     border-bottom: 1px solid var(--border-color);
   }
 }
+
+/* Telegram workspace layout correction */
+.telegram-workspace {
+  width: 100%;
+  min-width: 0;
+}
+
+.telegram-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.telegram-toolbar input {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 1px solid #475569;
+  background: #111827;
+  color: #f8fafc;
+}
+
+.telegram-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 280px) minmax(0, 1fr) minmax(220px, 260px);
+  width: 100%;
+  min-width: 0;
+  min-height: 540px;
+  border: 1px solid #475569;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: #172033;
+}
+
+.telegram-chat-list,
+.telegram-conversation,
+.telegram-info-panel {
+  min-width: 0;
+}
+
+.telegram-chat-list {
+  overflow-y: auto;
+  border-right: 1px solid #475569;
+  background: #111827;
+}
+
+.telegram-conversation {
+  min-width: 0;
+  background: #172033;
+}
+
+.telegram-info-panel {
+  border-left: 1px solid #475569;
+  background: #111827;
+}
+
+.telegram-list-heading,
+.telegram-conversation-header,
+.telegram-composer {
+  border-color: #475569;
+}
+
+.telegram-chat-item {
+  min-width: 0;
+  border-bottom: 1px solid #334155;
+}
+
+.telegram-chat-copy,
+.telegram-chat-copy strong,
+.telegram-chat-copy small,
+.telegram-chat-copy span {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.telegram-chat-copy strong,
+.telegram-chat-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telegram-message-list {
+  min-width: 0;
+  overflow-x: hidden;
+  background: #1e293b;
+}
+
+.telegram-bubble {
+  min-width: 0;
+  max-width: min(82%, 720px);
+  overflow-wrap: anywhere;
+  background: #334155;
+}
+
+.telegram-bubble a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.telegram-composer {
+  min-width: 0;
+}
+
+.telegram-composer input {
+  min-width: 0;
+  border-color: #475569;
+  background: #111827;
+  color: #f8fafc;
+}
+
+@media (max-width: 1100px) {
+  .telegram-layout {
+    grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
+  }
+
+  .telegram-info-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .telegram-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .telegram-chat-list {
+    max-height: 18rem;
+    border-right: 0;
+    border-bottom: 1px solid #475569;
+  }
+}
