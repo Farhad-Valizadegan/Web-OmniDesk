@@ -6,8 +6,7 @@ import json
 import os
 import sys
 import time
-from ctypes import CDLL, CFUNCTYPE, c_char_p, c_double, c_int
-from ctypes.util import find_library
+import tdjson
 from getpass import getpass
 from pathlib import Path
 from typing import Any
@@ -27,51 +26,13 @@ def _stable_fingerprint(value: int | str) -> str:
 
 
 class TdJsonClient:
-    def __init__(self, library_path: str | None = None) -> None:
-        path = library_path or os.getenv("TDJSON_PATH") or find_library("tdjson")
-        if not path and os.name == "nt":
-            candidate = Path(__file__).with_name("tdjson.dll")
-            if candidate.exists():
-                path = str(candidate)
-        if not path:
-            raise RuntimeError(
-                "Unable to locate TDLib JSON library. Set TDJSON_PATH to tdjson.dll/libtdjson.so."
-            )
-
-        self.lib = CDLL(path)
-        self._configure_signatures()
-        self._log_callback = self._make_log_callback()
-        self.lib.td_set_log_message_callback(1, self._log_callback)
-        self.execute({"@type": "setLogVerbosityLevel", "new_verbosity_level": 1})
-        self.client_id = self.lib.td_create_client_id()
+    def __init__(self) -> None:
+        self.client_id = tdjson.td_create_client_id()
         self._request_counter = 0
         self.chats: dict[int, JsonObject] = {}
 
-    def _configure_signatures(self) -> None:
-        self.lib.td_create_client_id.argtypes = []
-        self.lib.td_create_client_id.restype = c_int
-        self.lib.td_send.argtypes = [c_int, c_char_p]
-        self.lib.td_send.restype = None
-        self.lib.td_receive.argtypes = [c_double]
-        self.lib.td_receive.restype = c_char_p
-        self.lib.td_execute.argtypes = [c_char_p]
-        self.lib.td_execute.restype = c_char_p
-        callback_type = CFUNCTYPE(None, c_int, c_char_p)
-        self._callback_type = callback_type
-        self.lib.td_set_log_message_callback.argtypes = [c_int, callback_type]
-        self.lib.td_set_log_message_callback.restype = None
-
-    def _make_log_callback(self):
-        @self._callback_type
-        def callback(level: int, message: bytes) -> None:
-            if level == 0:
-                text = message.decode("utf-8", errors="replace")
-                print(f"TDLib fatal error: {text}", file=sys.stderr)
-
-        return callback
-
     def execute(self, query: JsonObject) -> JsonObject | None:
-        raw = self.lib.td_execute(json.dumps(query).encode("utf-8"))
+        raw = tdjson.td_execute(json.dumps(query).encode("utf-8"))
         return json.loads(raw.decode("utf-8")) if raw else None
 
     def send(self, query: JsonObject, tag: str | None = None) -> str:
@@ -80,11 +41,11 @@ class TdJsonClient:
             tag = f"req-{self._request_counter}"
         payload = dict(query)
         payload["@extra"] = tag
-        self.lib.td_send(self.client_id, json.dumps(payload).encode("utf-8"))
+        tdjson.td_send(self.client_id, json.dumps(payload).encode("utf-8"))
         return tag
 
     def receive(self, timeout: float = 1.0) -> JsonObject | None:
-        raw = self.lib.td_receive(timeout)
+        raw = tdjson.td_receive(timeout)
         if not raw:
             return None
         event = json.loads(raw.decode("utf-8"))
@@ -261,3 +222,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
