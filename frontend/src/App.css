@@ -1701,3 +1701,51 @@ button:disabled {
   flex: 1 1 auto !important;
   height: 100% !important;
 }
+
+.provider-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 24px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.provider-tab {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 22px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.provider-tab:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-color);
+}
+
+.provider-tab.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.telegram-panel {
+  margin-bottom: 24px;
+}
+
+.telegram-sample {
+  margin-top: 20px;
+}
+
+.telegram-chat-title {
+  margin-bottom: 14px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.telegram-message-card {
+  margin-top: 12px;
+}

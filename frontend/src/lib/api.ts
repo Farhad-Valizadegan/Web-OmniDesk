@@ -31,6 +31,7 @@ export type CaptchaChallenge =
 export type CurrentUserResponse = {
   user: AuthUser
 }
+
 export type GmailConnection = {
   id: number
   provider: string
@@ -115,7 +116,29 @@ export type PaginatedResponse<T> = {
   total: number
 }
 
+export type TelegramMessage = {
+  id: number
+  chat_id: number
+  date: number
+  sender_id: Record<string, unknown> | null
+  text: string
+}
+
+export type TelegramSampleResponse = {
+  message: string
+  data: {
+    provider: 'telegram'
+    chat: {
+      id: number
+      type: string
+      title: string | null
+    }
+    messages: TelegramMessage[]
+  }
+}
+
 const tokenStorageKey = 'omni_desk_auth_token'
+
 export const authenticationInvalidatedEvent =
   'omni-desk:authentication-invalidated'
 
@@ -303,6 +326,7 @@ export async function getConversationMessages(
     `/api/conversations/${conversationId}/messages?per_page=${perPage}`,
   )
 }
+
 export async function getGmailStatus(): Promise<GmailStatusResponse> {
   return request<GmailStatusResponse>('/api/integrations/gmail')
 }
@@ -365,4 +389,10 @@ export async function disconnectGmail(): Promise<GmailDisconnectResponse | null>
   )
 
   return response ?? null
+}
+
+export async function getTelegramSample(): Promise<TelegramSampleResponse> {
+  return request<TelegramSampleResponse>(
+    '/api/integrations/telegram/sample',
+  )
 }
