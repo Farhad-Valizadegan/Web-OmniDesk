@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import os
 import sys
@@ -40,14 +42,16 @@ def main() -> int:
 
     client = TdJsonClient()
 
-    _authorization_loop(
-        client,
-        api_id,
-        api_hash,
-        db_dir,
-    )
+    # Suppress authorization-state messages so stdout remains valid JSON.
+    with contextlib.redirect_stdout(io.StringIO()):
+        _authorization_loop(
+            client,
+            api_id,
+            api_hash,
+            db_dir,
+        )
 
-    _load_main_chats(client)
+        _load_main_chats(client)
 
     chat = _select_supported_chat(client)
     history = _get_history(client, int(chat["id"]))
@@ -83,7 +87,14 @@ def main() -> int:
             }
         )
 
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    print(
+        json.dumps(
+            result,
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+
     return 0
 
 
