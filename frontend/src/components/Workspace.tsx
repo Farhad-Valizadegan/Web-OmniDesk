@@ -1017,7 +1017,6 @@ function Workspace({
             </nav>
             </>
           )}
-          )}
         </main>
       </div>
     </section>
