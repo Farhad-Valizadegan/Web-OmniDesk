@@ -615,6 +615,10 @@ function Workspace({
           </section>
           )}
 
+          <div
+            className="gmail-inbox"
+            hidden={activeProvider !== 'gmail'}
+          >
           <div className="inbox-toolbar">
             <form
               className="inbox-search"
@@ -1014,6 +1018,7 @@ function Workspace({
               </button>
             </nav>
           )}
+            </div>
         </main>
       </div>
     </section>
