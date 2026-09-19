@@ -116,7 +116,7 @@ function renderMessageBody(body: string): ReactNode {
     }
 
     const displayUrl =
-      part.length > 72 ? `${part.slice(0, 72)}Ã¢â‚¬Â¦` : part
+      part.length > 72 ? `${part.slice(0, 72)}â€¦` : part
 
     return (
       <a
@@ -569,7 +569,7 @@ function Workspace({
             {!telegramError &&
               telegramMessages.length === 0 && (
                 <p className="inbox-status">
-                  Click Ã¢â‚¬Å“Load TelegramÃ¢â‚¬ to retrieve a bounded
+                  Click â€œLoad Telegramâ€ to retrieve a bounded
                   Telegram sample.
                 </p>
               )}
@@ -945,7 +945,7 @@ function Workspace({
                                             </strong>
 
                                             <span>
-                                              {attachment.mime_type} Ã‚Â·{' '}
+                                              {attachment.mime_type} Â·{' '}
                                               {formatAttachmentSize(
                                                 attachment.size,
                                               )}
@@ -993,7 +993,7 @@ function Workspace({
 
               <span>
                 Page {pagination.current_page} of{' '}
-                {pagination.last_page} Ã‚Â· Showing{' '}
+                {pagination.last_page} Â· Showing{' '}
                 {pagination.from ?? 0}-{pagination.to ?? 0} of{' '}
                 {pagination.total}
               </span>
