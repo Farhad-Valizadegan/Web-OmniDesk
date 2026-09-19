@@ -20,10 +20,64 @@ from tdlib_probe import (  # noqa: E402
     _get_history,
     _load_main_chats,
     _required_env,
-    _select_supported_chat,
 )
 
 JsonObject = dict[str, Any]
+SUPPORTED_CHAT_TYPES = {
+    "chatTypePrivate": "private",
+    "chatTypeBasicGroup": "group",
+}
+
+
+def _message_text(message: JsonObject) -> str:
+    content = message.get("content") or {}
+    if content.get("@type") != "messageText":
+        return ""
+
+    text_object = content.get("text") or {}
+    return str(text_object.get("text") or "")
+
+
+def _chat_preview(chat: JsonObject) -> str:
+    last_message = chat.get("last_message") or {}
+    return _message_text(last_message)
+
+
+def _chat_summary(chat: JsonObject) -> JsonObject | None:
+    chat_type = (chat.get("type") or {}).get("@type")
+    normalized_type = SUPPORTED_CHAT_TYPES.get(chat_type)
+
+    if chat_type == "chatTypeSupergroup":
+        normalized_type = (
+            "channel"
+            if (chat.get("type") or {}).get("is_channel")
+            else "group"
+        )
+
+    if normalized_type is None:
+        return None
+
+    return {
+        "id": chat.get("id"),
+        "type": normalized_type,
+        "tdlib_type": chat_type,
+        "title": chat.get("title") or "Untitled chat",
+        "unread_count": int(chat.get("unread_count") or 0),
+        "last_message": _chat_preview(chat),
+        "last_message_date": (
+            (chat.get("last_message") or {}).get("date")
+        ),
+    }
+
+
+def _message_summary(message: JsonObject) -> JsonObject:
+    return {
+        "id": message.get("id"),
+        "chat_id": message.get("chat_id"),
+        "date": message.get("date"),
+        "sender_id": message.get("sender_id"),
+        "text": _message_text(message),
+    }
 
 
 def main() -> int:
@@ -42,59 +96,37 @@ def main() -> int:
 
     client = TdJsonClient()
 
-    # Suppress authorization-state messages so stdout remains valid JSON.
     with contextlib.redirect_stdout(io.StringIO()):
-        _authorization_loop(
-            client,
-            api_id,
-            api_hash,
-            db_dir,
-        )
-
+        _authorization_loop(client, api_id, api_hash, db_dir)
         _load_main_chats(client)
 
-    chat = _select_supported_chat(client)
-    history = _get_history(client, int(chat["id"]))
+    chats = [
+        summary
+        for chat in client.chats.values()
+        if (summary := _chat_summary(chat)) is not None
+    ][:20]
 
+    if not chats:
+        raise RuntimeError("No supported Telegram chats were discovered.")
+
+    selected_chat = chats[0]
+    history = _get_history(client, int(selected_chat["id"]))
     messages = history.get("messages") or []
+
+    selected_chat["messages_count"] = len(messages)
 
     result: JsonObject = {
         "provider": "telegram",
-        "chat": {
-            "id": chat.get("id"),
-            "type": chat.get("type", {}).get("@type"),
-            "title": chat.get("title"),
-        },
-        "messages": [],
+        "chats": chats,
+        "selected_chat": selected_chat,
+        "messages": [
+            _message_summary(message)
+            for message in messages[:30]
+            if _message_text(message)
+        ],
     }
 
-    for message in messages[:10]:
-        content = message.get("content") or {}
-
-        if content.get("@type") != "messageText":
-            continue
-
-        text_object = content.get("text") or {}
-        text = text_object.get("text", "")
-
-        result["messages"].append(
-            {
-                "id": message.get("id"),
-                "chat_id": message.get("chat_id"),
-                "date": message.get("date"),
-                "sender_id": message.get("sender_id"),
-                "text": text,
-            }
-        )
-
-    print(
-        json.dumps(
-            result,
-            indent=2,
-            ensure_ascii=False,
-        )
-    )
-
+    print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
 
