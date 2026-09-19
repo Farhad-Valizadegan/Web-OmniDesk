@@ -352,15 +352,19 @@ function Workspace({
   )
 
   useEffect(() => {
-    void loadConversations()
+    queueMicrotask(() => {
+      void loadConversations()
+    })
   }, [loadConversations])
 
   useEffect(() => {
-    if (selectedConversation) {
-      void loadMessages(selectedConversation.id)
-    } else {
-      setMessages([])
-    }
+    queueMicrotask(() => {
+      if (selectedConversation) {
+        void loadMessages(selectedConversation.id)
+      } else {
+        setMessages([])
+      }
+    })
   }, [loadMessages, selectedConversation])
 
   const handleSearchSubmit = (
