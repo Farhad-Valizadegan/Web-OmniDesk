@@ -26,7 +26,6 @@ JsonObject = dict[str, Any]
 SUPPORTED_CHAT_TYPES = {
     "chatTypePrivate": "private",
     "chatTypeBasicGroup": "group",
-    "chatTypeSupergroup": "group",
 }
 
 
@@ -47,6 +46,13 @@ def _chat_preview(chat: JsonObject) -> str:
 def _chat_summary(chat: JsonObject) -> JsonObject | None:
     chat_type = (chat.get("type") or {}).get("@type")
     normalized_type = SUPPORTED_CHAT_TYPES.get(chat_type)
+
+    if chat_type == "chatTypeSupergroup":
+        normalized_type = (
+            "channel"
+            if (chat.get("type") or {}).get("is_channel")
+            else "group"
+        )
 
     if normalized_type is None:
         return None
