@@ -1017,6 +1017,7 @@ function Workspace({
                 Next
               </button>
             </nav>
+          )}
             </div>
         </main>
       </div>
