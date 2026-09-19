@@ -4,10 +4,12 @@ import {
   getConversationMessages,
   getConversations,
   getGmailStatus,
+  getTelegramSample,
   syncGmailPage,
   type AuthUser,
   type Conversation,
   type Message,
+  type TelegramMessage,
 } from '../lib/api'
 
 type WorkspaceProps = {
@@ -22,6 +24,7 @@ type WorkspaceProps = {
 
 type ReadFilter = 'all' | 'read' | 'unread'
 type StatusFilter = 'all' | 'open' | 'archived'
+
 type ConversationPagination = {
   current_page: number
   last_page: number
@@ -29,7 +32,9 @@ type ConversationPagination = {
   to: number | null
   total: number
 }
+
 type Theme = 'light' | 'dark'
+type ProviderTab = 'gmail' | 'telegram'
 
 function formatDate(value: string | null): string {
   if (!value) {
@@ -44,9 +49,11 @@ function formatDate(value: string | null): string {
 
 function initials(value: string | null): string {
   const words = (value ?? '').trim().split(/\s+/).filter(Boolean)
-  const letters: string[] = words.length > 1
-    ? words.slice(0, 2).map((word) => word[0] ?? '')
-    : [(words[0] ?? '?').slice(0, 2)]
+
+  const letters: string[] =
+    words.length > 1
+      ? words.slice(0, 2).map((word) => word[0] ?? '')
+      : [(words[0] ?? '?').slice(0, 2)]
 
   return letters.join('').toUpperCase()
 }
@@ -54,6 +61,7 @@ function initials(value: string | null): string {
 function formatAttachmentSize(size: number): string {
   if (size < 1024) return `${size} B`
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
+
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
@@ -108,7 +116,7 @@ function renderMessageBody(body: string): ReactNode {
     }
 
     const displayUrl =
-      part.length > 72 ? `${part.slice(0, 72)}…` : part
+      part.length > 72 ? `${part.slice(0, 72)}Ã¢â‚¬Â¦` : part
 
     return (
       <a
@@ -123,6 +131,7 @@ function renderMessageBody(body: string): ReactNode {
     )
   })
 }
+
 function sanitizeEmailHtml(html: string): string {
   const document = new DOMParser().parseFromString(html, 'text/html')
 
@@ -159,9 +168,13 @@ function sanitizeEmailHtml(html: string): string {
       }
 
       if (name === 'href' || name === 'src') {
-        if (!/^https?:\/\//i.test(value) && !/^data:image\//i.test(value)) {
+        if (
+          !/^https?:\/\//i.test(value) &&
+          !/^data:image\//i.test(value)
+        ) {
           element.removeAttribute(attribute.name)
         }
+
         return
       }
 
@@ -191,10 +204,20 @@ function sanitizeEmailHtml(html: string): string {
 
   return document.documentElement.outerHTML
 }
-function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProps) {
+
+function Workspace({
+  user,
+  isLoading,
+  onLogout,
+  onGmailFeedback,
+}: WorkspaceProps) {
   const [theme, setTheme] = useState<Theme>(() =>
-    localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
+    localStorage.getItem('omni_desk_theme') === 'dark'
+      ? 'dark'
+      : 'light',
   )
+  const [activeProvider, setActiveProvider] = useState<ProviderTab>('gmail')
+
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null)
@@ -202,22 +225,38 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [readFilter, setReadFilter] = useState<ReadFilter>('all')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilter, setStatusFilter] =
+    useState<StatusFilter>('all')
   const [labelFilter, setLabelFilter] = useState('')
   const [page, setPage] = useState(1)
-  const [pagination, setPagination] = useState<ConversationPagination>({
-    current_page: 1,
-    last_page: 1,
-    from: null,
-    to: null,
-    total: 0,
-  })
+
+  const [pagination, setPagination] =
+    useState<ConversationPagination>({
+      current_page: 1,
+      last_page: 1,
+      from: null,
+      to: null,
+      total: 0,
+    })
+
   const [isInboxLoading, setIsInboxLoading] = useState(true)
   const [isMessagesLoading, setIsMessagesLoading] = useState(false)
   const [inboxError, setInboxError] = useState<string | null>(null)
-  const [messagesError, setMessagesError] = useState<string | null>(null)
+  const [messagesError, setMessagesError] =
+    useState<string | null>(null)
   const [isLazySyncLoading, setIsLazySyncLoading] = useState(false)
   const [gmailHasMore, setGmailHasMore] = useState(false)
+
+  const [telegramMessages, setTelegramMessages] = useState<
+    TelegramMessage[]
+  >([])
+  const [telegramChatTitle, setTelegramChatTitle] = useState<
+    string | null
+  >(null)
+  const [isTelegramLoading, setIsTelegramLoading] = useState(false)
+  const [telegramError, setTelegramError] =
+    useState<string | null>(null)
+
   const hasInitializedLazySync = useRef(false)
 
   useEffect(() => {
@@ -241,21 +280,27 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
             setGmailHasMore(syncResponse.sync.has_more)
           }
         } catch {
-          // Existing local conversations remain available when lazy sync is unavailable.
+          // Existing local conversations remain available.
         }
       }
 
       const response = await getConversations({
         search: search || undefined,
         is_read:
-          readFilter === 'all' ? undefined : readFilter === 'read',
-        status: statusFilter === 'all' ? undefined : statusFilter,
+          readFilter === 'all'
+            ? undefined
+            : readFilter === 'read',
+        status:
+          statusFilter === 'all'
+            ? undefined
+            : statusFilter,
         label: labelFilter.trim() || undefined,
         per_page: 15,
         page,
       })
 
       setConversations(response.data)
+
       setPagination({
         current_page: response.current_page,
         last_page: response.last_page,
@@ -272,7 +317,9 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
         return (
           response.data.find(
             (conversation) => conversation.id === current.id,
-          ) ?? response.data[0] ?? null
+          ) ??
+          response.data[0] ??
+          null
         )
       })
     } catch {
@@ -284,44 +331,49 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
     }
   }, [labelFilter, page, readFilter, search, statusFilter])
 
-  const loadMessages = useCallback(async (conversationId: number) => {
-    try {
-      setIsMessagesLoading(true)
-      setMessagesError(null)
+  const loadMessages = useCallback(
+    async (conversationId: number) => {
+      try {
+        setIsMessagesLoading(true)
+        setMessagesError(null)
 
-      const response = await getConversationMessages(conversationId)
-      setMessages(response.data)
-    } catch {
-      setMessages([])
-      setMessagesError('Messages could not be loaded.')
-    } finally {
-      setIsMessagesLoading(false)
-    }
-  }, [])
+        const response =
+          await getConversationMessages(conversationId)
+
+        setMessages(response.data)
+      } catch {
+        setMessages([])
+        setMessagesError('Messages could not be loaded.')
+      } finally {
+        setIsMessagesLoading(false)
+      }
+    },
+    [],
+  )
 
   useEffect(() => {
-    // Synchronize component state with the external conversations API.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadConversations()
   }, [loadConversations])
 
   useEffect(() => {
     if (selectedConversation) {
-      // Synchronize component state with the external messages API.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       void loadMessages(selectedConversation.id)
     } else {
       setMessages([])
     }
   }, [loadMessages, selectedConversation])
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSearchSubmit = (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault()
     setPage(1)
     setSearch(searchInput.trim())
   }
 
-  const handleConversationSelect = (conversation: Conversation) => {
+  const handleConversationSelect = (
+    conversation: Conversation,
+  ) => {
     setSelectedConversation(conversation)
   }
 
@@ -334,6 +386,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
       try {
         setIsLazySyncLoading(true)
         setInboxError(null)
+
         const syncResponse = await syncGmailPage()
         setGmailHasMore(syncResponse.sync.has_more)
 
@@ -351,8 +404,34 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
     setPage((current) => current + 1)
   }
 
+  const handleTelegramLoad = async () => {
+    try {
+      setIsTelegramLoading(true)
+      setTelegramError(null)
+
+      const response = await getTelegramSample()
+
+      setTelegramMessages(response.data.messages)
+      setTelegramChatTitle(response.data.chat.title)
+    } catch (error) {
+      setTelegramMessages([])
+      setTelegramChatTitle(null)
+
+      setTelegramError(
+        error instanceof Error
+          ? error.message
+          : 'Telegram content could not be loaded.',
+      )
+    } finally {
+      setIsTelegramLoading(false)
+    }
+  }
+
   return (
-    <section className="workspace" aria-label="Authenticated workspace">
+    <section
+      className="workspace"
+      aria-label="Authenticated workspace"
+    >
       <header className="workspace-header">
         <div>
           <p className="workspace-brand">OmniDesk AI</p>
@@ -367,8 +446,16 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
           <button
             type="button"
             className="theme-toggle"
-            onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
-            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            onClick={() =>
+              setTheme((current) =>
+                current === 'light' ? 'dark' : 'light',
+              )
+            }
+            aria-label={
+              theme === 'light'
+                ? 'Switch to dark mode'
+                : 'Switch to light mode'
+            }
           >
             {theme === 'light' ? 'Dark mode' : 'Light mode'}
           </button>
@@ -385,11 +472,17 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
       </header>
 
       <div className="workspace-body">
-        <aside className="workspace-sidebar" aria-label="Workspace navigation">
+        <aside
+          className="workspace-sidebar"
+          aria-label="Workspace navigation"
+        >
           <p className="sidebar-title">Workspace</p>
 
           <nav>
-            <button type="button" className="navigation-item active">
+            <button
+              type="button"
+              className="navigation-item active"
+            >
               Inbox
             </button>
 
@@ -422,44 +515,145 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
             <span className="workspace-status">Ready</span>
           </div>
 
+          <div className="provider-tabs" role="tablist" aria-label="Communication providers">
+            <button type="button" role="tab" aria-selected={activeProvider === 'gmail'} className={activeProvider === 'gmail' ? 'provider-tab active' : 'provider-tab'} onClick={() => setActiveProvider('gmail')}>
+              Gmail
+            </button>
+            <button type="button" role="tab" aria-selected={activeProvider === 'telegram'} className={activeProvider === 'telegram' ? 'provider-tab active' : 'provider-tab'} onClick={() => setActiveProvider('telegram')}>
+              Telegram
+            </button>
+          </div>
+
+          {activeProvider === 'gmail' && (
+            <section role="tabpanel" aria-label="Gmail provider">
           <GmailConnectionPanel
             onSynchronized={loadConversations}
             onDisconnected={async () => {
               await loadConversations()
+
               onGmailFeedback?.({
                 type: 'success',
                 message: 'Gmail disconnected successfully.',
               })
             }}
           />
+            </section>
+          )}
+
+          {activeProvider === 'telegram' && (
+          <section className="provider-panel telegram-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Telegram</p>
+                <h3>Telegram content demo</h3>
+              </div>
+
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => void handleTelegramLoad()}
+                disabled={isTelegramLoading}
+              >
+                {isTelegramLoading
+                  ? 'Loading...'
+                  : 'Load Telegram'}
+              </button>
+            </div>
+
+            {telegramError && (
+              <p className="inbox-error" role="alert">
+                {telegramError}
+              </p>
+            )}
+
+            {!telegramError &&
+              telegramMessages.length === 0 && (
+                <p className="inbox-status">
+                  Click Ã¢â‚¬Å“Load TelegramÃ¢â‚¬ to retrieve a bounded
+                  Telegram sample.
+                </p>
+              )}
+
+            {telegramMessages.length > 0 && (
+              <div className="telegram-sample">
+                <p className="telegram-chat-title">
+                  Chat: {telegramChatTitle ?? 'Untitled chat'}
+                </p>
+
+                {telegramMessages.map((message) => (
+                  <article
+                    className="message-card telegram-message-card"
+                    key={message.id}
+                  >
+                    <div className="message-heading">
+                      <strong>Telegram message</strong>
+
+                      <time
+                        dateTime={new Date(
+                          message.date * 1000,
+                        ).toISOString()}
+                      >
+                        {formatDate(
+                          new Date(
+                            message.date * 1000,
+                          ).toISOString(),
+                        )}
+                      </time>
+                    </div>
+
+                    <p className="message-body">
+                      {renderMessageBody(message.text)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+          )}
 
           <div className="inbox-toolbar">
-            <form className="inbox-search" onSubmit={handleSearchSubmit}>
-              <label htmlFor="conversation-search">Search conversations</label>
+            <form
+              className="inbox-search"
+              onSubmit={handleSearchSubmit}
+            >
+              <label htmlFor="conversation-search">
+                Search conversations
+              </label>
 
               <div className="search-row">
                 <input
                   id="conversation-search"
                   type="search"
                   value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
+                  onChange={(event) =>
+                    setSearchInput(event.target.value)
+                  }
                   placeholder="Search by subject or provider"
                 />
 
-                <button type="submit" className="primary-button">
+                <button
+                  type="submit"
+                  className="primary-button"
+                >
                   Search
                 </button>
               </div>
             </form>
 
-            <label className="read-filter" htmlFor="read-filter">
+            <label
+              className="read-filter"
+              htmlFor="read-filter"
+            >
               Read state
+
               <select
                 id="read-filter"
                 value={readFilter}
                 onChange={(event) => {
                   setPage(1)
-                  setReadFilter(event.target.value as ReadFilter)
+                  setReadFilter(
+                    event.target.value as ReadFilter,
+                  )
                 }}
               >
                 <option value="all">All messages</option>
@@ -468,14 +662,20 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
               </select>
             </label>
 
-            <label className="read-filter" htmlFor="status-filter">
+            <label
+              className="read-filter"
+              htmlFor="status-filter"
+            >
               Status
+
               <select
                 id="status-filter"
                 value={statusFilter}
                 onChange={(event) => {
                   setPage(1)
-                  setStatusFilter(event.target.value as StatusFilter)
+                  setStatusFilter(
+                    event.target.value as StatusFilter,
+                  )
                 }}
               >
                 <option value="all">All statuses</option>
@@ -484,8 +684,12 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
               </select>
             </label>
 
-            <label className="read-filter" htmlFor="label-filter">
+            <label
+              className="read-filter"
+              htmlFor="label-filter"
+            >
               Label
+
               <select
                 id="label-filter"
                 value={labelFilter}
@@ -495,7 +699,10 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                 }}
               >
                 {labelFilterOptions.map((option) => (
-                  <option key={option.value || 'all'} value={option.value}>
+                  <option
+                    key={option.value || 'all'}
+                    value={option.value}
+                  >
                     {option.label}
                   </option>
                 ))}
@@ -515,19 +722,29 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
             </p>
           )}
 
-          {!isInboxLoading && !inboxError && conversations.length === 0 && (
-            <section className="empty-state" aria-label="Empty inbox">
-              <div className="empty-state-icon" aria-hidden="true">
-                +
-              </div>
+          {!isInboxLoading &&
+            !inboxError &&
+            conversations.length === 0 && (
+              <section
+                className="empty-state"
+                aria-label="Empty inbox"
+              >
+                <div
+                  className="empty-state-icon"
+                  aria-hidden="true"
+                >
+                  +
+                </div>
 
-              <h3>No conversations found</h3>
+                <h3>No conversations found</h3>
 
-              <p>
-                Connect or synchronize a provider, or adjust the search, status, label, and read-state filters.
-              </p>
-            </section>
-          )}
+                <p>
+                  Connect or synchronize a provider, or adjust
+                  the search, status, label, and read-state
+                  filters.
+                </p>
+              </section>
+            )}
 
           {!isInboxLoading && conversations.length > 0 && (
             <div className="inbox-layout">
@@ -546,28 +763,35 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                       type="button"
                       key={conversation.id}
                       className={`conversation-item ${
-                        selectedConversation?.id === conversation.id
+                        selectedConversation?.id ===
+                        conversation.id
                           ? 'selected'
                           : ''
                       }`}
-                      onClick={() => handleConversationSelect(conversation)}
+                      onClick={() =>
+                        handleConversationSelect(conversation)
+                      }
                     >
                       <span className="conversation-item-heading">
                         <strong>
-                          {conversation.subject ?? 'Untitled conversation'}
+                          {conversation.subject ??
+                            'Untitled conversation'}
                         </strong>
 
                         {!conversation.is_read && (
-                          <span className="unread-indicator">Unread</span>
+                          <span className="unread-indicator">
+                            Unread
+                          </span>
                         )}
                       </span>
-
 
                       <span className="conversation-meta">
                         <span>{conversation.provider}</span>
                         <span>{conversation.status}</span>
                         <span>
-                          {formatDate(conversation.last_message_at)}
+                          {formatDate(
+                            conversation.last_message_at,
+                          )}
                         </span>
                       </span>
 
@@ -575,7 +799,10 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                         conversation.labels.length > 0 && (
                           <span className="conversation-labels">
                             {conversation.labels.map((label) => (
-                              <span className="label" key={label}>
+                              <span
+                                className="label"
+                                key={label}
+                              >
                                 {formatGmailLabel(label)}
                               </span>
                             ))}
@@ -597,6 +824,7 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                         <p className="eyebrow">
                           {selectedConversation.provider}
                         </p>
+
                         <h3>
                           {selectedConversation.subject ??
                             'Untitled conversation'}
@@ -610,7 +838,9 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                             : 'read-state unread'
                         }
                       >
-                        {selectedConversation.is_read ? 'Read' : 'Unread'}
+                        {selectedConversation.is_read
+                          ? 'Read'
+                          : 'Unread'}
                       </span>
                     </div>
 
@@ -634,16 +864,29 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                           </p>
                         ) : (
                           messages.map((message) => (
-                            <article className="message-card" key={message.id}>
+                            <article
+                              className="message-card"
+                              key={message.id}
+                            >
                               <div className="message-heading">
                                 <div className="message-sender">
-                                  <span className="sender-avatar" aria-hidden="true">
-                                    {initials(message.sender_name)}
+                                  <span
+                                    className="sender-avatar"
+                                    aria-hidden="true"
+                                  >
+                                    {initials(
+                                      message.sender_name,
+                                    )}
                                   </span>
+
                                   <div>
-                                    <strong>{message.sender_name}</strong>
+                                    <strong>
+                                      {message.sender_name}
+                                    </strong>
+
                                     <p className="message-address">
-                                      {message.sender_address ?? 'Address unavailable'}
+                                      {message.sender_address ??
+                                        'Address unavailable'}
                                     </p>
                                   </div>
                                 </div>
@@ -657,7 +900,9 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                                 <iframe
                                   className="message-html"
                                   title={`Email body from ${message.sender_name}`}
-                                  srcDoc={sanitizeEmailHtml(message.metadata.html_body)}
+                                  srcDoc={sanitizeEmailHtml(
+                                    message.metadata.html_body,
+                                  )}
                                   sandbox=""
                                   referrerPolicy="no-referrer"
                                 />
@@ -667,19 +912,48 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
                                 </p>
                               )}
 
-                              {(message.metadata?.attachments?.length ?? 0) > 0 && (
-                                <div className="message-attachments" aria-label="Attachments">
-                                  <p className="attachments-title">Attachments</p>
+                              {(message.metadata?.attachments
+                                ?.length ?? 0) > 0 && (
+                                <div
+                                  className="message-attachments"
+                                  aria-label="Attachments"
+                                >
+                                  <p className="attachments-title">
+                                    Attachments
+                                  </p>
+
                                   <div className="attachment-list">
-                                    {message.metadata?.attachments?.map((attachment) => (
-                                      <div className="attachment-item" key={attachment.attachment_id ?? attachment.filename}>
-                                        <span className="attachment-icon" aria-hidden="true">FILE</span>
-                                        <span className="attachment-details">
-                                          <strong>{attachment.filename}</strong>
-                                          <span>{attachment.mime_type} · {formatAttachmentSize(attachment.size)}</span>
-                                        </span>
-                                      </div>
-                                    ))}
+                                    {message.metadata?.attachments?.map(
+                                      (attachment) => (
+                                        <div
+                                          className="attachment-item"
+                                          key={
+                                            attachment.attachment_id ??
+                                            attachment.filename
+                                          }
+                                        >
+                                          <span
+                                            className="attachment-icon"
+                                            aria-hidden="true"
+                                          >
+                                            FILE
+                                          </span>
+
+                                          <span className="attachment-details">
+                                            <strong>
+                                              {attachment.filename}
+                                            </strong>
+
+                                            <span>
+                                              {attachment.mime_type} Ã‚Â·{' '}
+                                              {formatAttachmentSize(
+                                                attachment.size,
+                                              )}
+                                            </span>
+                                          </span>
+                                        </div>
+                                      ),
+                                    )}
                                   </div>
                                 </div>
                               )}
@@ -698,36 +972,44 @@ function Workspace({ user, isLoading, onLogout, onGmailFeedback }: WorkspaceProp
             </div>
           )}
 
-            {(pagination.last_page > 1 || gmailHasMore) && (
-              <nav className="conversation-pagination" aria-label="Conversation pages">
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={() => setPage((current) => Math.max(1, current - 1))}
-                  disabled={isInboxLoading || pagination.current_page === 1}
-                >
-                  Previous
-                </button>
+          {(pagination.last_page > 1 || gmailHasMore) && (
+            <nav
+              className="conversation-pagination"
+              aria-label="Conversation pages"
+            >
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() =>
+                  setPage((current) => Math.max(1, current - 1))
+                }
+                disabled={
+                  isInboxLoading ||
+                  pagination.current_page === 1
+                }
+              >
+                Previous
+              </button>
 
-                <span>
-                  Page {pagination.current_page} of {pagination.last_page}
-                  {' · '}
-                  Showing {pagination.from ?? 0}-{pagination.to ?? 0} of {pagination.total}
-                </span>
+              <span>
+                Page {pagination.current_page} of{' '}
+                {pagination.last_page} Ã‚Â· Showing{' '}
+                {pagination.from ?? 0}-{pagination.to ?? 0} of{' '}
+                {pagination.total}
+              </span>
 
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={() => void handleNextPage()}
-                  disabled={
-                    isInboxLoading ||
-                    isLazySyncLoading
-                  }
-                >
-                  Next
-                </button>
-              </nav>
-            )}
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => void handleNextPage()}
+                disabled={
+                  isInboxLoading || isLazySyncLoading
+                }
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </main>
       </div>
     </section>
