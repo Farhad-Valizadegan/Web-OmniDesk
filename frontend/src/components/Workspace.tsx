@@ -616,7 +616,7 @@ function Workspace({
           )}
 
           {activeProvider === 'gmail' && (
-            <>
+            <div className="gmail-inbox">
           <div className="inbox-toolbar">
             <form
               className="inbox-search"
@@ -1015,7 +1015,7 @@ function Workspace({
                 Next
               </button>
             </nav>
-            </>
+            </div>
           )}
         </main>
       </div>
