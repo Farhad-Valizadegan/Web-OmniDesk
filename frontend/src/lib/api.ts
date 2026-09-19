@@ -124,15 +124,23 @@ export type TelegramMessage = {
   text: string
 }
 
+export type TelegramChat = {
+  id: number
+  type: 'private' | 'group'
+  tdlib_type: string
+  title: string
+  unread_count: number
+  last_message: string
+  last_message_date: number | null
+  messages_count?: number
+}
+
 export type TelegramSampleResponse = {
   message: string
   data: {
     provider: 'telegram'
-    chat: {
-      id: number
-      type: string
-      title: string | null
-    }
+    chats: TelegramChat[]
+    selected_chat: TelegramChat
     messages: TelegramMessage[]
   }
 }
