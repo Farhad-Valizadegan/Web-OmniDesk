@@ -624,7 +624,7 @@ function Workspace({
                           <span className="telegram-chat-copy">
                             <strong>{chat.title}</strong>
                             <small>
-                              {chat.type === 'group' ? 'Group' : 'Private chat'}
+                              {chat.type === 'channel' ? 'Channel' : chat.type === 'group' ? 'Group' : 'Private chat'}
                             </small>
                             <span>
                               {chat.last_message || 'No text preview'}
@@ -646,9 +646,13 @@ function Workspace({
                         <span>
                           {telegramChats.find(
                             (chat) => chat.id === selectedTelegramChatId,
-                          )?.type === 'group'
-                            ? 'Group or channel'
-                            : 'Private chat'}
+                          )?.type === 'channel'
+                            ? 'Channel'
+                            : telegramChats.find(
+                                (chat) => chat.id === selectedTelegramChatId,
+                              )?.type === 'group'
+                              ? 'Group'
+                              : 'Private chat'}
                         </span>
                       </div>
                       <button type="button" className="secondary-button">
@@ -697,7 +701,13 @@ function Workspace({
                         <dd>
                           {telegramChats.find(
                             (chat) => chat.id === selectedTelegramChatId,
-                          )?.type ?? 'Unknown'}
+                          )?.type === 'channel'
+                            ? 'Channel'
+                            : telegramChats.find(
+                                (chat) => chat.id === selectedTelegramChatId,
+                              )?.type === 'group'
+                              ? 'Group'
+                              : 'Private chat'}
                         </dd>
                       </div>
                       <div>
