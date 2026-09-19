@@ -126,7 +126,7 @@ export type TelegramMessage = {
 
 export type TelegramChat = {
   id: number
-  type: 'private' | 'group'
+  type: 'private' | 'group' | 'channel'
   tdlib_type: string
   title: string
   unread_count: number
