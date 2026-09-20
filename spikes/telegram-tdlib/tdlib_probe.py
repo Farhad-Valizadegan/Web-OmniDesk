@@ -257,7 +257,14 @@ def _load_main_chats(client: TdJsonClient) -> None:
             }
         )
 
-        client.wait_for_response(tag, timeout=20.0)
+        try:
+            client.wait_for_response(tag, timeout=20.0)
+        except RuntimeError as exc:
+            # TDLib returns 404/Not Found when chatListMain is exhausted.
+            # That is a normal completion signal, not an adapter failure.
+            if "404" in str(exc) or "Not Found" in str(exc):
+                break
+            raise
 
         deadline = time.monotonic() + 2.0
         while time.monotonic() < deadline:
