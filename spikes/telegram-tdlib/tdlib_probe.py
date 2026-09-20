@@ -296,7 +296,7 @@ def _get_history(
         }
     )
 
-    return client.wait_for_response(tag, timeout=20.0)
+    return client.wait_for_response(tag, timeout=60.0)
 
 
 def _build_evidence(
