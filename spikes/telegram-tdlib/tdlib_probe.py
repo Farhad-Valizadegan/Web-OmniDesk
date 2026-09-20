@@ -439,6 +439,29 @@ def _select_supported_chat(client: TdJsonClient) -> JsonObject:
     )
 
 
+
+def _get_chat(client: TdJsonClient, chat_id: int) -> JsonObject:
+    tag = client.send(
+        {
+            "@type": "getChat",
+            "chat_id": chat_id,
+        }
+    )
+    chat = client.wait_for_response(
+        tag,
+        timeout=10.0,
+        operation="chat_metadata",
+    )
+
+    if chat.get("@type") != "chat":
+        raise RuntimeError(
+            "TDLib returned an invalid chat metadata response."
+        )
+
+    client.chats[chat_id] = chat
+    return chat
+
+
 def _open_chat(client: TdJsonClient, chat_id: int) -> None:
     tag = client.send(
         {
