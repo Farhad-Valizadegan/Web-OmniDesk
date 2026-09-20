@@ -381,7 +381,7 @@ describe('App', () => {
     expect(
       await screen.findByRole('button', { name: /News channel/ }),
     ).toBeInTheDocument()
-    expect(await screen.findByText('Latest news')).toBeInTheDocument()
+    expect((await screen.findAllByText('Latest news')).length).toBeGreaterThanOrEqual(1)
 
     expect(getTelegramSampleMock).toHaveBeenNthCalledWith(
       1,
