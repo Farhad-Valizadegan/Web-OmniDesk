@@ -110,6 +110,26 @@ def main() -> int:
         raise RuntimeError("No supported Telegram chats were discovered.")
 
     requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+
+    histories: dict[int, list[JsonObject]] = {}
+    for chat in chats:
+        history = _get_history(client, int(chat["id"]))
+        messages = history.get("messages") or []
+        histories[int(chat["id"])] = messages
+
+        text_messages = [
+            message
+            for message in messages
+            if _message_text(message)
+        ]
+
+        if text_messages:
+            latest = text_messages[0]
+            chat["last_message"] = _message_text(latest)
+            chat["last_message_date"] = latest.get("date")
+
+        chat["messages_count"] = len(text_messages)
+
     selected_chat = next(
         (
             chat
@@ -119,10 +139,7 @@ def main() -> int:
         ),
         chats[0],
     )
-    history = _get_history(client, int(selected_chat["id"]))
-    messages = history.get("messages") or []
-
-    selected_chat["messages_count"] = len(messages)
+    messages = histories[int(selected_chat["id"])]
 
     result: JsonObject = {
         "provider": "telegram",
