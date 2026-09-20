@@ -2158,3 +2158,138 @@ button:disabled {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+/* Final Telegram workspace presentation */
+.telegram-workspace {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.telegram-toolbar {
+  align-items: stretch;
+  padding: 0.75rem;
+  border: 1px solid #334155;
+  border-radius: 0.9rem;
+  background: #111827;
+}
+
+.telegram-toolbar input {
+  min-height: 3rem;
+  border: 1px solid #475569;
+  border-radius: 0.65rem;
+  padding: 0 1rem;
+  font-size: 0.95rem;
+}
+
+.telegram-toolbar .primary-button {
+  min-width: 7rem;
+}
+
+.telegram-layout {
+  min-height: 620px;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(220px, 270px);
+  border: 1px solid #334155;
+  border-radius: 1rem;
+  box-shadow: 0 18px 45px rgb(2 6 23 / 22%);
+}
+
+.telegram-chat-list {
+  background: #0f172a;
+}
+
+.telegram-conversation {
+  background: #172033;
+}
+
+.telegram-info-panel {
+  background: #0f172a;
+}
+
+.telegram-list-heading,
+.telegram-conversation-header {
+  min-height: 4.5rem;
+  padding: 1rem 1.15rem;
+}
+
+.telegram-list-heading strong,
+.telegram-conversation-header h3,
+.telegram-info-panel h3 {
+  color: #f8fafc;
+}
+
+.telegram-chat-item {
+  min-height: 5.5rem;
+  padding: 0.85rem;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.telegram-chat-item:hover,
+.telegram-chat-item.active {
+  background: #1e293b;
+}
+
+.telegram-chat-item.active {
+  box-shadow: inset 3px 0 0 #60a5fa;
+}
+
+.telegram-chat-copy strong {
+  color: #f8fafc;
+  font-size: 0.9rem;
+}
+
+.telegram-chat-copy span {
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.telegram-message-list {
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #1e293b;
+}
+
+.telegram-bubble {
+  max-width: min(88%, 760px);
+  padding: 1rem 1.1rem;
+  border: 1px solid #475569;
+  border-radius: 0.9rem 0.9rem 0.9rem 0.25rem;
+  background: #334155;
+  color: #f8fafc;
+  line-height: 1.65;
+}
+
+.telegram-bubble p {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.telegram-bubble time {
+  margin-top: 0.75rem;
+  color: #cbd5e1;
+}
+
+.telegram-empty,
+.telegram-list-empty,
+.telegram-workspace .inbox-error {
+  border: 1px solid #334155;
+  border-radius: 0.9rem;
+  background: #172033;
+  color: #cbd5e1;
+}
+
+.telegram-info-panel {
+  padding: 1.25rem;
+}
+
+.telegram-info-panel dd {
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+@media (max-width: 1050px) {
+  .telegram-layout {
+    grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
+  }
+}
