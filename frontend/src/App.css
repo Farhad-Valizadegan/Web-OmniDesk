@@ -2305,3 +2305,113 @@ button:disabled {
 .telegram-load-more .secondary-button {
   min-width: 13rem;
 }
+
+
+/* Telegram: bounded, Telegram-like workspace with independent panes. */
+.telegram-workspace {
+  gap: 0.9rem;
+}
+
+.telegram-layout {
+  height: min(72vh, 760px);
+  min-height: 520px;
+}
+
+.telegram-chat-list,
+.telegram-info-panel {
+  overflow-y: auto;
+}
+
+.telegram-chat-items {
+  min-height: 0;
+}
+
+.telegram-conversation {
+  min-height: 0;
+  height: 100%;
+}
+
+.telegram-message-list {
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.telegram-message-list[aria-busy='true'] {
+  cursor: progress;
+}
+
+.telegram-loading-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  min-height: 12rem;
+  padding: 3rem 1rem;
+  border: 1px solid #334155;
+  border-radius: 0.9rem;
+  background: #172033;
+  color: #e2e8f0;
+  text-align: center;
+}
+
+.telegram-loading-state p,
+.telegram-loading-state small {
+  margin: 0;
+}
+
+.telegram-loading-state small {
+  max-width: 28rem;
+  color: #94a3b8;
+}
+
+.telegram-loading-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 3px solid #475569;
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: telegram-spin 0.8s linear infinite;
+}
+
+.telegram-history-end {
+  margin: 0;
+  padding: 0.7rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.telegram-chat-copy span {
+  display: -webkit-box;
+  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.telegram-bubble p {
+  direction: auto;
+  unicode-bidi: plaintext;
+}
+
+@keyframes telegram-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .telegram-layout {
+    height: auto;
+    min-height: 0;
+  }
+
+  .telegram-conversation {
+    min-height: 32rem;
+  }
+
+  .telegram-message-list {
+    max-height: 32rem;
+  }
+}
