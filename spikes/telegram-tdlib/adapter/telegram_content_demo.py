@@ -17,6 +17,7 @@ sys.path.insert(0, str(SPIKE_DIR))
 from tdlib_probe import (  # noqa: E402
     TdJsonClient,
     _authorization_loop,
+    _get_chat,
     _get_history,
     _load_main_chats,
     _open_chat,
@@ -168,21 +169,40 @@ def main() -> int:
     db_dir = runtime_dir / "tdlib-db"
     db_dir.mkdir(parents=True, exist_ok=True)
 
+    requested_chat_raw = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    requested_chat_id: int | None = None
+
+    if requested_chat_raw:
+        try:
+            requested_chat_id = int(requested_chat_raw)
+        except ValueError as exc:
+            raise RuntimeError(
+                "TELEGRAM_CHAT_ID must be an integer."
+            ) from exc
+
     client = TdJsonClient()
+    requested_chat: JsonObject | None = None
 
     with contextlib.redirect_stdout(io.StringIO()):
         _authorization_loop(client, api_id, api_hash, db_dir)
-        _load_main_chats(client)
 
-    discovered_chats = [
-        chat
-        for chat in client.chats.values()
-        if (chat.get("type") or {}).get("@type") in {
-            "chatTypePrivate",
-            "chatTypeBasicGroup",
-            "chatTypeSupergroup",
-        }
-    ]
+        if requested_chat_id is None:
+            _load_main_chats(client)
+        else:
+            requested_chat = _get_chat(client, requested_chat_id)
+
+    if requested_chat_id is None:
+        discovered_chats = [
+            chat
+            for chat in client.chats.values()
+            if (chat.get("type") or {}).get("@type") in {
+                "chatTypePrivate",
+                "chatTypeBasicGroup",
+                "chatTypeSupergroup",
+            }
+        ]
+    else:
+        discovered_chats = [requested_chat] if requested_chat else []
 
     discovered_chats.sort(
         key=lambda chat: (
@@ -200,17 +220,6 @@ def main() -> int:
 
     if not chats:
         raise RuntimeError("No supported Telegram chats were discovered.")
-
-    requested_chat_raw = os.getenv("TELEGRAM_CHAT_ID", "").strip()
-    requested_chat_id: int | None = None
-
-    if requested_chat_raw:
-        try:
-            requested_chat_id = int(requested_chat_raw)
-        except ValueError as exc:
-            raise RuntimeError(
-                "TELEGRAM_CHAT_ID must be an integer."
-            ) from exc
 
     selected_chat = next(
         (
