@@ -242,12 +242,22 @@ def main() -> int:
         os.getenv("TELEGRAM_BEFORE_MESSAGE_ID", "0") or "0"
     )
 
-    messages = _get_bounded_history(
-        client,
-        int(selected_chat["id"]),
-        limit=requested_limit,
-        before_message_id=before_message_id,
-    )
+    # Chat discovery must stay cheap. Loading history for the first chat here
+    # made the whole Telegram tab fail when that chat's TDLib history request
+    # timed out. History is loaded only after the UI explicitly selects a chat.
+    warnings: list[str] = []
+    messages: list[JsonObject] = []
+
+    if requested_chat_id:
+        try:
+            messages = _get_bounded_history(
+                client,
+                int(selected_chat["id"]),
+                limit=requested_limit,
+                before_message_id=before_message_id,
+            )
+        except (RuntimeError, TimeoutError) as exc:
+            warnings.append(str(exc))
 
     text_messages = [
         message
@@ -280,6 +290,7 @@ def main() -> int:
         "messages": message_summaries,
         "has_more": next_before_message_id is not None,
         "next_before_message_id": next_before_message_id,
+        "warnings": warnings,
     }
 
     print(json.dumps(result, indent=2, ensure_ascii=False))
