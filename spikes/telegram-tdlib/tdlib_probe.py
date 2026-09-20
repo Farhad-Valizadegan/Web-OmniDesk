@@ -242,11 +242,15 @@ def _authorization_loop(
 
 
 def _load_main_chats(client: TdJsonClient) -> None:
-    """Load bounded pages of chat metadata without loading message history."""
+    """Load a bounded first page of chats without blocking on the full archive."""
     previous_count = -1
     idle_rounds = 0
+    max_pages = max(
+        1,
+        min(int(os.getenv("TELEGRAM_CHAT_DISCOVERY_PAGES", "3")), 5),
+    )
 
-    for _ in range(20):
+    for _ in range(max_pages):
         tag = client.send(
             {
                 "@type": "loadChats",
@@ -258,15 +262,13 @@ def _load_main_chats(client: TdJsonClient) -> None:
         )
 
         try:
-            client.wait_for_response(tag, timeout=20.0)
+            client.wait_for_response(tag, timeout=12.0)
         except RuntimeError as exc:
-            # TDLib returns 404/Not Found when chatListMain is exhausted.
-            # That is a normal completion signal, not an adapter failure.
             if "404" in str(exc) or "Not Found" in str(exc):
                 break
             raise
 
-        deadline = time.monotonic() + 2.0
+        deadline = time.monotonic() + 0.75
         while time.monotonic() < deadline:
             client.receive(0.25)
 
@@ -276,7 +278,7 @@ def _load_main_chats(client: TdJsonClient) -> None:
         else:
             idle_rounds = 0
 
-        if idle_rounds >= 2:
+        if idle_rounds >= 1:
             break
 
         previous_count = current_count
