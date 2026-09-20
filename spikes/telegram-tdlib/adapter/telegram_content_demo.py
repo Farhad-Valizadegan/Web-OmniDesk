@@ -132,10 +132,11 @@ def _get_bounded_history(
     cursor = before_message_id
 
     while len(messages) < requested_limit:
+        remaining = requested_limit - len(messages)
         history = _get_history(
             client,
             chat_id,
-            limit=requested_limit - len(messages),
+            limit=remaining,
             before_message_id=cursor,
         )
         batch = history.get("messages") or []
@@ -153,10 +154,11 @@ def _get_bounded_history(
             for message in batch
             if message.get("id") not in known_ids
         ]
-        messages.extend(new_messages)
 
-        if len(batch) < requested_limit - len(messages) + len(new_messages):
+        if not new_messages:
             break
+
+        messages.extend(new_messages)
 
         oldest_id = batch[-1].get("id")
         if not isinstance(oldest_id, int) or oldest_id == cursor:
