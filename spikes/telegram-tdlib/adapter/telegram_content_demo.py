@@ -110,8 +110,6 @@ def main() -> int:
         raise RuntimeError("No supported Telegram chats were discovered.")
 
     requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
-
-    requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     selected_chat = next(
         (
             chat
