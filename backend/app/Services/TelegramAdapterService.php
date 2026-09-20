@@ -56,7 +56,7 @@ class TelegramAdapterService
             (int) config('telegram.timeout_seconds', 60)
         );
 
-        if ($script === '' || !is_file($script)) {
+        if ($script === '' || ! is_file($script)) {
             throw new ProviderException(
                 'telegram',
                 ProviderErrorType::InvalidResponse,
@@ -138,7 +138,7 @@ class TelegramAdapterService
                 $environment
             );
 
-            if (!is_resource($process)) {
+            if (! is_resource($process)) {
                 throw new ProviderException(
                     'telegram',
                     ProviderErrorType::Temporary,
@@ -213,7 +213,7 @@ class TelegramAdapterService
 
             $decoded = json_decode($stdout, true);
 
-            if (!is_array($decoded)) {
+            if (! is_array($decoded)) {
                 Log::channel('telegram')->error(
                     '[telegram] response.invalid_json',
                     [
@@ -354,9 +354,9 @@ class TelegramAdapterService
         string $operation,
     ): mixed {
         if (
-            !is_dir($runtimeDirectory)
-            && !mkdir($runtimeDirectory, 0775, true)
-            && !is_dir($runtimeDirectory)
+            ! is_dir($runtimeDirectory)
+            && ! mkdir($runtimeDirectory, 0775, true)
+            && ! is_dir($runtimeDirectory)
         ) {
             throw new ProviderException(
                 'telegram',
@@ -395,7 +395,7 @@ class TelegramAdapterService
             usleep(100000);
         } while (microtime(true) < $deadline);
 
-        if (!$locked) {
+        if (! $locked) {
             fclose($handle);
 
             Log::channel('telegram')->warning(
