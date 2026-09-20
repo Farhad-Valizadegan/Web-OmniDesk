@@ -15,6 +15,7 @@ import {
   getCaptchaChallenge,
   getCurrentUser,
   getHealth,
+  getTelegramSample,
   loginUser,
   logoutUser,
   registerUser,
@@ -22,6 +23,8 @@ import {
   type Conversation,
   type Message,
   type PaginatedResponse,
+  type TelegramChat,
+  type TelegramSampleResponse,
 } from './lib/api'
 
 vi.mock('./lib/api', () => ({
@@ -31,6 +34,7 @@ vi.mock('./lib/api', () => ({
   getGmailStatus: vi.fn(),
   getCurrentUser: vi.fn(),
   getHealth: vi.fn(),
+  getTelegramSample: vi.fn(),
   loginUser: vi.fn(),
   logoutUser: vi.fn(),
   registerUser: vi.fn(),
@@ -42,6 +46,7 @@ const getConversationMessagesMock = vi.mocked(getConversationMessages)
 const getConversationsMock = vi.mocked(getConversations)
 const getGmailStatusMock = vi.mocked(getGmailStatus)
 const getHealthMock = vi.mocked(getHealth)
+const getTelegramSampleMock = vi.mocked(getTelegramSample)
 const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
@@ -305,6 +310,91 @@ describe('App', () => {
     expect(
       await screen.findByText('The provided credentials are incorrect.'),
     ).toBeInTheDocument()
+  })
+
+  test('loads Telegram chats before selected chat history', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    const user = {
+      id: 1,
+      name: 'Freddie',
+      email: 'freddie@example.com',
+    }
+
+    getCurrentUserMock.mockResolvedValue({ user })
+
+    const channel: TelegramChat = {
+      id: 100,
+      type: 'channel',
+      tdlib_type: 'chatTypeSupergroup',
+      title: 'News channel',
+      unread_count: 2,
+      last_message: 'Latest news',
+      last_message_date: 200,
+      messages_count: 0,
+    }
+
+    const historyResponse: TelegramSampleResponse = {
+      message: 'Telegram content loaded.',
+      data: {
+        provider: 'telegram',
+        chats: [channel],
+        selected_chat: {
+          ...channel,
+          last_message: 'Latest news',
+          messages_count: 1,
+        },
+        messages: [
+          {
+            id: 200,
+            chat_id: 100,
+            date: 200,
+            sender_id: null,
+            text: 'Latest news',
+          },
+        ],
+        has_more: false,
+        next_before_message_id: null,
+      },
+    }
+
+    getTelegramSampleMock
+      .mockResolvedValueOnce({
+        message: 'Telegram content loaded.',
+        data: {
+          provider: 'telegram',
+          chats: [channel],
+          selected_chat: channel,
+          messages: [],
+          has_more: false,
+          next_before_message_id: null,
+        },
+      })
+      .mockResolvedValueOnce(historyResponse)
+
+    render(<App />)
+
+    expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Telegram' }))
+
+    expect(
+      await screen.findByRole('button', { name: /News channel/ }),
+    ).toBeInTheDocument()
+    expect(await screen.findByText('Latest news')).toBeInTheDocument()
+
+    expect(getTelegramSampleMock).toHaveBeenNthCalledWith(
+      1,
+      undefined,
+      {},
+      expect.any(AbortSignal),
+    )
+    expect(getTelegramSampleMock).toHaveBeenNthCalledWith(
+      2,
+      100,
+      {},
+      expect.any(AbortSignal),
+    )
   })
 
   test('allows an authenticated user to log out', async () => {
