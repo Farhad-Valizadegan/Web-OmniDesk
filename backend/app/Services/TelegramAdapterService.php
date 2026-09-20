@@ -273,8 +273,6 @@ class TelegramAdapterService
     }
 
     /**
-     * @param resource $process
-     * @param array<int, resource> $pipes
      * @return array{stdout: string, stderr: string, exit_code: int, timed_out: bool}
      */
     private function collectProcessOutput(
@@ -344,9 +342,6 @@ class TelegramAdapterService
         ];
     }
 
-    /**
-     * @param resource $pipe
-     */
     private function readPipe(mixed $pipe): string
     {
         $content = stream_get_contents($pipe);
