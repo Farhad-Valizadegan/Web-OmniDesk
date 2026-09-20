@@ -19,6 +19,7 @@ from tdlib_probe import (  # noqa: E402
     _authorization_loop,
     _get_history,
     _load_main_chats,
+    _open_chat,
     _required_env,
 )
 
@@ -250,6 +251,7 @@ def main() -> int:
 
     if requested_chat_id:
         try:
+            _open_chat(client, int(selected_chat["id"]))
             messages = _get_bounded_history(
                 client,
                 int(selected_chat["id"]),
