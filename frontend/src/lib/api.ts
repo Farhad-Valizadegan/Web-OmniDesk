@@ -399,8 +399,12 @@ export async function disconnectGmail(): Promise<GmailDisconnectResponse | null>
   return response ?? null
 }
 
-export async function getTelegramSample(): Promise<TelegramSampleResponse> {
+export async function getTelegramSample(
+  chatId?: number,
+): Promise<TelegramSampleResponse> {
+  const query = chatId === undefined ? '' : `?chat_id=${chatId}`
+
   return request<TelegramSampleResponse>(
-    '/api/integrations/telegram/sample',
+    `/api/integrations/telegram/sample${query}`,
   )
 }
