@@ -70,6 +70,36 @@ def _chat_summary(chat: JsonObject) -> JsonObject | None:
     }
 
 
+def _refresh_chat_metadata(
+    client: TdJsonClient,
+    chats: list[JsonObject],
+) -> None:
+    """Refresh chat metadata without loading message history."""
+    for chat in chats:
+        chat_id = chat.get("id")
+
+        if not isinstance(chat_id, int):
+            continue
+
+        try:
+            refreshed = client.wait_for_response(
+                client.send(
+                    {
+                        "@type": "getChat",
+                        "chat_id": chat_id,
+                    },
+                    tag=f"chat-{chat_id}",
+                ),
+                timeout=5.0,
+            )
+        except (RuntimeError, TimeoutError):
+            continue
+
+        if refreshed.get("@type") == "chat":
+            chat.clear()
+            chat.update(refreshed)
+
+
 def _message_summary(message: JsonObject) -> JsonObject:
     return {
         "id": message.get("id"),
@@ -100,11 +130,23 @@ def main() -> int:
         _authorization_loop(client, api_id, api_hash, db_dir)
         _load_main_chats(client)
 
+    discovered_chats = [
+        chat
+        for chat in client.chats.values()
+        if (chat.get("type") or {}).get("@type") in {
+            "chatTypePrivate",
+            "chatTypeBasicGroup",
+            "chatTypeSupergroup",
+        }
+    ][:20]
+
+    _refresh_chat_metadata(client, discovered_chats)
+
     chats = [
         summary
-        for chat in client.chats.values()
+        for chat in discovered_chats
         if (summary := _chat_summary(chat)) is not None
-    ][:20]
+    ]
 
     if not chats:
         raise RuntimeError("No supported Telegram chats were discovered.")
