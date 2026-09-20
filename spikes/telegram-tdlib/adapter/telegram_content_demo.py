@@ -109,7 +109,16 @@ def main() -> int:
     if not chats:
         raise RuntimeError("No supported Telegram chats were discovered.")
 
-    selected_chat = chats[0]
+    requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    selected_chat = next(
+        (
+            chat
+            for chat in chats
+            if requested_chat_id
+            and str(chat["id"]) == requested_chat_id
+        ),
+        chats[0],
+    )
     history = _get_history(client, int(selected_chat["id"]))
     messages = history.get("messages") or []
 
