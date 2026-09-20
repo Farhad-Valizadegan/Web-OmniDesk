@@ -140,9 +140,13 @@ class TelegramAdapterService
                 'stderr' => mb_substr($diagnostic, -2000),
             ]);
 
-            throw new RuntimeException(
-                'Telegram adapter request failed.'
-            );
+            $message = 'Telegram adapter request failed.';
+
+            if (config('app.debug') && $diagnostic !== '') {
+                $message .= ' '.$diagnostic;
+            }
+
+            throw new RuntimeException($message);
         }
 
         if (! is_string($stdout) || trim($stdout) === '') {
