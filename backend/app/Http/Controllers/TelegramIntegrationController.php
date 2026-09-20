@@ -27,9 +27,15 @@ class TelegramIntegrationController extends Controller
                 $validated['limit'] ?? 20,
                 $validated['before_message_id'] ?? null,
             );
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            logger()->error('Telegram content request failed.', [
+                'exception' => $exception,
+            ]);
+
             return response()->json([
-                'message' => 'Telegram content could not be loaded.',
+                'message' => config('app.debug')
+                    ? $exception->getMessage()
+                    : 'Telegram content could not be loaded.',
                 'error' => 'telegram_content_load_failed',
             ], 502);
         }
