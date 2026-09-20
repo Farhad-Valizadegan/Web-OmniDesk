@@ -121,6 +121,52 @@ def _refresh_chat_metadata(
             chat.update(refreshed)
 
 
+def _get_bounded_history(
+    client: TdJsonClient,
+    chat_id: int,
+    limit: int,
+    before_message_id: int,
+) -> list[JsonObject]:
+    requested_limit = max(1, min(limit, 20))
+    messages: list[JsonObject] = []
+    cursor = before_message_id
+
+    while len(messages) < requested_limit:
+        history = _get_history(
+            client,
+            chat_id,
+            limit=requested_limit - len(messages),
+            before_message_id=cursor,
+        )
+        batch = history.get("messages") or []
+
+        if not batch:
+            break
+
+        known_ids = {
+            message.get("id")
+            for message in messages
+            if isinstance(message.get("id"), int)
+        }
+        new_messages = [
+            message
+            for message in batch
+            if message.get("id") not in known_ids
+        ]
+        messages.extend(new_messages)
+
+        if len(batch) < requested_limit - len(messages) + len(new_messages):
+            break
+
+        oldest_id = batch[-1].get("id")
+        if not isinstance(oldest_id, int) or oldest_id == cursor:
+            break
+
+        cursor = oldest_id
+
+    return messages[:requested_limit]
+
+
 def _message_summary(message: JsonObject) -> JsonObject:
     return {
         "id": message.get("id"),
@@ -195,13 +241,12 @@ def main() -> int:
     )
 
     try:
-        history = _get_history(
+        messages = _get_bounded_history(
             client,
             int(selected_chat["id"]),
             limit=requested_limit,
             before_message_id=before_message_id,
         )
-        messages = history.get("messages") or []
     except (RuntimeError, TimeoutError):
         messages = []
 
