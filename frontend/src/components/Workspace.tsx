@@ -422,7 +422,13 @@ function Workspace({
 
       const response = await getTelegramSample()
 
-      setTelegramChats(response.data.chats)
+      setTelegramChats(
+        response.data.chats.map((chat) =>
+          chat.id === response.data.selected_chat.id
+            ? response.data.selected_chat
+            : chat,
+        ),
+      )
       setSelectedTelegramChatId(response.data.selected_chat.id)
       setTelegramMessages(response.data.messages)
       setTelegramChatTitle(response.data.selected_chat.title)
@@ -449,6 +455,13 @@ function Workspace({
 
       const response = await getTelegramSample(chat.id)
 
+      setTelegramChats((currentChats) =>
+        currentChats.map((currentChat) =>
+          currentChat.id === response.data.selected_chat.id
+            ? response.data.selected_chat
+            : currentChat,
+        ),
+      )
       setTelegramMessages(response.data.messages)
     } catch (error) {
       setTelegramMessages([])
