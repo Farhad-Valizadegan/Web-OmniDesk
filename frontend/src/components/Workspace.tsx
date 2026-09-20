@@ -472,6 +472,10 @@ function Workspace({
     )
   })
 
+  const selectedTelegramChat = telegramChats.find(
+    (chat) => chat.id === selectedTelegramChatId,
+  )
+
   return (
     <section
       className="workspace"
@@ -639,7 +643,12 @@ function Workspace({
                     </div>
 
                     <div className="telegram-chat-items">
-                      {visibleTelegramChats.map((chat) => (
+                      {visibleTelegramChats.length === 0 ? (
+                        <p className="telegram-list-empty">
+                          No chats match this search.
+                        </p>
+                      ) : (
+                        visibleTelegramChats.map((chat) => (
                         <button
                           type="button"
                           key={chat.id}
@@ -668,7 +677,8 @@ function Workspace({
                             <b>{chat.unread_count}</b>
                           )}
                         </button>
-                      ))}
+                        ))
+                      )}
                     </div>
                   </aside>
 
@@ -678,13 +688,9 @@ function Workspace({
                         <p className="eyebrow">Telegram</p>
                         <h3>{telegramChatTitle ?? 'Selected chat'}</h3>
                         <span>
-                          {telegramChats.find(
-                            (chat) => chat.id === selectedTelegramChatId,
-                          )?.type === 'channel'
+                          {selectedTelegramChat?.type === 'channel'
                             ? 'Channel'
-                            : telegramChats.find(
-                                (chat) => chat.id === selectedTelegramChatId,
-                              )?.type === 'group'
+                            : selectedTelegramChat?.type === 'group'
                               ? 'Group'
                               : 'Private chat'}
                         </span>
@@ -733,20 +739,16 @@ function Workspace({
                       <div>
                         <dt>Type</dt>
                         <dd>
-                          {telegramChats.find(
-                            (chat) => chat.id === selectedTelegramChatId,
-                          )?.type === 'channel'
+                          {selectedTelegramChat?.type === 'channel'
                             ? 'Channel'
-                            : telegramChats.find(
-                                (chat) => chat.id === selectedTelegramChatId,
-                              )?.type === 'group'
+                            : selectedTelegramChat?.type === 'group'
                               ? 'Group'
                               : 'Private chat'}
                         </dd>
                       </div>
                       <div>
                         <dt>Messages loaded</dt>
-                        <dd>{telegramMessages.length}</dd>
+                        <dd>{selectedTelegramChat?.messages_count ?? telegramMessages.length}</dd>
                       </div>
                     </dl>
                     <p className="telegram-readonly-note">
