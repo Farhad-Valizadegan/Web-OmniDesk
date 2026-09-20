@@ -269,11 +269,25 @@ function Workspace({
   const [isTelegramMoreLoading, setIsTelegramMoreLoading] = useState(false)
 
   const hasInitializedLazySync = useRef(false)
+  const telegramRequestId = useRef(0)
+  const telegramAbortController = useRef<AbortController | null>(null)
+  const telegramRequestInFlight = useRef(false)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('omni_desk_theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    if (activeProvider === 'telegram') {
+      return
+    }
+
+    telegramRequestId.current += 1
+    telegramAbortController.current?.abort()
+    telegramAbortController.current = null
+    telegramRequestInFlight.current = false
+  }, [activeProvider])
 
   const loadConversations = useCallback(async () => {
     try {
@@ -419,12 +433,52 @@ function Workspace({
     setPage((current) => current + 1)
   }
 
+  const beginTelegramRequest = () => {
+    telegramAbortController.current?.abort()
+
+    const controller = new AbortController()
+    const requestId = telegramRequestId.current + 1
+
+    telegramRequestId.current = requestId
+    telegramAbortController.current = controller
+    telegramRequestInFlight.current = true
+
+    return { controller, requestId }
+  }
+
+  const isCurrentTelegramRequest = (
+    requestId: number,
+    controller: AbortController,
+  ) =>
+    telegramRequestId.current === requestId &&
+    telegramAbortController.current === controller &&
+    !controller.signal.aborted
+
   const handleTelegramLoad = async () => {
+    if (telegramRequestInFlight.current) {
+      telegramAbortController.current?.abort()
+    }
+
+    const { controller, requestId } = beginTelegramRequest()
+
     try {
       setIsTelegramLoading(true)
+      setIsTelegramMoreLoading(false)
       setTelegramError(null)
+      setTelegramMessages([])
+      setTelegramChatTitle(null)
+      setTelegramHasMore(false)
+      setTelegramNextBeforeMessageId(null)
 
-      const response = await getTelegramSample()
+      const response = await getTelegramSample(
+        undefined,
+        {},
+        controller.signal,
+      )
+
+      if (!isCurrentTelegramRequest(requestId, controller)) {
+        return
+      }
 
       const initialTelegramMessage = response.data.messages[0]
       const initialSelectedChat = {
@@ -451,16 +505,26 @@ function Workspace({
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
       setTelegramChatTitle(initialSelectedChat.title)
     } catch (error) {
+      if (
+        controller.signal.aborted ||
+        !isCurrentTelegramRequest(requestId, controller)
+      ) {
+        return
+      }
+
       setTelegramMessages([])
       setTelegramChatTitle(null)
-
       setTelegramError(
         error instanceof Error
           ? error.message
           : 'Telegram content could not be loaded.',
       )
     } finally {
-      setIsTelegramLoading(false)
+      if (isCurrentTelegramRequest(requestId, controller)) {
+        telegramRequestInFlight.current = false
+        telegramAbortController.current = null
+        setIsTelegramLoading(false)
+      }
     }
   }
 
@@ -469,18 +533,31 @@ function Workspace({
       selectedTelegramChatId === null ||
       !telegramHasMore ||
       telegramNextBeforeMessageId === null ||
-      isTelegramMoreLoading
+      isTelegramMoreLoading ||
+      telegramRequestInFlight.current
     ) {
       return
     }
 
+    const { controller, requestId } = beginTelegramRequest()
+
     try {
       setIsTelegramMoreLoading(true)
       setTelegramError(null)
-      const response = await getTelegramSample(selectedTelegramChatId, {
-        limit: 20,
-        beforeMessageId: telegramNextBeforeMessageId,
-      })
+
+      const response = await getTelegramSample(
+        selectedTelegramChatId,
+        {
+          limit: 20,
+          beforeMessageId: telegramNextBeforeMessageId,
+        },
+        controller.signal,
+      )
+
+      if (!isCurrentTelegramRequest(requestId, controller)) {
+        return
+      }
+
       setTelegramMessages((currentMessages) => {
         const messagesById = new Map(
           currentMessages.map((message) => [message.id, message]),
@@ -497,24 +574,50 @@ function Workspace({
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
     } catch (error) {
+      if (
+        controller.signal.aborted ||
+        !isCurrentTelegramRequest(requestId, controller)
+      ) {
+        return
+      }
+
       setTelegramError(
         error instanceof Error
           ? error.message
           : 'Older Telegram messages could not be loaded.',
       )
     } finally {
-      setIsTelegramMoreLoading(false)
+      if (isCurrentTelegramRequest(requestId, controller)) {
+        telegramRequestInFlight.current = false
+        telegramAbortController.current = null
+        setIsTelegramMoreLoading(false)
+      }
     }
   }
 
   const handleTelegramChatSelect = async (chat: TelegramChat) => {
+    const { controller, requestId } = beginTelegramRequest()
+
+    setSelectedTelegramChatId(chat.id)
+    setTelegramChatTitle(chat.title)
+    setTelegramMessages([])
+    setTelegramHasMore(false)
+    setTelegramNextBeforeMessageId(null)
+
     try {
       setIsTelegramLoading(true)
+      setIsTelegramMoreLoading(false)
       setTelegramError(null)
-      setSelectedTelegramChatId(chat.id)
-      setTelegramChatTitle(chat.title)
 
-      const response = await getTelegramSample(chat.id)
+      const response = await getTelegramSample(
+        chat.id,
+        {},
+        controller.signal,
+      )
+
+      if (!isCurrentTelegramRequest(requestId, controller)) {
+        return
+      }
 
       const selectedTelegramMessage = response.data.messages[0]
       const selectedChat = {
@@ -538,7 +641,15 @@ function Workspace({
       setTelegramMessages(response.data.messages)
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
+      setTelegramChatTitle(selectedChat.title)
     } catch (error) {
+      if (
+        controller.signal.aborted ||
+        !isCurrentTelegramRequest(requestId, controller)
+      ) {
+        return
+      }
+
       setTelegramMessages([])
       setTelegramError(
         error instanceof Error
@@ -546,7 +657,11 @@ function Workspace({
           : 'Telegram chat could not be loaded.',
       )
     } finally {
-      setIsTelegramLoading(false)
+      if (isCurrentTelegramRequest(requestId, controller)) {
+        telegramRequestInFlight.current = false
+        telegramAbortController.current = null
+        setIsTelegramLoading(false)
+      }
     }
   }
 
@@ -663,7 +778,11 @@ function Workspace({
               className={activeProvider === 'telegram' ? 'provider-tab active' : 'provider-tab'}
               onClick={() => {
                 setActiveProvider('telegram')
-                if (telegramChats.length === 0 && !isTelegramLoading) {
+                if (
+                  telegramChats.length === 0 &&
+                  !isTelegramLoading &&
+                  !telegramRequestInFlight.current
+                ) {
                   void handleTelegramLoad()
                 }
               }}
@@ -718,7 +837,17 @@ function Workspace({
                 </p>
               )}
 
-              {!telegramError && telegramChats.length === 0 && (
+              {isTelegramLoading && telegramChats.length === 0 && !telegramError && (
+                <div className="telegram-loading-state" role="status">
+                  <span className="telegram-loading-dot" aria-hidden="true" />
+                  <p>Loading Telegram chats…</p>
+                  <small>Discovery is bounded and includes main, archive, and folders.</small>
+                </div>
+              )}
+
+              {!telegramError &&
+                !isTelegramLoading &&
+                telegramChats.length === 0 && (
                 <div className="telegram-empty">
                   <h3>Telegram</h3>
                   <p>Load your chats, groups, and channels.</p>
@@ -738,7 +867,7 @@ function Workspace({
                   <aside className="telegram-chat-list" aria-label="Telegram chats">
                     <div className="telegram-list-heading">
                       <strong>Chats</strong>
-                      <span>{visibleTelegramChats.length}</span>
+                      <span>{telegramChats.length}</span>
                     </div>
 
                     <div className="telegram-chat-items">
@@ -799,9 +928,20 @@ function Workspace({
                       </button>
                     </header>
 
-                    <div className="telegram-message-list">
-                      {telegramMessages.length === 0 ? (
-                        <p className="inbox-status">No text messages found.</p>
+                    <div
+                      className="telegram-message-list"
+                      aria-busy={isTelegramLoading || isTelegramMoreLoading}
+                    >
+                      {isTelegramLoading ? (
+                        <p className="inbox-status" role="status">
+                          Loading messages…
+                        </p>
+                      ) : telegramMessages.length === 0 ? (
+                        <p className="inbox-status">
+                          {selectedTelegramChat
+                            ? 'No messages available in this chat.'
+                            : 'Select a chat to load its messages.'}
+                        </p>
                       ) : (
                         telegramMessages.map((message) => (
                           <article className="telegram-bubble" key={message.id}>
@@ -813,6 +953,13 @@ function Workspace({
                             </time>
                           </article>
                         ))
+                      )}
+                      {!isTelegramLoading &&
+                        telegramMessages.length > 0 &&
+                        !telegramHasMore && (
+                        <p className="telegram-history-end" role="status">
+                          End of chat history
+                        </p>
                       )}
                       {telegramHasMore && (
                         <div className="telegram-load-more">
