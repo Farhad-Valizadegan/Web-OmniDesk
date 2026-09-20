@@ -248,6 +248,7 @@ function Workspace({
   const [isLazySyncLoading, setIsLazySyncLoading] = useState(false)
   const [gmailHasMore, setGmailHasMore] = useState(false)
 
+  const [telegramSearch, setTelegramSearch] = useState('')
   const [telegramChats, setTelegramChats] = useState<
     TelegramChat[]
   >([])
@@ -461,6 +462,16 @@ function Workspace({
     }
   }
 
+  const visibleTelegramChats = telegramChats.filter((chat) => {
+    const query = telegramSearch.trim().toLowerCase()
+
+    return (
+      query === '' ||
+      chat.title.toLowerCase().includes(query) ||
+      chat.last_message.toLowerCase().includes(query)
+    )
+  })
+
   return (
     <section
       className="workspace"
@@ -585,6 +596,8 @@ function Workspace({
                   type="search"
                   placeholder="Search Telegram"
                   aria-label="Search Telegram chats"
+                  value={telegramSearch}
+                  onChange={(event) => setTelegramSearch(event.target.value)}
                 />
                 <button
                   type="button"
@@ -622,11 +635,11 @@ function Workspace({
                   <aside className="telegram-chat-list" aria-label="Telegram chats">
                     <div className="telegram-list-heading">
                       <strong>Chats</strong>
-                      <span>{telegramChats.length}</span>
+                      <span>{visibleTelegramChats.length}</span>
                     </div>
 
                     <div className="telegram-chat-items">
-                      {telegramChats.map((chat) => (
+                      {visibleTelegramChats.map((chat) => (
                         <button
                           type="button"
                           key={chat.id}
