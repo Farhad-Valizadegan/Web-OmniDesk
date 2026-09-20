@@ -281,14 +281,17 @@ def _select_supported_chat(client: TdJsonClient) -> JsonObject:
 def _get_history(
     client: TdJsonClient,
     chat_id: int,
+    limit: int = 20,
+    before_message_id: int = 0,
 ) -> JsonObject:
+    bounded_limit = max(1, min(limit, 20))
     tag = client.send(
         {
             "@type": "getChatHistory",
             "chat_id": chat_id,
-            "from_message_id": 0,
+            "from_message_id": before_message_id,
             "offset": 0,
-            "limit": 10,
+            "limit": bounded_limit,
             "only_local": False,
         }
     )
