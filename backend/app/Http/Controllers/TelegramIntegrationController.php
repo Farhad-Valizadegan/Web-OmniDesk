@@ -102,9 +102,6 @@ class TelegramIntegrationController extends Controller
         ]);
     }
 
-    /**
-     * @param array<string, mixed> $validated
-     */
     private function operationFor(array $validated): string
     {
         if (($validated['chat_id'] ?? null) === null) {
