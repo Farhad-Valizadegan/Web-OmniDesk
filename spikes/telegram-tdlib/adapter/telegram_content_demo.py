@@ -31,11 +31,32 @@ SUPPORTED_CHAT_TYPES = {
 
 def _message_text(message: JsonObject) -> str:
     content = message.get("content") or {}
-    if content.get("@type") != "messageText":
-        return ""
+    content_type = content.get("@type", "")
 
-    text_object = content.get("text") or {}
-    return str(text_object.get("text") or "")
+    if content_type == "messageText":
+        text_object = content.get("text") or {}
+        return str(text_object.get("text") or "").strip()
+
+    caption = content.get("caption") or {}
+    caption_text = str(caption.get("text") or "").strip()
+    if caption_text:
+        return caption_text
+
+    media_labels = {
+        "messagePhoto": "Photo",
+        "messageVideo": "Video",
+        "messageAnimation": "GIF",
+        "messageAudio": "Audio",
+        "messageVoiceNote": "Voice message",
+        "messageVideoNote": "Video message",
+        "messageDocument": "Document",
+        "messageSticker": "Sticker",
+        "messageLocation": "Location",
+        "messageContact": "Contact",
+        "messagePoll": "Poll",
+    }
+
+    return media_labels.get(content_type, "").strip()
 
 
 def _chat_preview(chat: JsonObject) -> str:
