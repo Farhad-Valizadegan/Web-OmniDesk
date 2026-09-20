@@ -2131,3 +2131,29 @@ button:disabled {
     border-bottom: 1px solid #475569;
   }
 }
+
+
+.telegram-list-empty {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.telegram-chat-item:focus-visible,
+.telegram-toolbar input:focus-visible,
+.telegram-composer input:focus-visible {
+  outline: 3px solid rgb(96 165 250 / 35%);
+  outline-offset: -2px;
+}
+
+.telegram-conversation-header > div {
+  min-width: 0;
+}
+
+.telegram-conversation-header h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
