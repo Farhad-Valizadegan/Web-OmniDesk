@@ -605,7 +605,18 @@ function Workspace({
             <button type="button" role="tab" aria-selected={activeProvider === 'gmail'} className={activeProvider === 'gmail' ? 'provider-tab active' : 'provider-tab'} onClick={() => setActiveProvider('gmail')}>
               Gmail
             </button>
-            <button type="button" role="tab" aria-selected={activeProvider === 'telegram'} className={activeProvider === 'telegram' ? 'provider-tab active' : 'provider-tab'} onClick={() => setActiveProvider('telegram')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeProvider === 'telegram'}
+              className={activeProvider === 'telegram' ? 'provider-tab active' : 'provider-tab'}
+              onClick={() => {
+                setActiveProvider('telegram')
+                if (telegramChats.length === 0 && !isTelegramLoading) {
+                  void handleTelegramLoad()
+                }
+              }}
+            >
               Telegram
             </button>
           </div>
