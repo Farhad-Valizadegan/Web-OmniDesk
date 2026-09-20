@@ -113,8 +113,12 @@ def main() -> int:
 
     histories: dict[int, list[JsonObject]] = {}
     for chat in chats:
-        history = _get_history(client, int(chat["id"]))
-        messages = history.get("messages") or []
+        try:
+            history = _get_history(client, int(chat["id"]))
+            messages = history.get("messages") or []
+        except (RuntimeError, TimeoutError):
+            messages = []
+
         histories[int(chat["id"])] = messages
 
         text_messages = [
