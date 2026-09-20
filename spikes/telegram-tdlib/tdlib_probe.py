@@ -300,15 +300,6 @@ def _get_history(
     return client.wait_for_response(tag, timeout=60.0)
 
 
-def _open_chat(client: TdJsonClient, chat_id: int) -> None:
-    tag = client.send(
-        {
-            "@type": "openChat",
-            "chat_id": chat_id,
-        }
-    )
-    client.wait_for_response(tag, timeout=10.0)
-
 def _build_evidence(
     client: TdJsonClient,
     chat: JsonObject,
