@@ -123,6 +123,13 @@ class TelegramAdapterService
         $exitCode = proc_close($process);
 
         if ($exitCode !== 0) {
+            $diagnostic = trim((string) $stderr);
+
+            logger()->error('Telegram adapter process failed.', [
+                'exit_code' => $exitCode,
+                'stderr' => mb_substr($diagnostic, -2000),
+            ]);
+
             throw new RuntimeException(
                 'Telegram adapter request failed.'
             );
