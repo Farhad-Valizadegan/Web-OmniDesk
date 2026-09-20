@@ -2,7 +2,11 @@
 
 namespace App\Services;
 
+use App\Exceptions\ProviderErrorType;
+use App\Exceptions\ProviderException;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 
 class TelegramAdapterService
 {
@@ -16,6 +20,16 @@ class TelegramAdapterService
         int $limit = 20,
         ?int $beforeMessageId = null,
     ): array {
+        $operation = $this->operationFor($chatId, $beforeMessageId);
+        $startedAt = microtime(true);
+
+        Log::channel('telegram')->info('[telegram] request.start', [
+            'operation' => $operation,
+            'chat_id' => $chatId,
+            'limit' => $limit,
+            'before_message_id' => $beforeMessageId,
+        ]);
+
         $pythonBinary = (string) config(
             'telegram.python_binary',
             'python'
@@ -38,27 +52,38 @@ class TelegramAdapterService
         );
 
         $limit = max(1, min($limit, 20));
-
-        $timeoutSeconds = (int) config(
-            'telegram.timeout_seconds',
-            120
+        $timeoutSeconds = max(
+            5,
+            (int) config('telegram.timeout_seconds', 60)
         );
 
         if ($script === '' || ! is_file($script)) {
-            throw new RuntimeException(
-                'Telegram adapter script is not available.'
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::InvalidResponse,
+                'Telegram adapter script is not available.',
+                null,
+                $operation,
             );
         }
 
         if ($runtimeDirectory === '') {
-            throw new RuntimeException(
-                'Telegram runtime directory is not configured.'
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::InvalidResponse,
+                'Telegram runtime directory is not configured.',
+                null,
+                $operation,
             );
         }
 
         if ($apiId === '' || $apiHash === '') {
-            throw new RuntimeException(
-                'Telegram API credentials are not configured.'
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::Authorization,
+                'Telegram API credentials are not configured.',
+                null,
+                $operation,
             );
         }
 
@@ -98,75 +123,317 @@ class TelegramAdapterService
             ],
         ];
 
-        $process = proc_open(
-            $command,
-            $descriptors,
-            $pipes,
-            base_path(),
-            $environment
-        );
+        $lockHandle = null;
 
-        if (! is_resource($process)) {
-            throw new RuntimeException(
-                'Telegram adapter process could not be started.'
+        try {
+            $lockHandle = $this->acquireRuntimeLock(
+                $runtimeDirectory,
+                $operation,
             );
+
+            $process = proc_open(
+                $command,
+                $descriptors,
+                $pipes,
+                base_path(),
+                $environment
+            );
+
+            if (! is_resource($process)) {
+                throw new ProviderException(
+                    'telegram',
+                    ProviderErrorType::Temporary,
+                    'Telegram adapter process could not be started.',
+                    null,
+                    $operation,
+                );
+            }
+
+            fclose($pipes[0]);
+
+            $result = $this->collectProcessOutput(
+                $process,
+                $pipes,
+                $timeoutSeconds,
+            );
+
+            if ($result['timed_out']) {
+                Log::channel('telegram')->error(
+                    '[telegram] process.timeout',
+                    [
+                        'operation' => $operation,
+                        'timeout_seconds' => $timeoutSeconds,
+                        'duration_ms' => $this->durationMs($startedAt),
+                    ],
+                );
+
+                throw new ProviderException(
+                    'telegram',
+                    ProviderErrorType::Temporary,
+                    'Telegram request timed out.',
+                    null,
+                    $operation,
+                );
+            }
+
+            $stdout = $result['stdout'];
+            $stderr = $result['stderr'];
+            $exitCode = $result['exit_code'];
+
+            if ($exitCode !== 0) {
+                $diagnostic = trim($stderr);
+
+                Log::channel('telegram')->error(
+                    '[telegram] process.exit_failure',
+                    [
+                        'operation' => $operation,
+                        'exit_code' => $exitCode,
+                        'stderr' => mb_substr($diagnostic, -2000),
+                        'duration_ms' => $this->durationMs($startedAt),
+                    ],
+                );
+
+                throw new ProviderException(
+                    'telegram',
+                    ProviderErrorType::Temporary,
+                    'Telegram adapter request failed.',
+                    null,
+                    $operation,
+                );
+            }
+
+            if (trim($stdout) === '') {
+                throw new ProviderException(
+                    'telegram',
+                    ProviderErrorType::InvalidResponse,
+                    'Telegram adapter returned an empty response.',
+                    null,
+                    $operation,
+                );
+            }
+
+            $decoded = json_decode($stdout, true);
+
+            if (! is_array($decoded)) {
+                Log::channel('telegram')->error(
+                    '[telegram] response.invalid_json',
+                    [
+                        'operation' => $operation,
+                        'duration_ms' => $this->durationMs($startedAt),
+                    ],
+                );
+
+                throw new ProviderException(
+                    'telegram',
+                    ProviderErrorType::InvalidResponse,
+                    'Telegram adapter returned invalid JSON.',
+                    null,
+                    $operation,
+                );
+            }
+
+            Log::channel('telegram')->info('[telegram] request.complete', [
+                'operation' => $operation,
+                'chat_count' => is_array($decoded['chats'] ?? null)
+                    ? count($decoded['chats'])
+                    : 0,
+                'message_count' => is_array($decoded['messages'] ?? null)
+                    ? count($decoded['messages'])
+                    : 0,
+                'has_more' => (bool) ($decoded['has_more'] ?? false),
+                'duration_ms' => $this->durationMs($startedAt),
+            ]);
+
+            return $decoded;
+        } catch (ProviderException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            Log::channel('telegram')->error(
+                '[telegram] request.unexpected_failure',
+                [
+                    'operation' => $operation,
+                    'exception' => $exception::class,
+                    'error' => $exception->getMessage(),
+                    'duration_ms' => $this->durationMs($startedAt),
+                ],
+            );
+
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::Temporary,
+                'Telegram adapter request failed.',
+                $exception,
+                $operation,
+            );
+        } finally {
+            if (is_resource($lockHandle)) {
+                flock($lockHandle, LOCK_UN);
+                fclose($lockHandle);
+            }
+        }
+    }
+
+    /**
+     * @param resource $process
+     * @param array<int, resource> $pipes
+     * @return array{stdout: string, stderr: string, exit_code: int, timed_out: bool}
+     */
+    private function collectProcessOutput(
+        mixed $process,
+        array $pipes,
+        int $timeoutSeconds,
+    ): array {
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+
+        $stdout = '';
+        $stderr = '';
+        $timedOut = false;
+        $deadline = microtime(true) + $timeoutSeconds;
+
+        while (true) {
+            $stdout .= $this->readPipe($pipes[1]);
+            $stderr .= $this->readPipe($pipes[2]);
+
+            $status = proc_get_status($process);
+
+            if (! ($status['running'] ?? false)) {
+                break;
+            }
+
+            if (microtime(true) >= $deadline) {
+                $timedOut = true;
+                proc_terminate($process);
+                break;
+            }
+
+            usleep(50000);
         }
 
-        fclose($pipes[0]);
+        $drainDeadline = microtime(true) + 0.75;
 
-        stream_set_timeout(
-            $pipes[1],
-            $timeoutSeconds
-        );
+        do {
+            $stdout .= $this->readPipe($pipes[1]);
+            $stderr .= $this->readPipe($pipes[2]);
 
-        stream_set_timeout(
-            $pipes[2],
-            $timeoutSeconds
-        );
+            if (
+                feof($pipes[1])
+                && feof($pipes[2])
+            ) {
+                break;
+            }
 
-        $stdout = stream_get_contents($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
+            usleep(25000);
+        } while (microtime(true) < $drainDeadline);
 
         fclose($pipes[1]);
         fclose($pipes[2]);
 
-        $exitCode = proc_close($process);
+        return [
+            'stdout' => $stdout,
+            'stderr' => $stderr,
+            'exit_code' => (int) proc_close($process),
+            'timed_out' => $timedOut,
+        ];
+    }
 
-        if ($exitCode !== 0) {
-            $diagnostic = trim((string) $stderr);
+    /**
+     * @param resource $pipe
+     */
+    private function readPipe(mixed $pipe): string
+    {
+        $content = stream_get_contents($pipe);
 
-            logger()->error('Telegram adapter process failed.', [
-                'exit_code' => $exitCode,
-                'stderr' => mb_substr($diagnostic, -2000),
-            ]);
+        return is_string($content) ? $content : '';
+    }
 
-            $message = 'Telegram adapter request failed.';
+    /**
+     * @return resource
+     */
+    private function acquireRuntimeLock(
+        string $runtimeDirectory,
+        string $operation,
+    ): mixed {
+        if (
+            ! is_dir($runtimeDirectory)
+            && ! mkdir($runtimeDirectory, 0775, true)
+            && ! is_dir($runtimeDirectory)
+        ) {
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::Temporary,
+                'Telegram runtime directory could not be created.',
+                null,
+                $operation,
+            );
+        }
 
-            if (config('app.debug') && $diagnostic !== '') {
-                $message .= ' '.$diagnostic;
+        $lockPath = $runtimeDirectory
+            .DIRECTORY_SEPARATOR
+            .'.telegram-adapter.lock';
+        $handle = @fopen($lockPath, 'c');
+
+        if ($handle === false) {
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::Temporary,
+                'Telegram adapter lock could not be opened.',
+                null,
+                $operation,
+            );
+        }
+
+        $deadline = microtime(true) + 10.0;
+        $locked = false;
+
+        do {
+            $locked = flock($handle, LOCK_EX | LOCK_NB);
+
+            if ($locked) {
+                break;
             }
 
-            throw new RuntimeException($message);
-        }
+            usleep(100000);
+        } while (microtime(true) < $deadline);
 
-        if (! is_string($stdout) || trim($stdout) === '') {
-            throw new RuntimeException(
-                'Telegram adapter returned an empty response.'
+        if (! $locked) {
+            fclose($handle);
+
+            Log::channel('telegram')->warning(
+                '[telegram] request.busy',
+                [
+                    'operation' => $operation,
+                ],
+            );
+
+            throw new ProviderException(
+                'telegram',
+                ProviderErrorType::Temporary,
+                'Another Telegram request is still being processed.',
+                null,
+                $operation,
             );
         }
 
-        $decoded = json_decode(
-            $stdout,
-            true
-        );
+        return $handle;
+    }
 
-        if (! is_array($decoded)) {
-            throw new RuntimeException(
-                'Telegram adapter returned invalid JSON.'
-            );
+    private function operationFor(
+        ?int $chatId,
+        ?int $beforeMessageId,
+    ): string {
+        if ($chatId === null) {
+            return 'chat_discovery';
         }
 
-        return $decoded;
+        return $beforeMessageId === null
+            ? 'history_initial'
+            : 'history_pagination';
+    }
+
+    private function durationMs(float $startedAt): int
+    {
+        return (int) round((microtime(true) - $startedAt) * 1000);
     }
 
     private function buildCommand(
@@ -176,8 +443,8 @@ class TelegramAdapterService
         if (PHP_OS_FAMILY === 'Windows') {
             return sprintf(
                 '"%s" "%s"',
-                str_replace('"', '\"', $pythonBinary),
-                str_replace('"', '\"', $script),
+                str_replace('"', '\\"', $pythonBinary),
+                str_replace('"', '\\"', $script),
             );
         }
 
