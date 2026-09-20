@@ -12,6 +12,7 @@ class ProviderException extends RuntimeException
         public readonly ProviderErrorType $type,
         string $safeMessage,
         ?Throwable $previous = null,
+        public readonly ?string $operation = null,
     ) {
         parent::__construct($safeMessage, previous: $previous);
     }
