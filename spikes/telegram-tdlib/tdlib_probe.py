@@ -39,6 +39,7 @@ class TdJsonClient:
         self.client_id = tdjson.td_create_client_id()
         self._request_counter = 0
         self.chats: dict[int, JsonObject] = {}
+        self.chat_lists: set[tuple[str, int | None]] = set()
 
     def execute(self, query: JsonObject) -> JsonObject | None:
         raw = tdjson.td_execute(json.dumps(query).encode("utf-8"))
@@ -75,6 +76,18 @@ class TdJsonClient:
 
             if isinstance(chat, dict) and isinstance(chat.get("id"), int):
                 self.chats[chat["id"]] = chat
+
+        if event.get("@type") == "updateChatAddedToList":
+            chat_list = event.get("chat_list") or {}
+            list_type = chat_list.get("@type")
+            folder_id = chat_list.get("chat_folder_id")
+            if isinstance(list_type, str):
+                self.chat_lists.add(
+                    (
+                        list_type,
+                        folder_id if isinstance(folder_id, int) else None,
+                    )
+                )
 
     def wait_for_response(
         self,
@@ -241,22 +254,19 @@ def _authorization_loop(
             )
 
 
-def _load_main_chats(client: TdJsonClient) -> None:
-    """Load a bounded first page of chats without blocking on the full archive."""
+def _load_chat_list(
+    client: TdJsonClient,
+    chat_list: JsonObject,
+    max_pages: int,
+) -> None:
     previous_count = -1
     idle_rounds = 0
-    max_pages = max(
-        1,
-        min(int(os.getenv("TELEGRAM_CHAT_DISCOVERY_PAGES", "3")), 5),
-    )
 
     for _ in range(max_pages):
         tag = client.send(
             {
                 "@type": "loadChats",
-                "chat_list": {
-                    "@type": "chatListMain",
-                },
+                "chat_list": chat_list,
                 "limit": 100,
             }
         )
@@ -282,6 +292,44 @@ def _load_main_chats(client: TdJsonClient) -> None:
             break
 
         previous_count = current_count
+
+
+def _load_main_chats(client: TdJsonClient) -> None:
+    """Load Main, Archive, and discovered Telegram folders incrementally."""
+    max_pages = max(
+        1,
+        min(int(os.getenv("TELEGRAM_CHAT_DISCOVERY_PAGES", "3")), 5),
+    )
+
+    _load_chat_list(
+        client,
+        {"@type": "chatListMain"},
+        max_pages,
+    )
+    _load_chat_list(
+        client,
+        {"@type": "chatListArchive"},
+        max_pages,
+    )
+
+    folder_lists = sorted(
+        (
+            (list_type, folder_id)
+            for list_type, folder_id in client.chat_lists
+            if list_type == "chatListFolder" and folder_id is not None
+        ),
+        key=lambda item: item[1],
+    )
+
+    for _, folder_id in folder_lists:
+        _load_chat_list(
+            client,
+            {
+                "@type": "chatListFolder",
+                "chat_folder_id": folder_id,
+            },
+            max_pages,
+        )
 
 
 def _select_supported_chat(client: TdJsonClient) -> JsonObject:
