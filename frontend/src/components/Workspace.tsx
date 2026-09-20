@@ -263,6 +263,10 @@ function Workspace({
   const [isTelegramLoading, setIsTelegramLoading] = useState(false)
   const [telegramError, setTelegramError] =
     useState<string | null>(null)
+  const [telegramHasMore, setTelegramHasMore] = useState(false)
+  const [telegramNextBeforeMessageId, setTelegramNextBeforeMessageId] =
+    useState<number | null>(null)
+  const [isTelegramMoreLoading, setIsTelegramMoreLoading] = useState(false)
 
   const hasInitializedLazySync = useRef(false)
 
