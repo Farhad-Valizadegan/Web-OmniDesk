@@ -209,8 +209,9 @@ def main() -> int:
         }
     ]
 
-    _refresh_chat_metadata(client, discovered_chats)
-
+    # Do not call getChat serially for every discovered chat. TDLib already
+    # provides the chat summary through updateNewChat; refreshing every chat
+    # here was the main source of multi-minute initial loads.
     chats = [
         summary
         for chat in discovered_chats
