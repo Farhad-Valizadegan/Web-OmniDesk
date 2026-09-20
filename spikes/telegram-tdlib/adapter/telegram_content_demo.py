@@ -207,7 +207,7 @@ def main() -> int:
             "chatTypeBasicGroup",
             "chatTypeSupergroup",
         }
-    ][:20]
+    ]
 
     _refresh_chat_metadata(client, discovered_chats)
 

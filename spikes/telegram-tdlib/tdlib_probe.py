@@ -242,22 +242,37 @@ def _authorization_loop(
 
 
 def _load_main_chats(client: TdJsonClient) -> None:
-    tag = client.send(
-        {
-            "@type": "loadChats",
-            "chat_list": {
-                "@type": "chatListMain",
-            },
-            "limit": 20,
-        }
-    )
+    """Load bounded pages of chat metadata without loading message history."""
+    previous_count = -1
+    idle_rounds = 0
 
-    client.wait_for_response(tag, timeout=20.0)
+    for _ in range(20):
+        tag = client.send(
+            {
+                "@type": "loadChats",
+                "chat_list": {
+                    "@type": "chatListMain",
+                },
+                "limit": 100,
+            }
+        )
 
-    deadline = time.monotonic() + 5.0
+        client.wait_for_response(tag, timeout=20.0)
 
-    while time.monotonic() < deadline:
-        client.receive(0.5)
+        deadline = time.monotonic() + 2.0
+        while time.monotonic() < deadline:
+            client.receive(0.25)
+
+        current_count = len(client.chats)
+        if current_count == previous_count:
+            idle_rounds += 1
+        else:
+            idle_rounds = 0
+
+        if idle_rounds >= 2:
+            break
+
+        previous_count = current_count
 
 
 def _select_supported_chat(client: TdJsonClient) -> JsonObject:
