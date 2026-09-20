@@ -11,7 +11,7 @@ class TelegramAdapterService
      *
      * @return array<string, mixed>
      */
-    public function fetchContentSample(): array
+    public function fetchContentSample(?int $chatId = null): array
     {
         $pythonBinary = (string) config(
             'telegram.python_binary',
@@ -68,6 +68,13 @@ class TelegramAdapterService
             'TELEGRAM_TDLIB_RUNTIME' => $runtimeDirectory,
             'PYTHONIOENCODING' => 'utf-8',
         ];
+
+        if ($chatId !== null) {
+            $environment['TELEGRAM_CHAT_ID'] = (string) $chatId;
+        }
+
+        /*
+        */
 
         $descriptors = [
             0 => [
