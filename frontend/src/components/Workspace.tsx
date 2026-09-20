@@ -439,6 +439,28 @@ function Workspace({
     }
   }
 
+  const handleTelegramChatSelect = async (chat: TelegramChat) => {
+    try {
+      setIsTelegramLoading(true)
+      setTelegramError(null)
+      setSelectedTelegramChatId(chat.id)
+      setTelegramChatTitle(chat.title)
+
+      const response = await getTelegramSample(chat.id)
+
+      setTelegramMessages(response.data.messages)
+    } catch (error) {
+      setTelegramMessages([])
+      setTelegramError(
+        error instanceof Error
+          ? error.message
+          : 'Telegram chat could not be loaded.',
+      )
+    } finally {
+      setIsTelegramLoading(false)
+    }
+  }
+
   return (
     <section
       className="workspace"
@@ -614,8 +636,7 @@ function Workspace({
                               : 'telegram-chat-item'
                           }
                           onClick={() => {
-                            setSelectedTelegramChatId(chat.id)
-                            setTelegramChatTitle(chat.title)
+                            void handleTelegramChatSelect(chat)
                           }}
                         >
                           <span className="telegram-chat-avatar">
