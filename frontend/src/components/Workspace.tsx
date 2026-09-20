@@ -61,7 +61,7 @@ function initials(value: string | null): string {
 
 function sortTelegramMessages(messages: TelegramMessage[]): TelegramMessage[] {
   return [...messages].sort(
-    (left, right) => right.date - left.date || right.id - left.id,
+    (left, right) => left.date - right.date || left.id - right.id,
   )
 }
 
