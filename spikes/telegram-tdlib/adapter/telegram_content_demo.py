@@ -111,29 +111,7 @@ def main() -> int:
 
     requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
 
-    histories: dict[int, list[JsonObject]] = {}
-    for chat in chats:
-        try:
-            history = _get_history(client, int(chat["id"]))
-            messages = history.get("messages") or []
-        except (RuntimeError, TimeoutError):
-            messages = []
-
-        histories[int(chat["id"])] = messages
-
-        text_messages = [
-            message
-            for message in messages
-            if _message_text(message)
-        ]
-
-        if text_messages:
-            latest = text_messages[0]
-            chat["last_message"] = _message_text(latest)
-            chat["last_message_date"] = latest.get("date")
-
-        chat["messages_count"] = len(text_messages)
-
+    requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     selected_chat = next(
         (
             chat
@@ -143,7 +121,25 @@ def main() -> int:
         ),
         chats[0],
     )
-    messages = histories[int(selected_chat["id"])]
+
+    try:
+        history = _get_history(client, int(selected_chat["id"]))
+        messages = history.get("messages") or []
+    except (RuntimeError, TimeoutError):
+        messages = []
+
+    text_messages = [
+        message
+        for message in messages
+        if _message_text(message)
+    ]
+
+    if text_messages:
+        latest = text_messages[0]
+        selected_chat["last_message"] = _message_text(latest)
+        selected_chat["last_message_date"] = latest.get("date")
+
+    selected_chat["messages_count"] = len(text_messages)
 
     result: JsonObject = {
         "provider": "telegram",
