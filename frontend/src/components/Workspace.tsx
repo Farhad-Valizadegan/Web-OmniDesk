@@ -504,6 +504,44 @@ function Workspace({
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
       setTelegramChatTitle(initialSelectedChat.title)
+
+      if (response.data.messages.length === 0) {
+        const historyResponse = await getTelegramSample(
+          initialSelectedChat.id,
+          {},
+          controller.signal,
+        )
+
+        if (!isCurrentTelegramRequest(requestId, controller)) {
+          return
+        }
+
+        const initialHistoryMessage = historyResponse.data.messages[0]
+        const selectedChatWithHistory = {
+          ...historyResponse.data.selected_chat,
+          last_message:
+            historyResponse.data.selected_chat.last_message ||
+            initialHistoryMessage?.text ||
+            '',
+          messages_count:
+            historyResponse.data.selected_chat.messages_count ??
+            historyResponse.data.messages.length,
+        }
+
+        setTelegramChats((currentChats) =>
+          currentChats.map((currentChat) =>
+            currentChat.id === selectedChatWithHistory.id
+              ? selectedChatWithHistory
+              : currentChat,
+          ),
+        )
+        setTelegramMessages(historyResponse.data.messages)
+        setTelegramHasMore(historyResponse.data.has_more)
+        setTelegramNextBeforeMessageId(
+          historyResponse.data.next_before_message_id,
+        )
+        setTelegramChatTitle(selectedChatWithHistory.title)
+      }
     } catch (error) {
       if (
         controller.signal.aborted ||
