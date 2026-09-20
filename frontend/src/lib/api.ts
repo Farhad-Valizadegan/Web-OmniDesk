@@ -135,6 +135,11 @@ export type TelegramChat = {
   messages_count?: number
 }
 
+export type TelegramSampleOptions = {
+  limit?: number
+  beforeMessageId?: number
+}
+
 export type TelegramSampleResponse = {
   message: string
   data: {
@@ -142,6 +147,8 @@ export type TelegramSampleResponse = {
     chats: TelegramChat[]
     selected_chat: TelegramChat
     messages: TelegramMessage[]
+    has_more: boolean
+    next_before_message_id: number | null
   }
 }
 
@@ -401,10 +408,20 @@ export async function disconnectGmail(): Promise<GmailDisconnectResponse | null>
 
 export async function getTelegramSample(
   chatId?: number,
+  options: TelegramSampleOptions = {},
 ): Promise<TelegramSampleResponse> {
-  const query = chatId === undefined ? '' : `?chat_id=${chatId}`
+  const params = new URLSearchParams()
+  params.set('limit', String(options.limit ?? 20))
+
+  if (chatId !== undefined) {
+    params.set('chat_id', String(chatId))
+  }
+
+  if (options.beforeMessageId !== undefined) {
+    params.set('before_message_id', String(options.beforeMessageId))
+  }
 
   return request<TelegramSampleResponse>(
-    `/api/integrations/telegram/sample${query}`,
+    `/api/integrations/telegram/sample?${params.toString()}`,
   )
 }
