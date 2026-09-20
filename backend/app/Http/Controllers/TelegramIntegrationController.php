@@ -24,9 +24,9 @@ class TelegramIntegrationController extends Controller
         try {
             $result = $adapterService->fetchContentSample(
                 $validated['chat_id'] ?? null,
-                    $validated['limit'] ?? 20,
-                    $validated['before_message_id'] ?? null,
-                );
+                $validated['limit'] ?? 20,
+                $validated['before_message_id'] ?? null,
+            );
         } catch (Throwable) {
             return response()->json([
                 'message' => 'Telegram content could not be loaded.',
