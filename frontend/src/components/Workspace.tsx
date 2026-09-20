@@ -295,8 +295,6 @@ function Workspace({
     telegramAbortController.current?.abort()
     telegramAbortController.current = null
     telegramRequestInFlight.current = false
-    setIsTelegramLoading(false)
-    setIsTelegramMoreLoading(false)
   }, [activeProvider])
 
   useEffect(() => {
@@ -848,7 +846,6 @@ function Workspace({
                 setActiveProvider('telegram')
                 if (
                   telegramChats.length === 0 &&
-                  !isTelegramLoading &&
                   !telegramRequestInFlight.current
                 ) {
                   void handleTelegramLoad()
