@@ -56,7 +56,7 @@ class TelegramAdapterService
             (int) config('telegram.timeout_seconds', 60)
         );
 
-        if ($script === '' || ! is_file($script)) {
+        if ($script === '' || is_file($script) === false) {
             throw new ProviderException(
                 'telegram',
                 ProviderErrorType::InvalidResponse,
@@ -138,7 +138,7 @@ class TelegramAdapterService
                 $environment
             );
 
-            if (! is_resource($process)) {
+            if (is_resource($process) === false) {
                 throw new ProviderException(
                     'telegram',
                     ProviderErrorType::Temporary,
@@ -213,7 +213,7 @@ class TelegramAdapterService
 
             $decoded = json_decode($stdout, true);
 
-            if (! is_array($decoded)) {
+            if (is_array($decoded) === false) {
                 Log::channel('telegram')->error(
                     '[telegram] response.invalid_json',
                     [
@@ -288,6 +288,7 @@ class TelegramAdapterService
         $stdout = '';
         $stderr = '';
         $timedOut = false;
+        $exitCode = -1;
         $deadline = microtime(true) + $timeoutSeconds;
 
         while (true) {
@@ -296,7 +297,8 @@ class TelegramAdapterService
 
             $status = proc_get_status($process);
 
-            if (!($status['running'] ?? false)) {
+            if (($status['running'] ?? false) === false) {
+                $exitCode = (int) ($status['exitcode'] ?? -1);
                 break;
             }
 
@@ -328,10 +330,16 @@ class TelegramAdapterService
         fclose($pipes[1]);
         fclose($pipes[2]);
 
+        $closedExitCode = (int) proc_close($process);
+
+        if ($exitCode < 0) {
+            $exitCode = $closedExitCode;
+        }
+
         return [
             'stdout' => $stdout,
             'stderr' => $stderr,
-            'exit_code' => (int) proc_close($process),
+            'exit_code' => $exitCode,
             'timed_out' => $timedOut,
         ];
     }
@@ -354,9 +362,9 @@ class TelegramAdapterService
         string $operation,
     ): mixed {
         if (
-            ! is_dir($runtimeDirectory)
-            && ! mkdir($runtimeDirectory, 0775, true)
-            && ! is_dir($runtimeDirectory)
+            is_dir($runtimeDirectory) === false
+            && mkdir($runtimeDirectory, 0775, true) === false
+            && is_dir($runtimeDirectory) === false
         ) {
             throw new ProviderException(
                 'telegram',
@@ -395,7 +403,7 @@ class TelegramAdapterService
             usleep(100000);
         } while (microtime(true) < $deadline);
 
-        if (! $locked) {
+        if ($locked === false) {
             fclose($handle);
 
             Log::channel('telegram')->warning(
