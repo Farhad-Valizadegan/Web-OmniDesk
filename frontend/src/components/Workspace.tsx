@@ -422,16 +422,28 @@ function Workspace({
 
       const response = await getTelegramSample()
 
+      const initialTelegramMessage = response.data.messages[0]
+      const initialSelectedChat = {
+        ...response.data.selected_chat,
+        last_message:
+          response.data.selected_chat.last_message ||
+          initialTelegramMessage?.text ||
+          '',
+        messages_count:
+          response.data.selected_chat.messages_count ??
+          response.data.messages.length,
+      }
+
       setTelegramChats(
         response.data.chats.map((chat) =>
-          chat.id === response.data.selected_chat.id
-            ? response.data.selected_chat
+          chat.id === initialSelectedChat.id
+            ? initialSelectedChat
             : chat,
         ),
       )
-      setSelectedTelegramChatId(response.data.selected_chat.id)
+      setSelectedTelegramChatId(initialSelectedChat.id)
       setTelegramMessages(response.data.messages)
-      setTelegramChatTitle(response.data.selected_chat.title)
+      setTelegramChatTitle(initialSelectedChat.title)
     } catch (error) {
       setTelegramMessages([])
       setTelegramChatTitle(null)
@@ -455,10 +467,22 @@ function Workspace({
 
       const response = await getTelegramSample(chat.id)
 
+      const selectedTelegramMessage = response.data.messages[0]
+      const selectedChat = {
+        ...response.data.selected_chat,
+        last_message:
+          response.data.selected_chat.last_message ||
+          selectedTelegramMessage?.text ||
+          '',
+        messages_count:
+          response.data.selected_chat.messages_count ??
+          response.data.messages.length,
+      }
+
       setTelegramChats((currentChats) =>
         currentChats.map((currentChat) =>
-          currentChat.id === response.data.selected_chat.id
-            ? response.data.selected_chat
+          currentChat.id === selectedChat.id
+            ? selectedChat
             : currentChat,
         ),
       )
