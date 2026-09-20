@@ -11,7 +11,11 @@ class TelegramAdapterService
      *
      * @return array<string, mixed>
      */
-    public function fetchContentSample(?int $chatId = null): array
+    public function fetchContentSample(
+        ?int $chatId = null,
+        int $limit = 20,
+        ?int $beforeMessageId = null,
+    ): array
     {
         $pythonBinary = (string) config(
             'telegram.python_binary',
@@ -33,6 +37,8 @@ class TelegramAdapterService
         $apiHash = (string) config(
             'telegram.api_hash'
         );
+
+        $limit = max(1, min($limit, 20));
 
         $timeoutSeconds = (int) config(
             'telegram.timeout_seconds',
@@ -67,7 +73,12 @@ class TelegramAdapterService
             'TELEGRAM_API_HASH' => $apiHash,
             'TELEGRAM_TDLIB_RUNTIME' => $runtimeDirectory,
             'PYTHONIOENCODING' => 'utf-8',
+            'TELEGRAM_MESSAGE_LIMIT' => (string) $limit,
         ];
+
+        if ($beforeMessageId !== null) {
+            $environment['TELEGRAM_BEFORE_MESSAGE_ID'] = (string) $beforeMessageId;
+        }
 
         if ($chatId !== null) {
             $environment['TELEGRAM_CHAT_ID'] = (string) $chatId;
