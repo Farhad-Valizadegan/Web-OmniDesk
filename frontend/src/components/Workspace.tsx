@@ -443,6 +443,8 @@ function Workspace({
       )
       setSelectedTelegramChatId(initialSelectedChat.id)
       setTelegramMessages(response.data.messages)
+      setTelegramHasMore(response.data.has_more)
+      setTelegramNextBeforeMessageId(response.data.next_before_message_id)
       setTelegramChatTitle(initialSelectedChat.title)
     } catch (error) {
       setTelegramMessages([])
@@ -455,6 +457,49 @@ function Workspace({
       )
     } finally {
       setIsTelegramLoading(false)
+    }
+  }
+
+  const handleTelegramLoadMore = async () => {
+    if (
+      selectedTelegramChatId === null ||
+      !telegramHasMore ||
+      telegramNextBeforeMessageId === null ||
+      isTelegramMoreLoading
+    ) {
+      return
+    }
+
+    try {
+      setIsTelegramMoreLoading(true)
+      setTelegramError(null)
+      const response = await getTelegramSample(selectedTelegramChatId, {
+        limit: 20,
+        beforeMessageId: telegramNextBeforeMessageId,
+      })
+      setTelegramMessages((currentMessages) => {
+        const messagesById = new Map(
+          currentMessages.map((message) => [message.id, message]),
+        )
+
+        response.data.messages.forEach((message) => {
+          messagesById.set(message.id, message)
+        })
+
+        return Array.from(messagesById.values()).sort(
+          (left, right) => right.date - left.date,
+        )
+      })
+      setTelegramHasMore(response.data.has_more)
+      setTelegramNextBeforeMessageId(response.data.next_before_message_id)
+    } catch (error) {
+      setTelegramError(
+        error instanceof Error
+          ? error.message
+          : 'Older Telegram messages could not be loaded.',
+      )
+    } finally {
+      setIsTelegramMoreLoading(false)
     }
   }
 
@@ -487,6 +532,8 @@ function Workspace({
         ),
       )
       setTelegramMessages(response.data.messages)
+      setTelegramHasMore(response.data.has_more)
+      setTelegramNextBeforeMessageId(response.data.next_before_message_id)
     } catch (error) {
       setTelegramMessages([])
       setTelegramError(
@@ -763,6 +810,20 @@ function Workspace({
                           </article>
                         ))
                       )}
+                      {telegramHasMore && (
+                        <div className="telegram-load-more">
+                          <button
+                            className="secondary-button"
+                            type="button"
+                            onClick={() => void handleTelegramLoadMore()}
+                            disabled={isTelegramMoreLoading}
+                          >
+                            {isTelegramMoreLoading
+                              ? 'Loading older messages...'
+                              : 'Load 20 older messages'}
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="telegram-composer">
@@ -796,7 +857,7 @@ function Workspace({
                       </div>
                       <div>
                         <dt>Messages loaded</dt>
-                        <dd>{selectedTelegramChat?.messages_count ?? telegramMessages.length}</dd>
+                        <dd>{telegramMessages.length}</dd>
                       </div>
                     </dl>
                     <p className="telegram-readonly-note">
