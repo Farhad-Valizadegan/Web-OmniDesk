@@ -162,8 +162,24 @@ def main() -> int:
         chats[0],
     )
 
+    requested_limit = max(
+        1,
+        min(
+            int(os.getenv("TELEGRAM_MESSAGE_LIMIT", "20")),
+            20,
+        ),
+    )
+    before_message_id = int(
+        os.getenv("TELEGRAM_BEFORE_MESSAGE_ID", "0") or "0"
+    )
+
     try:
-        history = _get_history(client, int(selected_chat["id"]))
+        history = _get_history(
+            client,
+            int(selected_chat["id"]),
+            limit=requested_limit,
+            before_message_id=before_message_id,
+        )
         messages = history.get("messages") or []
     except (RuntimeError, TimeoutError):
         messages = []
@@ -174,22 +190,31 @@ def main() -> int:
         if _message_text(message)
     ]
 
-    if text_messages:
+    if text_messages and before_message_id == 0:
         latest = text_messages[0]
         selected_chat["last_message"] = _message_text(latest)
         selected_chat["last_message_date"] = latest.get("date")
 
-    selected_chat["messages_count"] = len(text_messages)
+    message_summaries = [
+        _message_summary(message)
+        for message in messages
+        if _message_text(message)
+    ]
+    next_before_message_id = (
+        messages[-1].get("id")
+        if len(messages) >= requested_limit and messages
+        else None
+    )
+
+    selected_chat["messages_count"] = len(message_summaries)
 
     result: JsonObject = {
         "provider": "telegram",
         "chats": chats,
         "selected_chat": selected_chat,
-        "messages": [
-            _message_summary(message)
-            for message in messages[:30]
-            if _message_text(message)
-        ],
+        "messages": message_summaries,
+        "has_more": next_before_message_id is not None,
+        "next_before_message_id": next_before_message_id,
     }
 
     print(json.dumps(result, indent=2, ensure_ascii=False))
