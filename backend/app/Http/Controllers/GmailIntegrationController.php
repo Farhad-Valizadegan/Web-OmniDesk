@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class GmailIntegrationController extends Controller
@@ -63,13 +64,37 @@ class GmailIntegrationController extends Controller
                 $validated['page_token'] ?? null,
             );
         } catch (ProviderException $exception) {
+            Log::channel('gmail')->error(
+                '[gmail][api] sync.error',
+                [
+                    'operation' => 'sync',
+                    'error' => $exception->errorCode(),
+                    'retryable' => $exception->isRetryable(),
+                ],
+            );
+
             return $this->providerErrorResponse($exception);
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            Log::channel('gmail')->error(
+                '[gmail][api] sync.unexpected_failure',
+                [
+                    'operation' => 'sync',
+                    'exception' => $exception::class,
+                    'error' => $exception->getMessage(),
+                ],
+            );
+
             return response()->json([
                 'message' => 'Gmail synchronization could not be completed.',
                 'error' => 'gmail_sync_failed',
             ], 502);
         }
+
+        Log::channel('gmail')->info('[gmail][api] sync.complete', [
+            'operation' => 'sync',
+            'threads_processed' => $result['threads_processed'],
+            'messages_processed' => $result['messages_processed'],
+        ]);
 
         return response()->json([
             'message' => 'Gmail synchronization completed.',
@@ -93,13 +118,37 @@ class GmailIntegrationController extends Controller
                 $validated['max_results'] ?? 15,
             );
         } catch (ProviderException $exception) {
+            Log::channel('gmail')->error(
+                '[gmail][api] sync_page.error',
+                [
+                    'operation' => 'sync_page',
+                    'error' => $exception->errorCode(),
+                    'retryable' => $exception->isRetryable(),
+                ],
+            );
+
             return $this->providerErrorResponse($exception);
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            Log::channel('gmail')->error(
+                '[gmail][api] sync_page.unexpected_failure',
+                [
+                    'operation' => 'sync_page',
+                    'exception' => $exception::class,
+                    'error' => $exception->getMessage(),
+                ],
+            );
+
             return response()->json([
                 'message' => 'Gmail page could not be loaded.',
                 'error' => 'gmail_page_sync_failed',
             ], 502);
         }
+
+        Log::channel('gmail')->info('[gmail][api] sync_page.complete', [
+            'operation' => 'sync_page',
+            'threads_processed' => $result['threads_processed'],
+            'messages_processed' => $result['messages_processed'],
+        ]);
 
         return response()->json([
             'message' => 'Gmail page loaded.',
