@@ -15,8 +15,7 @@ class TelegramAdapterService
         ?int $chatId = null,
         int $limit = 20,
         ?int $beforeMessageId = null,
-    ): array
-    {
+    ): array {
         $pythonBinary = (string) config(
             'telegram.python_binary',
             'python'
@@ -169,8 +168,7 @@ class TelegramAdapterService
     private function buildCommand(
         string $pythonBinary,
         string $script,
-    ): string
-    {
+    ): string {
         if (PHP_OS_FAMILY === 'Windows') {
             return sprintf(
                 '"%s" "%s"',
