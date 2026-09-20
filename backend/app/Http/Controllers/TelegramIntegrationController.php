@@ -107,11 +107,11 @@ class TelegramIntegrationController extends Controller
      */
     private function operationFor(array $validated): string
     {
-        if (array_key_exists('chat_id', $validated) === false) {
+        if (($validated['chat_id'] ?? null) === null) {
             return 'chat_discovery';
         }
 
-        return array_key_exists('before_message_id', $validated)
+        return ($validated['before_message_id'] ?? null) !== null
             ? 'history_pagination'
             : 'history_initial';
     }
