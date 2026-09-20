@@ -59,6 +59,12 @@ function initials(value: string | null): string {
   return letters.join('').toUpperCase()
 }
 
+function sortTelegramMessages(messages: TelegramMessage[]): TelegramMessage[] {
+  return [...messages].sort(
+    (left, right) => right.date - left.date || right.id - left.id,
+  )
+}
+
 function formatAttachmentSize(size: number): string {
   if (size < 1024) return `${size} B`
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
@@ -272,6 +278,8 @@ function Workspace({
   const telegramRequestId = useRef(0)
   const telegramAbortController = useRef<AbortController | null>(null)
   const telegramRequestInFlight = useRef(false)
+  const telegramScrollToLatest = useRef(false)
+  const telegramMessageListRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -287,7 +295,27 @@ function Workspace({
     telegramAbortController.current?.abort()
     telegramAbortController.current = null
     telegramRequestInFlight.current = false
+    setIsTelegramLoading(false)
+    setIsTelegramMoreLoading(false)
   }, [activeProvider])
+
+  useEffect(() => {
+    if (
+      !telegramScrollToLatest.current ||
+      telegramMessages.length === 0
+    ) {
+      return
+    }
+
+    const messageList = telegramMessageListRef.current
+
+    if (!messageList) {
+      return
+    }
+
+    messageList.scrollTop = messageList.scrollHeight
+    telegramScrollToLatest.current = false
+  }, [telegramMessages.length, selectedTelegramChatId])
 
   const loadConversations = useCallback(async () => {
     try {
@@ -500,7 +528,8 @@ function Workspace({
         ),
       )
       setSelectedTelegramChatId(initialSelectedChat.id)
-      setTelegramMessages(response.data.messages)
+      telegramScrollToLatest.current = true
+      setTelegramMessages(sortTelegramMessages(response.data.messages))
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
       setTelegramChatTitle(initialSelectedChat.title)
@@ -535,7 +564,9 @@ function Workspace({
               : currentChat,
           ),
         )
-        setTelegramMessages(historyResponse.data.messages)
+        setTelegramMessages(
+          sortTelegramMessages(historyResponse.data.messages),
+        )
         setTelegramHasMore(historyResponse.data.has_more)
         setTelegramNextBeforeMessageId(
           historyResponse.data.next_before_message_id,
@@ -605,9 +636,7 @@ function Workspace({
           messagesById.set(message.id, message)
         })
 
-        return Array.from(messagesById.values()).sort(
-          (left, right) => right.date - left.date,
-        )
+        return sortTelegramMessages(Array.from(messagesById.values()))
       })
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
@@ -641,6 +670,7 @@ function Workspace({
     setTelegramMessages([])
     setTelegramHasMore(false)
     setTelegramNextBeforeMessageId(null)
+    telegramScrollToLatest.current = true
 
     try {
       setIsTelegramLoading(true)
@@ -676,7 +706,7 @@ function Workspace({
             : currentChat,
         ),
       )
-      setTelegramMessages(response.data.messages)
+      setTelegramMessages(sortTelegramMessages(response.data.messages))
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
       setTelegramChatTitle(selectedChat.title)
@@ -967,6 +997,7 @@ function Workspace({
                     </header>
 
                     <div
+                      ref={telegramMessageListRef}
                       className="telegram-message-list"
                       aria-busy={isTelegramLoading || isTelegramMoreLoading}
                     >
