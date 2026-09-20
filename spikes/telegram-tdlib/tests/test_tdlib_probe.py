@@ -1,7 +1,10 @@
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+
+# Unit tests cover protocol/control flow without requiring native TDLib.
+sys.modules.setdefault("tdjson", MagicMock())
 
 SPIKE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SPIKE_DIR))
