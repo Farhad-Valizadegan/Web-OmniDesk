@@ -409,6 +409,7 @@ export async function disconnectGmail(): Promise<GmailDisconnectResponse | null>
 export async function getTelegramSample(
   chatId?: number,
   options: TelegramSampleOptions = {},
+  signal?: AbortSignal,
 ): Promise<TelegramSampleResponse> {
   const params = new URLSearchParams()
   params.set('limit', String(options.limit ?? 20))
@@ -423,5 +424,6 @@ export async function getTelegramSample(
 
   return request<TelegramSampleResponse>(
     `/api/integrations/telegram/sample?${params.toString()}`,
+    { signal },
   )
 }
