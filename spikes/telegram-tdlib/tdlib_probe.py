@@ -278,7 +278,7 @@ def _load_chat_list(
                 break
             raise
 
-        deadline = time.monotonic() + 0.75
+        deadline = time.monotonic() + 2.0
         while time.monotonic() < deadline:
             client.receive(0.25)
 
@@ -288,7 +288,7 @@ def _load_chat_list(
         else:
             idle_rounds = 0
 
-        if idle_rounds >= 1:
+        if idle_rounds >= 2:
             break
 
         previous_count = current_count
