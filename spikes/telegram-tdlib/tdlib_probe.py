@@ -283,6 +283,7 @@ def _get_history(
     chat_id: int,
     limit: int = 20,
     before_message_id: int = 0,
+    only_local: bool = False,
 ) -> JsonObject:
     bounded_limit = max(1, min(limit, 20))
     tag = client.send(
@@ -292,7 +293,7 @@ def _get_history(
             "from_message_id": before_message_id,
             "offset": 0,
             "limit": bounded_limit,
-            "only_local": False,
+            "only_local": only_local,
         }
     )
 
