@@ -71,9 +71,11 @@ class SyncGmailCommand extends Command
             } catch (Throwable $exception) {
                 $exitCode = self::FAILURE;
 
-                Log::channel('gmail')->error(
-                    '[gmail][scheduler] sync.error',
+                Log::error(
+                    'Scheduled Gmail synchronization failed.',
                     [
+                        'provider' => 'gmail',
+                        'category' => 'scheduler',
                         'operation' => 'scheduled_sync',
                         'provider_connection_id' => $connection->id,
                         'user_id' => $connection->user_id,
