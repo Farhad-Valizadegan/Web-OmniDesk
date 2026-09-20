@@ -45,7 +45,7 @@ class TelegramAdapterService
             120
         );
 
-        if ($script === '' || ! is_file($script)) {
+        if ($script === '' || !is_file($script)) {
             throw new RuntimeException(
                 'Telegram adapter script is not available.'
             );
@@ -107,7 +107,7 @@ class TelegramAdapterService
             $environment
         );
 
-        if (! is_resource($process)) {
+        if (!is_resource($process)) {
             throw new RuntimeException(
                 'Telegram adapter process could not be started.'
             );
