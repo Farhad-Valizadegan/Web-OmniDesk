@@ -73,9 +73,6 @@ class TelegramAdapterService
             $environment['TELEGRAM_CHAT_ID'] = (string) $chatId;
         }
 
-        /*
-        */
-
         $descriptors = [
             0 => [
                 'pipe',
