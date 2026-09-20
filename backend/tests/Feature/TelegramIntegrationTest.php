@@ -97,11 +97,7 @@ class TelegramIntegrationTest extends TestCase
         $this->app->instance(TelegramAdapterService::class, $adapter);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/integrations/telegram/sample', [
-                'chat_id' => 100,
-                'limit' => 20,
-                'before_message_id' => 55,
-            ])
+            ->getJson('/api/integrations/telegram/sample?chat_id=100&limit=20&before_message_id=55')
             ->assertOk()
             ->assertJsonPath('data.messages.0.chat_id', 100)
             ->assertJsonPath('data.messages.0.id', 54);
@@ -125,12 +121,10 @@ class TelegramIntegrationTest extends TestCase
         $this->app->instance(TelegramAdapterService::class, $adapter);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/integrations/telegram/sample', [
-                'chat_id' => 100,
-            ])
+            ->getJson('/api/integrations/telegram/sample?chat_id=100')
             ->assertStatus(503)
             ->assertJson([
-                'error' => 'telegram_temporary_failure',
+                'error' => 'telegram_temporary',
                 'provider' => 'telegram',
                 'operation' => 'history_initial',
                 'retryable' => true,
