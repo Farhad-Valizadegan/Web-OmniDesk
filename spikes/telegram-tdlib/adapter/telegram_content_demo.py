@@ -242,15 +242,12 @@ def main() -> int:
         os.getenv("TELEGRAM_BEFORE_MESSAGE_ID", "0") or "0"
     )
 
-    try:
-        messages = _get_bounded_history(
-            client,
-            int(selected_chat["id"]),
-            limit=requested_limit,
-            before_message_id=before_message_id,
-        )
-    except (RuntimeError, TimeoutError):
-        messages = []
+    messages = _get_bounded_history(
+        client,
+        int(selected_chat["id"]),
+        limit=requested_limit,
+        before_message_id=before_message_id,
+    )
 
     text_messages = [
         message
