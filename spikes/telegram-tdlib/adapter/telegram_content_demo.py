@@ -19,6 +19,7 @@ from tdlib_probe import (  # noqa: E402
     _authorization_loop,
     _get_history,
     _load_main_chats,
+    _open_chat,
     _required_env,
 )
 
@@ -78,8 +79,12 @@ def _chat_summary(chat: JsonObject) -> JsonObject | None:
     if normalized_type is None:
         return None
 
+    chat_id = chat.get("id")
+    if not isinstance(chat_id, int):
+        return None
+
     return {
-        "id": chat.get("id"),
+        "id": chat_id,
         "type": normalized_type,
         "tdlib_type": chat_type,
         "title": chat.get("title") or "Untitled chat",
@@ -89,36 +94,6 @@ def _chat_summary(chat: JsonObject) -> JsonObject | None:
             (chat.get("last_message") or {}).get("date")
         ),
     }
-
-
-def _refresh_chat_metadata(
-    client: TdJsonClient,
-    chats: list[JsonObject],
-) -> None:
-    """Refresh chat metadata without loading message history."""
-    for chat in chats:
-        chat_id = chat.get("id")
-
-        if not isinstance(chat_id, int):
-            continue
-
-        try:
-            refreshed = client.wait_for_response(
-                client.send(
-                    {
-                        "@type": "getChat",
-                        "chat_id": chat_id,
-                    },
-                    tag=f"chat-{chat_id}",
-                ),
-                timeout=5.0,
-            )
-        except (RuntimeError, TimeoutError):
-            continue
-
-        if refreshed.get("@type") == "chat":
-            chat.clear()
-            chat.update(refreshed)
 
 
 def _get_bounded_history(
@@ -209,9 +184,14 @@ def main() -> int:
         }
     ]
 
-    # Do not call getChat serially for every discovered chat. TDLib already
-    # provides the chat summary through updateNewChat; refreshing every chat
-    # here was the main source of multi-minute initial loads.
+    discovered_chats.sort(
+        key=lambda chat: (
+            int((chat.get("last_message") or {}).get("date") or 0),
+            int(chat.get("id") or 0),
+        ),
+        reverse=True,
+    )
+
     chats = [
         summary
         for chat in discovered_chats
@@ -221,44 +201,65 @@ def main() -> int:
     if not chats:
         raise RuntimeError("No supported Telegram chats were discovered.")
 
-    requested_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    requested_chat_raw = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    requested_chat_id: int | None = None
+
+    if requested_chat_raw:
+        try:
+            requested_chat_id = int(requested_chat_raw)
+        except ValueError as exc:
+            raise RuntimeError(
+                "TELEGRAM_CHAT_ID must be an integer."
+            ) from exc
+
     selected_chat = next(
         (
             chat
             for chat in chats
-            if requested_chat_id
-            and str(chat["id"]) == requested_chat_id
+            if requested_chat_id is not None
+            and chat["id"] == requested_chat_id
         ),
-        chats[0],
+        None,
     )
 
-    requested_limit = max(
-        1,
-        min(
-            int(os.getenv("TELEGRAM_MESSAGE_LIMIT", "20")),
-            20,
-        ),
-    )
-    before_message_id = int(
-        os.getenv("TELEGRAM_BEFORE_MESSAGE_ID", "0") or "0"
-    )
+    if selected_chat is None:
+        if requested_chat_id is not None:
+            raise RuntimeError(
+                "Requested Telegram chat was not found in the discovered lists."
+            )
 
-    # Chat discovery must stay cheap. Loading history for the first chat here
-    # made the whole Telegram tab fail when that chat's TDLib history request
-    # timed out. History is loaded only after the UI explicitly selects a chat.
-    warnings: list[str] = []
+        selected_chat = chats[0]
+
+    try:
+        requested_limit = int(
+            os.getenv("TELEGRAM_MESSAGE_LIMIT", "20")
+        )
+    except ValueError as exc:
+        raise RuntimeError(
+            "TELEGRAM_MESSAGE_LIMIT must be an integer."
+        ) from exc
+
+    requested_limit = max(1, min(requested_limit, 20))
+
+    try:
+        before_message_id = int(
+            os.getenv("TELEGRAM_BEFORE_MESSAGE_ID", "0") or "0"
+        )
+    except ValueError as exc:
+        raise RuntimeError(
+            "TELEGRAM_BEFORE_MESSAGE_ID must be an integer."
+        ) from exc
+
     messages: list[JsonObject] = []
 
-    if requested_chat_id:
-        try:
-            messages = _get_bounded_history(
-                client,
-                int(selected_chat["id"]),
-                limit=requested_limit,
-                before_message_id=before_message_id,
-            )
-        except (RuntimeError, TimeoutError) as exc:
-            warnings.append(str(exc))
+    if requested_chat_id is not None:
+        _open_chat(client, int(selected_chat["id"]))
+        messages = _get_bounded_history(
+            client,
+            int(selected_chat["id"]),
+            limit=requested_limit,
+            before_message_id=before_message_id,
+        )
 
     text_messages = [
         message
@@ -291,7 +292,7 @@ def main() -> int:
         "messages": message_summaries,
         "has_more": next_before_message_id is not None,
         "next_before_message_id": next_before_message_id,
-        "warnings": warnings,
+        "warnings": [],
     }
 
     print(json.dumps(result, indent=2, ensure_ascii=False))
