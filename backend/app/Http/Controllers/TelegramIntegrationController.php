@@ -107,7 +107,7 @@ class TelegramIntegrationController extends Controller
      */
     private function operationFor(array $validated): string
     {
-        if (! array_key_exists('chat_id', $validated)) {
+        if (!array_key_exists('chat_id', $validated)) {
             return 'chat_discovery';
         }
 
