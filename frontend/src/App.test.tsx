@@ -510,8 +510,8 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Inbox' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Labels' })).not.toBeInTheDocument()
     expect(await screen.findByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
     expect(screen.getByText('No conversations found')).toBeInTheDocument()
     expect(

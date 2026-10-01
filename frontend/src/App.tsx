@@ -319,33 +319,39 @@ function App() {
         </button>
       )}
 
-      <section className="hero">
-        <p className="eyebrow">OmniDesk AI</p>
+      <section className={user ? 'hero hero-authenticated' : 'hero hero-authentication'}>
+        {!user && (
+          <div className="hero-copy">
+            <p className="eyebrow">OmniDesk AI</p>
 
-        <h1>AI-Powered Unified Communication Workplace</h1>
+            <h1>All your conversations, one focused workspace.</h1>
 
-        <p className="description">
-          A secure workspace for unified communication and user-controlled AI
-          assistance.
-        </p>
-
-        <div className="status-card" aria-live="polite">
-          <h2>Backend Connectivity</h2>
-
-          {isHealthLoading && (
-            <p className="status loading">Checking backend connection...</p>
-          )}
-
-          {!isHealthLoading && health && (
-            <p className="status success">
-              Backend is connected. Status: {health.status}
+            <p className="description">
+              Bring Gmail and Telegram together in a secure, calm inbox with
+              user-controlled AI assistance.
             </p>
-          )}
+          </div>
+        )}
 
-          {!isHealthLoading && healthError && (
-            <p className="status failure">{healthError}</p>
-          )}
-        </div>
+        {!user && (
+          <div className="status-card" aria-live="polite">
+            <span className="status-indicator" aria-hidden="true" />
+
+            {isHealthLoading && (
+              <p className="status loading">Checking backend connection...</p>
+            )}
+
+            {!isHealthLoading && health && (
+              <p className="status success">
+                Backend is connected. Status: {health.status}
+              </p>
+            )}
+
+            {!isHealthLoading && healthError && (
+              <p className="status failure">{healthError}</p>
+            )}
+          </div>
+        )}
 
         {gmailFeedback && (
           <p

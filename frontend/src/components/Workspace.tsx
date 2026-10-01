@@ -836,39 +836,6 @@ function Workspace({
       </header>
 
       <div className="workspace-body">
-        <aside
-          className="workspace-sidebar"
-          aria-label="Workspace navigation"
-        >
-          <p className="sidebar-title">Workspace</p>
-
-          <nav>
-            <button
-              type="button"
-              className="navigation-item active"
-            >
-              Inbox
-            </button>
-
-            <button type="button" className="navigation-item">
-              Starred
-            </button>
-
-            <button type="button" className="navigation-item">
-              Labels
-            </button>
-
-            <button type="button" className="navigation-item">
-              Settings
-            </button>
-          </nav>
-
-          <div className="sidebar-account">
-            <p className="sidebar-title">Account</p>
-            <p>{user.email}</p>
-          </div>
-        </aside>
-
         <main className="workspace-content">
           <div className="content-heading">
             <div>
@@ -1032,9 +999,13 @@ function Workspace({
                               : 'Private chat'}
                         </span>
                       </div>
-                      <button type="button" className="secondary-button">
-                        Chat info
-                      </button>
+                      <span className="telegram-chat-type">
+                        {selectedTelegramChat?.type === 'channel'
+                          ? 'Channel'
+                          : selectedTelegramChat?.type === 'group'
+                            ? 'Group'
+                            : 'Private chat'}
+                      </span>
                     </header>
 
                     <div
