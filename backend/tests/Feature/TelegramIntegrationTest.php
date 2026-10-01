@@ -14,9 +14,52 @@ class TelegramIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_sample_is_disabled_without_an_explicit_owner(): void
+    {
+        $this->app->instance('env', 'local');
+        config(['telegram.sample_owner_user_id' => null]);
+        $adapter = Mockery::mock(TelegramAdapterService::class);
+        $adapter->shouldNotReceive('fetchContentSample');
+        $this->app->instance(TelegramAdapterService::class, $adapter);
+
+        $this->actingAs(User::factory()->create(), 'sanctum')
+            ->getJson('/api/integrations/telegram/sample')
+            ->assertNotFound();
+    }
+
+    public function test_another_user_cannot_read_the_configured_telegram_session(): void
+    {
+        $owner = User::factory()->create();
+        $this->app->instance('env', 'local');
+        config(['telegram.sample_owner_user_id' => $owner->id]);
+        $adapter = Mockery::mock(TelegramAdapterService::class);
+        $adapter->shouldNotReceive('fetchContentSample');
+        $this->app->instance(TelegramAdapterService::class, $adapter);
+
+        $this->actingAs(User::factory()->create(), 'sanctum')
+            ->getJson('/api/integrations/telegram/sample?chat_id=100')
+            ->assertNotFound();
+    }
+
+    public function test_sample_is_never_available_in_production(): void
+    {
+        $owner = User::factory()->create();
+        $this->app->instance('env', 'production');
+        config(['telegram.sample_owner_user_id' => $owner->id]);
+        $adapter = Mockery::mock(TelegramAdapterService::class);
+        $adapter->shouldNotReceive('fetchContentSample');
+        $this->app->instance(TelegramAdapterService::class, $adapter);
+
+        $this->actingAs($owner, 'sanctum')
+            ->getJson('/api/integrations/telegram/sample')
+            ->assertNotFound();
+    }
+
     public function test_authenticated_user_can_discover_telegram_chats(): void
     {
         $user = User::factory()->create();
+        $this->app->instance('env', 'local');
+        config(['telegram.sample_owner_user_id' => $user->id]);
         $adapter = Mockery::mock(TelegramAdapterService::class);
         $adapter
             ->shouldReceive('fetchContentSample')
@@ -63,6 +106,8 @@ class TelegramIntegrationTest extends TestCase
     public function test_selected_chat_history_passes_only_selected_chat_and_cursor(): void
     {
         $user = User::factory()->create();
+        $this->app->instance('env', 'local');
+        config(['telegram.sample_owner_user_id' => $user->id]);
         $adapter = Mockery::mock(TelegramAdapterService::class);
         $adapter
             ->shouldReceive('fetchContentSample')
@@ -106,6 +151,8 @@ class TelegramIntegrationTest extends TestCase
     public function test_telegram_provider_error_is_safe_and_operation_specific(): void
     {
         $user = User::factory()->create();
+        $this->app->instance('env', 'local');
+        config(['telegram.sample_owner_user_id' => $user->id]);
         $adapter = Mockery::mock(TelegramAdapterService::class);
         $adapter
             ->shouldReceive('fetchContentSample')

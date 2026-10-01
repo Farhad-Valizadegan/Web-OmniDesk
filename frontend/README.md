@@ -66,6 +66,10 @@ The backend normally runs at:
 http://127.0.0.1:8000
 ```
 
+The development proxy defaults to this backend address. For a backend running
+on a different port, set `VITE_API_PROXY_TARGET=http://127.0.0.1:18001` in
+`frontend/.env.local` and restart Vite. Local environment files are not committed.
+
 ## Quality Checks
 
 Run frontend tests:

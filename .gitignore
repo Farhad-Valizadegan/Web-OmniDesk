@@ -1,3 +1,6 @@
 
 # Telegram TDLib local session and runtime data
-spikes/telegram-tdlib/runtime/
+**/spikes/telegram-tdlib/runtime/
+
+# Local frontend settings (including development proxy overrides)
+frontend/.env

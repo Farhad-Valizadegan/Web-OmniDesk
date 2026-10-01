@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // Explicit owner of the local validation session; disabled when unset.
+    'sample_owner_user_id' => env('TELEGRAM_SAMPLE_OWNER_USER_ID'),
+
     'python_binary' => env(
         'TELEGRAM_PYTHON_BINARY',
         'python'

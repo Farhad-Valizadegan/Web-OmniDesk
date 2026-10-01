@@ -8,14 +8,59 @@ use App\Services\TelegramAdapterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class TelegramIntegrationController extends Controller
 {
+    private function ensureOwner(Request $request): void
+    {
+        $ownerId = (int) config('telegram.sample_owner_user_id', 0);
+        abort_unless(app()->environment('local') && $ownerId > 0
+            && (int) $request->user()->getAuthIdentifier() === $ownerId, 404);
+    }
+
+    public function media(Request $request, TelegramAdapterService $adapterService): BinaryFileResponse|JsonResponse
+    {
+        $this->ensureOwner($request);
+        $validated = $request->validate([
+            'chat_id' => ['required', 'integer'],
+            'message_id' => ['required', 'integer', 'min:1'],
+        ]);
+        set_time_limit(max(30, (int) config('telegram.timeout_seconds', 60) + 15));
+
+        try {
+            $result = $adapterService->fetchContentSample(
+                (int) $validated['chat_id'], 1, null, (int) $validated['message_id'],
+            );
+        } catch (ProviderException $exception) {
+            return response()->json(['message' => 'Media could not be loaded. Previews support files up to 100 MB. Retry or open it in Telegram.'], $exception->httpStatus());
+        }
+
+        $path = realpath($result['media_path'] ?? '');
+        $root = realpath((string) config('telegram.runtime_directory'));
+        abort_unless($path && $root && is_file($path), 404);
+        $comparisonPath = PHP_OS_FAMILY === 'Windows' ? strtolower($path) : $path;
+        $comparisonRoot = PHP_OS_FAMILY === 'Windows' ? strtolower($root) : $root;
+        abort_unless(str_starts_with($comparisonPath, $comparisonRoot.DIRECTORY_SEPARATOR), 404);
+        abort_if(filesize($path) > 100 * 1024 * 1024, 413);
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
+        abort_unless(in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime', 'audio/ogg', 'audio/opus', 'audio/mpeg', 'audio/mp4', 'audio/webm', 'audio/wav'], true), 415);
+
+        return response()->file($path, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Disposition' => 'inline',
+        ])->setPrivate();
+    }
+
     public function sample(
         Request $request,
         TelegramAdapterService $adapterService,
     ): JsonResponse {
+        $this->ensureOwner($request);
+
         $validated = $request->validate([
             'chat_id' => ['nullable', 'integer'],
             'limit' => ['nullable', 'integer', 'min:1', 'max:20'],

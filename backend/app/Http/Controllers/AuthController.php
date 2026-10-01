@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\CaptchaService;
+use App\Services\LoginCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -59,13 +60,24 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('web')->plainTextToken;
+        return response()->json(app(LoginCodeService::class)->issue($user));
+    }
 
-        return response()->json([
-            'message' => 'Login successful.',
-            'user' => $user,
-            'token' => $token,
+    public function verifyCode(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'challenge' => ['required', 'string', 'size:64', 'alpha_num:ascii'],
+            'code' => ['required', 'string', 'regex:/^[0-9]{6}$/'],
         ]);
+
+        return response()->json(app(LoginCodeService::class)->complete($data['challenge'], $data['code']));
+    }
+
+    public function resendCode(Request $request): JsonResponse
+    {
+        $data = $request->validate(['challenge' => ['required', 'string', 'size:64', 'alpha_num:ascii']]);
+
+        return response()->json(app(LoginCodeService::class)->complete($data['challenge']));
     }
 
     public function logout(Request $request): Response

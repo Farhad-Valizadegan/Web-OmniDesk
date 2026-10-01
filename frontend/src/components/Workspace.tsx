@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import GmailConnectionPanel from './GmailConnectionPanel'
+import TelegramMedia from './TelegramMedia'
 import {
   getConversationMessages,
   getConversations,
@@ -57,6 +58,25 @@ function initials(value: string | null): string {
       : [(words[0] ?? '?').slice(0, 2)]
 
   return letters.join('').toUpperCase()
+}
+
+function TelegramChatAvatar({ chat }: { chat: TelegramChat }) {
+  const [failed, setFailed] = useState(false)
+  const photo = chat.photo
+
+  return (
+    <span className="telegram-chat-avatar">
+      {photo && !failed ? (
+        <img
+          src={`data:${photo.mime_type};base64,${photo.data}`}
+          alt={`${chat.title} profile`}
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        initials(chat.title)
+      )}
+    </span>
+  )
 }
 
 function sortTelegramMessages(messages: TelegramMessage[]): TelegramMessage[] {
@@ -177,7 +197,7 @@ function sanitizeEmailHtml(html: string): string {
       if (name === 'href' || name === 'src') {
         if (
           !/^https?:\/\//i.test(value) &&
-          !/^data:image\//i.test(value)
+          !(name === 'src' && /^data:image\//i.test(value))
         ) {
           element.removeAttribute(attribute.name)
         }
@@ -275,6 +295,8 @@ function Workspace({
   const [isTelegramMoreLoading, setIsTelegramMoreLoading] = useState(false)
 
   const hasInitializedLazySync = useRef(false)
+  const inboxRequestId = useRef(0)
+  const messageRequestId = useRef(0)
   const telegramRequestId = useRef(0)
   const telegramAbortController = useRef<AbortController | null>(null)
   const telegramRequestInFlight = useRef(false)
@@ -316,6 +338,7 @@ function Workspace({
   }, [telegramMessages.length, selectedTelegramChatId])
 
   const loadConversations = useCallback(async () => {
+    const requestId = ++inboxRequestId.current
     try {
       setIsInboxLoading(true)
       setInboxError(null)
@@ -328,6 +351,7 @@ function Workspace({
 
           if (gmailStatus.connected) {
             const syncResponse = await syncGmailPage()
+            if (requestId !== inboxRequestId.current) return
             setGmailHasMore(syncResponse.sync.has_more)
           }
         } catch {
@@ -350,6 +374,7 @@ function Workspace({
         page,
       })
 
+      if (requestId !== inboxRequestId.current) return
       setConversations(response.data)
 
       setPagination({
@@ -374,16 +399,18 @@ function Workspace({
         )
       })
     } catch {
+      if (requestId !== inboxRequestId.current) return
       setConversations([])
       setSelectedConversation(null)
       setInboxError('Conversations could not be loaded.')
     } finally {
-      setIsInboxLoading(false)
+      if (requestId === inboxRequestId.current) setIsInboxLoading(false)
     }
   }, [labelFilter, page, readFilter, search, statusFilter])
 
   const loadMessages = useCallback(
     async (conversationId: number) => {
+      const requestId = ++messageRequestId.current
       try {
         setIsMessagesLoading(true)
         setMessagesError(null)
@@ -391,31 +418,50 @@ function Workspace({
         const response =
           await getConversationMessages(conversationId)
 
-        setMessages(response.data)
+        if (requestId !== messageRequestId.current) return
+        const allMessages = [...response.data]
+        for (let page = 2; page <= response.last_page; page += 1) {
+          const nextPage = await getConversationMessages(conversationId, 50, page)
+          if (requestId !== messageRequestId.current) return
+          allMessages.push(...nextPage.data)
+        }
+        setMessages(allMessages)
       } catch {
+        if (requestId !== messageRequestId.current) return
         setMessages([])
         setMessagesError('Messages could not be loaded.')
       } finally {
-        setIsMessagesLoading(false)
+        if (requestId === messageRequestId.current) setIsMessagesLoading(false)
       }
     },
     [],
   )
 
   useEffect(() => {
+    let active = true
     queueMicrotask(() => {
-      void loadConversations()
+      if (active) void loadConversations()
     })
+    return () => {
+      active = false
+      inboxRequestId.current += 1
+    }
   }, [loadConversations])
 
   useEffect(() => {
+    let active = true
     queueMicrotask(() => {
+      if (!active) return
       if (selectedConversation) {
         void loadMessages(selectedConversation.id)
       } else {
         setMessages([])
       }
     })
+    return () => {
+      active = false
+      messageRequestId.current += 1
+    }
   }, [loadMessages, selectedConversation])
 
   const handleSearchSubmit = (
@@ -954,9 +1000,7 @@ function Workspace({
                             void handleTelegramChatSelect(chat)
                           }}
                         >
-                          <span className="telegram-chat-avatar">
-                            {initials(chat.title)}
-                          </span>
+                          <TelegramChatAvatar chat={chat} />
                           <span className="telegram-chat-copy">
                             <strong>{chat.title}</strong>
                             <small>
@@ -1004,13 +1048,16 @@ function Workspace({
                         </p>
                       ) : telegramMessages.length === 0 ? (
                         <p className="inbox-status">
-                          {selectedTelegramChat
+                          {telegramError
+                            ? 'Messages could not be loaded. Refresh to try again.'
+                            : selectedTelegramChat
                             ? 'No messages available in this chat.'
                             : 'Select a chat to load its messages.'}
                         </p>
                       ) : (
                         telegramMessages.map((message) => (
                           <article className="telegram-bubble" key={message.id}>
+                            {message.media && <TelegramMedia message={message} />}
                             <p>{renderMessageBody(message.text)}</p>
                             <time>
                               {formatDate(
@@ -1382,7 +1429,7 @@ function Workspace({
                                   srcDoc={sanitizeEmailHtml(
                                     message.metadata.html_body,
                                   )}
-                                  sandbox=""
+                                  sandbox="allow-popups allow-popups-to-escape-sandbox"
                                   referrerPolicy="no-referrer"
                                 />
                               ) : (

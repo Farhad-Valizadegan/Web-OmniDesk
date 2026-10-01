@@ -18,6 +18,7 @@ class TelegramAdapterService
         ?int $chatId = null,
         int $limit = 20,
         ?int $beforeMessageId = null,
+        ?int $mediaMessageId = null,
     ): array {
         $operation = $this->operationFor($chatId, $beforeMessageId);
         $startedAt = microtime(true);
@@ -91,13 +92,17 @@ class TelegramAdapterService
             $script
         );
 
-        $environment = [
+        // Preserve OS networking/runtime settings (notably SystemRoot on Windows).
+        $environment = array_merge(getenv(), [
             'TELEGRAM_API_ID' => $apiId,
             'TELEGRAM_API_HASH' => $apiHash,
             'TELEGRAM_TDLIB_RUNTIME' => $runtimeDirectory,
             'PYTHONIOENCODING' => 'utf-8',
             'TELEGRAM_MESSAGE_LIMIT' => (string) $limit,
-        ];
+            'TELEGRAM_CHAT_ID' => '',
+            'TELEGRAM_BEFORE_MESSAGE_ID' => '',
+            'TELEGRAM_MEDIA_MESSAGE_ID' => $mediaMessageId === null ? '' : (string) $mediaMessageId,
+        ]);
 
         if ($beforeMessageId !== null) {
             $environment['TELEGRAM_BEFORE_MESSAGE_ID'] = (string) $beforeMessageId;

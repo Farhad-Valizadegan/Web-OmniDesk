@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import base64
 import contextlib
 import io
 import json
@@ -29,6 +30,28 @@ SUPPORTED_CHAT_TYPES = {
     "chatTypePrivate": "private",
     "chatTypeBasicGroup": "group",
 }
+
+
+def _chat_photo(chat: JsonObject) -> JsonObject | None:
+    thumbnail = ((chat.get("photo") or {}).get("minithumbnail") or {})
+    encoded = thumbnail.get("data")
+    if not isinstance(encoded, str) or not encoded or len(encoded) > 100_000:
+        return None
+    try:
+        decoded = base64.b64decode(encoded, validate=True)
+    except (ValueError, base64.binascii.Error):
+        return None
+    if len(decoded) > 64 * 1024:
+        return None
+    if decoded.startswith(b"\xff\xd8\xff"):
+        mime_type = "image/jpeg"
+    elif decoded.startswith(b"\x89PNG\r\n\x1a\n"):
+        mime_type = "image/png"
+    elif decoded.startswith(b"RIFF") and decoded[8:12] == b"WEBP":
+        mime_type = "image/webp"
+    else:
+        return None
+    return {"mime_type": mime_type, "data": encoded}
 
 
 def _message_text(message: JsonObject) -> str:
@@ -89,6 +112,7 @@ def _chat_summary(chat: JsonObject) -> JsonObject | None:
         "type": normalized_type,
         "tdlib_type": chat_type,
         "title": chat.get("title") or "Untitled chat",
+        "photo": _chat_photo(chat),
         "unread_count": int(chat.get("unread_count") or 0),
         "last_message": _chat_preview(chat),
         "last_message_date": (
@@ -104,54 +128,84 @@ def _get_bounded_history(
     before_message_id: int,
 ) -> list[JsonObject]:
     requested_limit = max(1, min(limit, 20))
+    # TDLib may return a short page even when more history exists. Deliver it
+    # immediately; filling the page can discard good messages on a later timeout.
+    history = _get_history(
+        client, chat_id, limit=requested_limit,
+        before_message_id=before_message_id,
+    )
     messages: list[JsonObject] = []
-    cursor = before_message_id
-
-    while len(messages) < requested_limit:
-        remaining = requested_limit - len(messages)
-        history = _get_history(
-            client,
-            chat_id,
-            limit=remaining,
-            before_message_id=cursor,
-        )
-        batch = history.get("messages") or []
-
-        if not batch:
-            break
-
-        known_ids = {
-            message.get("id")
-            for message in messages
-            if isinstance(message.get("id"), int)
-        }
-        new_messages = [
-            message
-            for message in batch
-            if message.get("id") not in known_ids
-        ]
-
-        if not new_messages:
-            break
-
-        messages.extend(new_messages)
-
-        oldest_id = batch[-1].get("id")
-        if not isinstance(oldest_id, int) or oldest_id == cursor:
-            break
-
-        cursor = oldest_id
-
+    seen: set[int] = set()
+    for message in history.get("messages") or []:
+        message_id = message.get("id")
+        if not isinstance(message_id, int) or message_id in seen:
+            continue
+        if before_message_id and message_id >= before_message_id:
+            continue
+        seen.add(message_id)
+        messages.append(message)
     return messages[:requested_limit]
 
 
+def _media_file(message: JsonObject) -> tuple[str, JsonObject] | None:
+    content = message.get("content") or {}
+    if content.get("is_secret") or message.get("self_destruct_type"):
+        return None
+    photo = None
+    if content.get("@type") == "messagePhoto":
+        photo = content.get("photo")
+    elif content.get("@type") == "messageText":
+        # Article previews are text messages with their own Telegram-hosted
+        # photo, not messagePhoto attachments. Use TDLib, never fetch the URL.
+        preview_type = (content.get("link_preview") or {}).get("type") or {}
+        photo = preview_type.get("photo")
+    sizes = [size for size in (photo or {}).get("sizes", [])
+             if isinstance((size.get("photo") or {}).get("id"), int)]
+    if sizes:
+        size = max(sizes, key=lambda item: item.get("width", 0) * item.get("height", 0))
+        return "photo", size["photo"]
+    if content.get("@type") == "messageVideo":
+        video = (content.get("video") or {}).get("video")
+        if video:
+            return "video", video
+    if content.get("@type") == "messageVoiceNote":
+        voice = (content.get("voice_note") or {}).get("voice")
+        if voice:
+            return "voice", voice
+    return None
+
+
+def _download_media(client: TdJsonClient, chat_id: int, message_id: int) -> JsonObject:
+    tag = client.send({"@type": "getMessage", "chat_id": chat_id, "message_id": message_id})
+    message = client.wait_for_response(tag, timeout=15, operation="media_message")
+    media = _media_file(message)
+    if media is None:
+        raise RuntimeError("This message has no supported photo, video, or voice recording.")
+    kind, file = media
+    maximum = 100 * 1024 * 1024
+    if max(file.get("size", 0), file.get("expected_size", 0)) > maximum:
+        raise RuntimeError("Media exceeds the 100 MB preview limit.")
+    tag = client.send({"@type": "downloadFile", "file_id": file["id"],
+                       "priority": 16, "offset": 0, "limit": maximum + 1, "synchronous": True})
+    downloaded = client.wait_for_response(tag, timeout=40, operation="media_download")
+    local = downloaded.get("local") or {}
+    path = Path(local.get("path") or "")
+    if not local.get("is_downloading_completed") or not path.is_file():
+        raise RuntimeError("Media download is incomplete. Try again.")
+    if path.stat().st_size > maximum:
+        raise RuntimeError("Media exceeds the 100 MB preview limit.")
+    return {"media_path": str(path.resolve()), "kind": kind}
+
+
 def _message_summary(message: JsonObject) -> JsonObject:
+    media = _media_file(message)
     return {
         "id": message.get("id"),
         "chat_id": message.get("chat_id"),
         "date": message.get("date"),
         "sender_id": message.get("sender_id"),
         "text": _message_text(message),
+        "media": {"kind": media[0], "spoiler": bool((message.get("content") or {}).get("has_spoiler"))} if media else None,
     }
 
 
@@ -186,10 +240,24 @@ def main() -> int:
     with contextlib.redirect_stdout(io.StringIO()):
         _authorization_loop(client, api_id, api_hash, db_dir)
 
-        if requested_chat_id is None:
+        media_message_id = int(os.getenv("TELEGRAM_MEDIA_MESSAGE_ID", "0") or "0")
+        if media_message_id:
+            if requested_chat_id is None:
+                raise RuntimeError("A chat is required to load media.")
+            media_result = _download_media(client, requested_chat_id, media_message_id)
+        else:
+            media_result = None
+
+        if media_result is not None:
+            pass
+        elif requested_chat_id is None:
             _load_main_chats(client)
         else:
             requested_chat = _get_chat(client, requested_chat_id)
+
+    if media_result is not None:
+        print(json.dumps(media_result))
+        return 0
 
     if requested_chat_id is None:
         discovered_chats = [
@@ -288,7 +356,7 @@ def main() -> int:
     ]
     next_before_message_id = (
         messages[-1].get("id")
-        if len(messages) >= requested_limit and messages
+        if messages
         else None
     )
 

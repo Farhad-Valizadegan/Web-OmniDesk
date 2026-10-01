@@ -64,6 +64,13 @@ class GmailCallbackController extends Controller
             'provider' => 'gmail',
         ]);
 
+        if (
+            $connection->exists
+            && $connection->provider_account_id !== $identity['provider_account_id']
+        ) {
+            return $this->redirectToFrontend('gmail_account_mismatch');
+        }
+
         $connection->provider_account_id =
             $identity['provider_account_id'];
 

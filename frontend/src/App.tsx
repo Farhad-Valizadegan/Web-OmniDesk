@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import './App.css'
 import GoogleCaptcha from './components/GoogleCaptcha'
+import LoginVerification from './components/LoginVerification'
 import Workspace from './components/Workspace'
 import {
   getCaptchaChallenge,
@@ -12,6 +13,7 @@ import {
   type AuthUser,
   type CaptchaChallenge,
   type HealthResponse,
+  type LoginChallenge,
 } from './lib/api'
 
 type AuthMode = 'login' | 'register'
@@ -38,6 +40,7 @@ function readGmailFeedback(): GmailFeedback | null {
     authorization_code_missing: 'Gmail authorization code was missing.',
     gmail_token_exchange_failed: 'Gmail connection could not be completed.',
     gmail_account_identity_failed: 'The Gmail account could not be verified.',
+    gmail_account_mismatch: 'Disconnect your current Gmail account before connecting a different account.',
     gmail_authorization: 'Gmail authorization is invalid or expired.',
     gmail_permission: 'Gmail permission is insufficient.',
     gmail_rate_limit: 'Gmail request limit was reached. Try again later.',
@@ -52,6 +55,8 @@ function readGmailFeedback(): GmailFeedback | null {
 
 
 function App() {
+  const isCaptchaEnabled =
+    !import.meta.env.DEV || import.meta.env.VITE_CAPTCHA_ENABLED !== 'false'
   const [gmailFeedback, setGmailFeedback] = useState<GmailFeedback | null>(readGmailFeedback)
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('omni_desk_theme') === 'dark' ? 'dark' : 'light',
@@ -61,6 +66,7 @@ function App() {
   const [healthError, setHealthError] = useState<string | null>(null)
 
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [loginChallenge, setLoginChallenge] = useState<LoginChallenge | null>(null)
   const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -68,7 +74,7 @@ function App() {
     useState<CaptchaChallenge | null>(null)
   const [captchaAnswer, setCaptchaAnswer] = useState('')
   const [captchaResponse, setCaptchaResponse] = useState('')
-  const [captchaLoading, setCaptchaLoading] = useState(true)
+  const [captchaLoading, setCaptchaLoading] = useState(isCaptchaEnabled)
   const [captchaError, setCaptchaError] = useState<string | null>(null)
   const [captchaNonce, setCaptchaNonce] = useState(0)
 
@@ -121,7 +127,7 @@ function App() {
   }, [theme])
 
   useEffect(() => {
-    if (user) {
+    if (!isCaptchaEnabled || user) {
       return
     }
 
@@ -154,7 +160,7 @@ function App() {
     return () => {
       isActive = false
     }
-  }, [captchaNonce, user])
+  }, [captchaNonce, isCaptchaEnabled, user])
 
   useEffect(() => {
     const loadApplicationState = async () => {
@@ -204,6 +210,9 @@ function App() {
   const changeAuthMode = (mode: AuthMode) => {
     setAuthMode(mode)
     resetAuthForm()
+    if (captchaChallenge?.driver === 'google') {
+      setCaptchaNonce((current) => current + 1)
+    }
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -211,24 +220,27 @@ function App() {
     setAuthLoading(true)
     setAuthError(null)
 
-    if (!captchaChallenge) {
+    if (isCaptchaEnabled && !captchaChallenge) {
       setAuthLoading(false)
       setAuthError('Security check is not ready. Please try again.')
       return
     }
 
     const captchaFields =
-      captchaChallenge.driver === 'internal'
-        ? {
-            captcha_token: captchaChallenge.token,
-            captcha_answer: captchaAnswer,
-          }
-        : {
-            captcha_response: captchaResponse,
-          }
+      !isCaptchaEnabled || !captchaChallenge
+        ? {}
+        : captchaChallenge.driver === 'internal'
+          ? {
+              captcha_token: captchaChallenge.token,
+              captcha_answer: captchaAnswer,
+            }
+          : {
+              captcha_response: captchaResponse,
+            }
 
     if (
-      captchaChallenge.driver === 'google' &&
+      isCaptchaEnabled &&
+      captchaChallenge?.driver === 'google' &&
       captchaResponse === ''
     ) {
       setAuthLoading(false)
@@ -252,12 +264,21 @@ function App() {
               ...captchaFields,
             })
 
-      setUser(response.user)
+      if ('challenge' in response) {
+        setLoginChallenge(response)
+        setPassword('')
+        setCaptchaAnswer('')
+        setCaptchaResponse('')
+      } else {
+        setUser(response.user)
+      }
       resetAuthForm()
     } catch (error) {
       setCaptchaAnswer('')
       setCaptchaResponse('')
-      setCaptchaNonce((current) => current + 1)
+      if (isCaptchaEnabled) {
+        setCaptchaNonce((current) => current + 1)
+      }
       setAuthError(
         error instanceof Error
           ? error.message
@@ -280,6 +301,7 @@ function App() {
         error instanceof Error ? error.message : 'Logout could not be completed.',
       )
     } finally {
+      setUser(null)
       setAuthLoading(false)
     }
   }
@@ -342,6 +364,10 @@ function App() {
               onLogout={() => void handleLogout()}
               onGmailFeedback={setGmailFeedback}
             />
+          ) : loginChallenge ? (
+            <LoginVerification challenge={loginChallenge}
+              onSuccess={(verifiedUser) => { setUser(verifiedUser); setLoginChallenge(null) }}
+              onBack={() => { setLoginChallenge(null); setCaptchaNonce(current => current + 1) }} />
           ) : (
             <>
               <div className="auth-tabs" role="tablist">
@@ -435,7 +461,8 @@ function App() {
                   </label>
                 )}
 
-                {captchaChallenge?.driver === 'internal' && (
+                {isCaptchaEnabled &&
+                  captchaChallenge?.driver === 'internal' && (
                   <div className="captcha-field">
                     <div className="captcha-heading">
                       <label htmlFor="captcha-answer">Security check</label>
@@ -465,21 +492,23 @@ function App() {
                   </div>
                 )}
 
-                {captchaChallenge?.driver === 'google' && (
+                {isCaptchaEnabled &&
+                  captchaChallenge?.driver === 'google' && (
                   <div className="captcha-field google-captcha-field">
                     <p className="captcha-label">Security check</p>
                     <GoogleCaptcha
+                      key={captchaNonce}
                       siteKey={captchaChallenge.site_key}
                       onToken={handleGoogleCaptchaToken}
                     />
                   </div>
                 )}
 
-                {captchaLoading && (
+                {isCaptchaEnabled && captchaLoading && (
                   <p className="captcha-status">Loading security check...</p>
                 )}
 
-                {captchaError && (
+                {isCaptchaEnabled && captchaError && (
                   <p className="captcha-error" role="alert">
                     {captchaError}
                   </p>
@@ -494,7 +523,11 @@ function App() {
                 <button
                   type="submit"
                   className="primary-button"
-                  disabled={authLoading || captchaLoading || !captchaChallenge}
+                  disabled={
+                    authLoading ||
+                    (isCaptchaEnabled &&
+                      (captchaLoading || !captchaChallenge))
+                  }
                 >
                   {authLoading
                     ? 'Please wait...'

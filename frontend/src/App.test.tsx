@@ -20,6 +20,7 @@ import {
   logoutUser,
   registerUser,
   syncGmailPage,
+  verifyLoginCode,
   type Conversation,
   type Message,
   type PaginatedResponse,
@@ -38,7 +39,9 @@ vi.mock('./lib/api', () => ({
   loginUser: vi.fn(),
   logoutUser: vi.fn(),
   registerUser: vi.fn(),
+  resendLoginCode: vi.fn(),
   syncGmailPage: vi.fn(),
+  verifyLoginCode: vi.fn(),
 }))
 
 const getCaptchaChallengeMock = vi.mocked(getCaptchaChallenge)
@@ -51,6 +54,7 @@ const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
 const registerUserMock = vi.mocked(registerUser)
+const verifyLoginCodeMock = vi.mocked(verifyLoginCode)
 const syncGmailPageMock = vi.mocked(syncGmailPage)
 
 function emptyPagination<T>(): PaginatedResponse<T> {
@@ -75,12 +79,14 @@ afterEach(() => {
   cleanup()
   vi.clearAllMocks()
   vi.useRealTimers()
+  vi.unstubAllEnvs()
   window.history.replaceState({}, '', '/')
   sessionStorage.clear()
 })
 
 describe('App', () => {
   beforeEach(() => {
+    vi.stubEnv('VITE_CAPTCHA_ENABLED', 'true')
     getCaptchaChallengeMock.mockResolvedValue({
       driver: 'internal',
       token: 'captcha-token',
@@ -122,6 +128,69 @@ describe('App', () => {
     expect(
       await screen.findByText('Backend is connected. Status: ok'),
     ).toBeInTheDocument()
+  })
+
+  test('allows local development login with CAPTCHA disabled', async () => {
+    vi.stubEnv('VITE_CAPTCHA_ENABLED', 'false')
+    loginUserMock.mockResolvedValue({ message: 'Check email', challenge: 'challenge', expires_in: 600, resend_after: 60 })
+    verifyLoginCodeMock.mockResolvedValue({ message: 'OK', token: 'token', user: { id: 1, name: 'Freddie', email: 'freddie@example.com' } })
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'freddie@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+    fireEvent.change(await screen.findByLabelText('Email verification code'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify and sign in' }))
+    expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
+    expect(getCaptchaChallengeMock).not.toHaveBeenCalled()
+    expect(loginUserMock).toHaveBeenCalledWith({ email: 'freddie@example.com', password: 'password123' })
+  })
+
+  test('keeps CAPTCHA required outside development even when the flag is false', async () => {
+    vi.stubEnv('DEV', false)
+    vi.stubEnv('VITE_CAPTCHA_ENABLED', 'false')
+    render(<App />)
+    expect(await screen.findByLabelText('CAPTCHA answer')).toBeInTheDocument()
+  })
+
+  test('explains that another Gmail account requires disconnecting first', async () => {
+    window.history.replaceState({}, '', '/?gmail=gmail_account_mismatch')
+    render(<App />)
+    expect(await screen.findByText('Disconnect your current Gmail account before connecting a different account.')).toBeInTheDocument()
+  })
+
+  test('clears the visible workspace when logout fails', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+    getCurrentUserMock.mockResolvedValue({ user: { id: 1, name: 'Freddie', email: 'freddie@example.com' } })
+    logoutUserMock.mockRejectedValueOnce(new Error('Server unavailable'))
+    render(<App />)
+    await screen.findByText('Welcome, Freddie')
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
+    expect(await screen.findByRole('button', { name: 'Log in' })).toBeInTheDocument()
+    expect(screen.queryByText('Welcome, Freddie')).not.toBeInTheDocument()
+    expect(screen.getByText('Server unavailable')).toBeInTheDocument()
+  })
+
+  test('recreates Google CAPTCHA after failed authentication and switching modes', async () => {
+    getCaptchaChallengeMock.mockResolvedValue({ driver: 'google', site_key: 'site-key' })
+    const renderCaptcha = vi.fn((_container: HTMLElement, options: { callback: (token: string) => void }) => {
+      options.callback('solved-token')
+      return 1
+    })
+    window.grecaptcha = { ready: (callback) => callback(), render: renderCaptcha }
+    try {
+      loginUserMock.mockRejectedValueOnce(new Error('Wrong password'))
+      render(<App />)
+      await waitFor(() => expect(renderCaptcha).toHaveBeenCalledTimes(1))
+      fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'freddie@example.com' } })
+      fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+      await screen.findByText('Wrong password')
+      await waitFor(() => expect(renderCaptcha).toHaveBeenCalledTimes(2))
+      fireEvent.click(screen.getByRole('tab', { name: 'Register' }))
+      await waitFor(() => expect(renderCaptcha).toHaveBeenCalledTimes(3))
+    } finally {
+      delete window.grecaptcha
+    }
   })
 
   test('displays the backend connection loading state', () => {
@@ -200,14 +269,11 @@ describe('App', () => {
 
   test('allows a user to log in', async () => {
     loginUserMock.mockResolvedValue({
-      message: 'Login successful.',
-      token: 'login-token',
-      user: {
-        id: 2,
-        name: 'Freddie',
-        email: 'freddie@example.com',
-      },
+      message: 'Check email', challenge: 'challenge', expires_in: 600, resend_after: 60,
     })
+    verifyLoginCodeMock.mockResolvedValue({ message: 'Login successful.', token: 'login-token', user: {
+      id: 2, name: 'Freddie', email: 'freddie@example.com',
+    } })
 
     render(<App />)
 
@@ -226,6 +292,11 @@ describe('App', () => {
     })
 
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    fireEvent.change(await screen.findByLabelText('Email verification code'), {
+      target: { value: '123456' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify and sign in' }))
 
     await waitFor(() => {
       expect(loginUserMock).toHaveBeenCalledWith({

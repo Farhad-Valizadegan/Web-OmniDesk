@@ -222,6 +222,7 @@ class GmailMessageSyncService implements MessageProviderConnector
         if (
             is_string($connection->history_id)
             && $connection->history_id !== ''
+            && ! $connection->gmail_sync_snapshot_history_id
             && ($pageToken === null || $pageToken === '')
         ) {
             $gmail = $this->gmailService($connection);
@@ -283,10 +284,15 @@ class GmailMessageSyncService implements MessageProviderConnector
         }
 
         $gmail = $this->gmailService($connection);
-        $profile = $this->providerCall(
-            fn (): object => $gmail->users->getProfile('me')
-        );
-        $currentHistoryId = $profile->getHistoryId();
+        if (! $connection->gmail_sync_snapshot_history_id) {
+            $profile = $this->providerCall(
+                fn (): object => $gmail->users->getProfile('me')
+            );
+            $connection->gmail_sync_snapshot_history_id = $profile->getHistoryId();
+            $connection->save();
+        }
+
+        $pageToken = $pageToken ?: $connection->gmail_sync_page_token;
 
         $options = [
             'maxResults' => min(max($maxResults, 1), 100),
@@ -332,10 +338,15 @@ class GmailMessageSyncService implements MessageProviderConnector
             $threadsProcessed++;
         }
 
-        if (is_string($currentHistoryId) && $currentHistoryId !== '') {
-            $connection->history_id = $currentHistoryId;
-            $connection->save();
+        $nextPageToken = $threadList->getNextPageToken();
+        $connection->gmail_sync_page_token = $nextPageToken ?: null;
+
+        if (! $nextPageToken) {
+            $connection->history_id = $connection->gmail_sync_snapshot_history_id;
+            $connection->gmail_sync_snapshot_history_id = null;
         }
+
+        $connection->save();
 
         return [
             'threads_processed' => $threadsProcessed,
@@ -415,26 +426,60 @@ class GmailMessageSyncService implements MessageProviderConnector
         $messagesProcessed = 0;
 
         foreach (array_keys($messageIds) as $messageId) {
-            $gmailMessage = $this->providerCall(
-                fn (): object => $gmail->users_messages->get(
-                    'me',
-                    $messageId,
-                    ['format' => 'full']
-                )
-            );
+            if (isset($deletedMessageIds[$messageId])) {
+                continue;
+            }
+
+            try {
+                $gmailMessage = $this->providerCall(
+                    fn (): object => $gmail->users_messages->get(
+                        'me',
+                        $messageId,
+                        ['format' => 'full']
+                    )
+                );
+            } catch (ProviderException $exception) {
+                if ((int) $exception->getPrevious()?->getCode() !== 404) {
+                    throw $exception;
+                }
+
+                $deletedMessageIds[$messageId] = true;
+
+                continue;
+            }
             $threadId = $gmailMessage->getThreadId();
 
             if (! is_string($threadId) || $threadId === '') {
                 continue;
             }
 
-            $thread = $this->providerCall(
-                fn (): object => $gmail->users_threads->get(
-                    'me',
-                    $threadId,
-                    ['format' => 'full']
-                )
-            );
+            try {
+                $thread = $this->providerCall(
+                    fn (): object => $gmail->users_threads->get(
+                        'me',
+                        $threadId,
+                        ['format' => 'full']
+                    )
+                );
+            } catch (ProviderException $exception) {
+                if ((int) $exception->getPrevious()?->getCode() !== 404) {
+                    throw $exception;
+                }
+
+                $missingIds = Message::query()
+                    ->where('provider', 'gmail')
+                    ->whereHas('conversation', fn ($query) => $query
+                        ->where('user_id', $user->id)
+                        ->where('provider', 'gmail')
+                        ->where('provider_conversation_id', $threadId))
+                    ->pluck('provider_message_id');
+
+                foreach ($missingIds as $missingId) {
+                    $deletedMessageIds[$missingId] = true;
+                }
+
+                continue;
+            }
             $messages = $thread->getMessages() ?? [];
 
             if ($messages === []) {
@@ -470,14 +515,37 @@ class GmailMessageSyncService implements MessageProviderConnector
             return;
         }
 
-        Message::query()
-            ->where('provider', 'gmail')
-            ->whereIn('provider_message_id', $messageIds)
-            ->whereHas(
-                'conversation',
-                fn ($query) => $query->where('user_id', $user->id)
-            )
-            ->delete();
+        DB::transaction(function () use ($user, $messageIds): void {
+            $conversations = $user->conversations()
+                ->where('provider', 'gmail')
+                ->whereHas('messages', fn ($query) => $query
+                    ->where('provider', 'gmail')
+                    ->whereIn('provider_message_id', $messageIds))
+                ->get();
+
+            foreach ($conversations as $conversation) {
+                $conversation->messages()
+                    ->where('provider', 'gmail')
+                    ->whereIn('provider_message_id', $messageIds)
+                    ->delete();
+
+                $remaining = $conversation->messages()->orderBy('id')->get();
+                $latest = $remaining->last();
+
+                if ($latest === null) {
+                    $conversation->delete();
+
+                    continue;
+                }
+
+                $conversation->update([
+                    'subject' => $latest->subject,
+                    'last_message_at' => $latest->sent_at,
+                    'is_read' => ! $remaining->contains('is_read', false),
+                    'labels' => $remaining->flatMap(fn (Message $message): array => $message->metadata['label_ids'] ?? [])->unique()->values()->all(),
+                ]);
+            }
+        });
     }
 
     /**
@@ -515,7 +583,7 @@ class GmailMessageSyncService implements MessageProviderConnector
                 [
                     'subject' => $latest['subject'],
                     'status' => 'open',
-                    'is_read' => ! in_array('UNREAD', $latest['label_ids'], true),
+                    'is_read' => ! in_array('UNREAD', $labelIds, true),
                     'last_message_at' => $latest['sent_at'],
                     'labels' => $labelIds,
                 ]
