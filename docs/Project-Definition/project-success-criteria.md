@@ -1,4 +1,4 @@
-﻿# Project Success Criteria
+# Project Success Criteria
 
 
 
@@ -10,7 +10,7 @@
 
 
 
-This document defines the high-level conditions that will indicate whether OmniDesk AI has achieved its initial project goals.
+This document defines the high-level conditions that will indicate whether OmniDesk has achieved its initial project goals.
 
 
 
@@ -22,7 +22,7 @@ These criteria describe project-level success. Detailed functional acceptance cr
 
 
 
-The initial version of OmniDesk AI will be considered successful when:
+The initial version of OmniDesk will be considered successful when:
 
 
 
@@ -36,13 +36,9 @@ The initial version of OmniDesk AI will be considered successful when:
 
 - Provider-specific source information remains identifiable.
 
-- Users can request AI-generated conversation summaries.
 
-- Users can request AI-generated reply suggestions.
 
-- Users must explicitly review and approve AI-assisted content before external sending.
 
-- Core communication workflows remain usable when the AI service is unavailable.
 
 - Synchronization can process messages reliably and avoid unnecessary duplicates.
 

@@ -115,6 +115,62 @@ class GmailCallbackConnectionTest extends TestCase
         );
     }
 
+    public function test_callback_rejects_switching_accounts_without_disconnect(): void
+    {
+        $user = User::factory()->create();
+        $connection = ProviderConnection::factory()->for($user)->create([
+            'provider_account_id' => 'original-account',
+            'history_id' => '123',
+            'gmail_sync_page_token' => 'original-page',
+        ]);
+        $original = $connection->fresh()->getRawOriginal();
+        $this->bindReconnectService('different-account');
+        Cache::put(GmailAuthorizationController::stateCacheKey('switch'), ['user_id' => $user->id], 600);
+
+        $this->get('/api/integrations/gmail/callback?state=switch&code=test')
+            ->assertRedirect('http://127.0.0.1:5173/?gmail=gmail_account_mismatch');
+
+        $this->assertSame($original, $connection->fresh()->getRawOriginal());
+        $this->assertDatabaseCount('provider_connections', 1);
+    }
+
+    public function test_same_account_reconnect_preserves_refresh_token_and_sync_cursor(): void
+    {
+        $user = User::factory()->create();
+        $connection = ProviderConnection::factory()->for($user)->create([
+            'provider_account_id' => 'original-account', 'history_id' => '123',
+            'refresh_token' => 'original-refresh',
+        ]);
+        $this->bindReconnectService('original-account');
+        Cache::put(GmailAuthorizationController::stateCacheKey('reconnect'), ['user_id' => $user->id], 600);
+
+        $this->get('/api/integrations/gmail/callback?state=reconnect&code=test')
+            ->assertRedirect('http://127.0.0.1:5173/?gmail=connected');
+
+        $this->assertSame('new-access', $connection->fresh()->access_token);
+        $this->assertSame('original-refresh', $connection->fresh()->refresh_token);
+        $this->assertSame('123', $connection->fresh()->history_id);
+    }
+
+    private function bindReconnectService(string $accountId): void
+    {
+        $service = new class($accountId) extends GoogleOAuthService
+        {
+            public function __construct(private readonly string $accountId) {}
+
+            public function exchangeCode(string $code): array
+            {
+                return ['access_token' => 'new-access', 'expires_in' => 3600];
+            }
+
+            public function accountIdentity(array $token): array
+            {
+                return ['provider_account_id' => $this->accountId, 'account_email' => 'person@example.com'];
+            }
+        };
+        $this->app->instance(GoogleOAuthService::class, $service);
+    }
+
     public function test_token_exchange_failure_does_not_expose_provider_details(): void
     {
         $user = User::factory()->create();

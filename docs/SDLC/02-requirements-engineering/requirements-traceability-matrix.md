@@ -1,7 +1,7 @@
-﻿# Requirements Traceability Matrix
+# Requirements Traceability Matrix
 > Status: Draft
 ## Purpose
-This document establishes traceability between stakeholder needs, requirements, user stories, use cases, and acceptance criteria for OmniDesk AI.
+This document establishes traceability between stakeholder needs, requirements, user stories, use cases, and acceptance criteria for OmniDesk.
 Traceability helps verify that documented requirements are derived from stakeholder needs and can be validated through observable acceptance criteria.
 ## Traceability Matrix
 | Stakeholder Need | Functional / Quality Requirement | User Story | Use Case | Acceptance Criteria |
@@ -47,7 +47,6 @@ The broader risk-to-control state remains in Project Management traceability, an
 |---|---|---|
 | TD-001 | Whether the MVP will support sending messages | Unresolved |
 | TD-002 | Exact integration mode for Telegram | Telegram API/MTProto through official TDLib behind a long-lived adapter is the selected direction; PB-023 runtime evidence remains pending before PB-024 |
-| TD-003 | Final AI service provider | Unresolved |
 | TD-004 | Data retention period for synchronized communication | SEC-002 provides the authoritative classification/lifecycle baseline; exact operational retention durations remain unresolved |
 ## Traceability Status
 The current matrix provides initial traceability for the Requirements Engineering phase.

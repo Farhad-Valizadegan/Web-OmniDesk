@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Domain Model
+title OmniDesk Domain Model
 
 skinparam classAttributeIconSize 0
 hide methods
@@ -45,13 +45,6 @@ class Synchronization {
   completedAt
 }
 
-class AISuggestion {
-  suggestionId
-  type
-  status
-  content
-}
-
 User "1" -- "0..*" ProviderAccount : owns
 ProviderAccount "*" -- "1" Provider : uses
 ProviderAccount "1" -- "0..*" Conversation : contains
@@ -59,6 +52,4 @@ Conversation "1" *-- "1..*" Message : consists of
 User "1" -- "0..*" Label : defines
 Conversation "0..*" -- "0..*" Label : organized by
 ProviderAccount "1" -- "0..*" Synchronization : has
-User "1" -- "0..*" AISuggestion : reviews
-Conversation "1" -- "0..*" AISuggestion : informs
 @enduml

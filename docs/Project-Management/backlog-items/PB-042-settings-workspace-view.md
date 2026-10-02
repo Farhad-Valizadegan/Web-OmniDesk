@@ -1,8 +1,8 @@
 # PB-042 - Settings Workspace View
 
-> Status: Refined
-> Priority: Could
-> Milestone: TBD
+> Status: Completed by removing the placeholder
+> Priority: Won't Yet
+> Milestone: None
 
 ## Purpose
 
@@ -40,7 +40,6 @@ Deferred:
 - Dedicated workspace display-preference management.
 - Centralized provider connection management.
 - Account/profile preference editing.
-- AI-assistance preferences.
 - Notification preferences.
 - Any persistence model or API created solely for future Settings capabilities.
 
@@ -78,7 +77,6 @@ The following remain possible future backlog candidates but are not approved for
 - Workspace display preferences.
 - Provider connection management.
 - Account/profile preferences.
-- AI-assistance preferences.
 - Notification preferences.
 
 Theme preference is not moved into Settings in V1 because the existing header control is already functional and does not require a dedicated settings workflow.

@@ -1,10 +1,10 @@
-﻿# System Design Overview
+# System Design Overview
 
 > Status: Draft
 
 ## Purpose
 
-This document defines the purpose, activities, outputs, and boundaries of the System Design phase for OmniDesk AI.
+This document defines the purpose, activities, outputs, and boundaries of the System Design phase for OmniDesk.
 
 System Design transforms the validated System Analysis into a technical design that can guide implementation, testing, deployment, and maintenance.
 
@@ -59,7 +59,6 @@ The initial architecture direction is:
 - Redis for caching or background processing where justified
 - REST and JSON communication
 - Connector or adapter abstraction for external providers
-- AI provider abstraction
 
 These choices provide the current technical direction and may be refined when detailed design work identifies new constraints.
 
@@ -73,7 +72,6 @@ The following System Design artifacts have been created:
 - [API Design](api-design.md)
 - [Authentication and Authorization Design](authentication-and-authorization-design.md)
 - [Provider Integration Design](provider-integration-design.md)
-- [AI Assistance Design](ai-assistance-design.md)
 - [Data Model and ERD](data-model-and-erd.md)
 - [Error Handling Design](error-handling-design.md)
 - [Deployment Architecture](deployment-architecture.md)
@@ -92,7 +90,6 @@ The following topics are primarily addressed during System Design:
 - Persistence design
 - Authentication and authorization mechanisms
 - Provider connector design
-- AI service boundaries
 - Error handling
 - Deployment structure
 - Testing support
@@ -109,7 +106,6 @@ The design shall consider:
 - Secret protection
 - Provider failure isolation
 - Synchronization consistency
-- AI service unavailability
 - Data minimization
 - Accessibility
 - Performance

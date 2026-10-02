@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This directory represents the Maintenance phase of the OmniDesk AI SDLC.
+This directory represents the Maintenance phase of the OmniDesk SDLC.
 
 Maintenance follows Deployment and covers defect correction, operational support, controlled improvements, and future evolution after release. Detailed operational procedures will be added only when released versions and production decisions provide evidence to support them.
 
@@ -20,6 +20,5 @@ Future maintenance scope is expected to cover:
 - patch management;
 - retention/deletion operations;
 - security threat-model and review triggers;
-- AI/provider terms, privacy, and policy changes.
 
 This section does not claim that production monitoring, incident history, rotation procedures, backup exercises, or operational maintenance have already occurred.

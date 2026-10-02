@@ -6,9 +6,8 @@
 
 ## Sprint Goal
 
-Complete and verify the Laravel backend and React frontend foundation for OmniDesk AI.
+Complete and verify the Laravel backend and React frontend foundation for OmniDesk.
 
-Sprint 01 establishes the technical base required for authentication, workspace features, provider integrations, synchronization, and AI assistance.
 
 ## Related Milestone
 
@@ -194,7 +193,6 @@ The following are outside Sprint 01:
 - Telegram integration
 - Synchronization
 - Unified inbox features
-- AI assistance
 - Autonomous message sending
 - Production deployment
 - Final hosting decisions

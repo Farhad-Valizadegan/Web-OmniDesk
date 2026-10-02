@@ -1,8 +1,7 @@
-﻿# Functional Requirements
+# Functional Requirements
 > Status: Draft
 ## Purpose
-This document defines the functional requirements of OmniDesk AI.
-Functional requirements describe what the system shall do to support users, integrations, communication management, synchronization, and AI-assisted features.
+This document defines the functional requirements of OmniDesk.
 ## Requirement Format
 Each requirement uses the following format:
 - The requirement has a unique identifier.
@@ -28,12 +27,8 @@ Each requirement uses the following format:
 | FR-014 | The system shall allow a user to mark communication with local states. | SN-005 | Should Have |
 | FR-015 | The system shall allow a user to create and manage local labels or tags. | SN-005 | Should Have |
 | FR-016 | The system shall display conversation details in chronological order. | SN-003 | Must Have |
-| FR-017 | The system shall provide an AI-generated summary of a selected conversation when requested. | SN-007 | Should Have |
-| FR-018 | The system shall provide an AI-generated reply suggestion when requested. | SN-008 | Should Have |
-| FR-019 | The system shall allow a user to review and edit an AI-generated reply suggestion. | SN-008 | Must Have |
 | FR-020 | If message sending is implemented, the system shall require explicit user approval before sending any message. | SN-009 | Must Have |
 | FR-021 | The system shall never send messages autonomously on behalf of the user. | SN-009 | Must Have |
-| FR-022 | The system shall continue providing non-AI communication features when AI services are unavailable. | SN-011 | Must Have |
 | FR-023 | The system shall display errors when an operation cannot be completed. | SN-010 | Must Have |
 | FR-024 | The system shall provide a consistent interface for supported communication providers. | SN-003 | Must Have |
 | FR-025 | The system shall maintain a provider-independent internal communication model. | SN-013 | Should Have |
@@ -61,11 +56,6 @@ Each requirement uses the following format:
 - FR-013
 - FR-014
 - FR-015
-### AI Assistance
-- FR-017
-- FR-018
-- FR-019
-- FR-022
 ### User Control and Safety
 - FR-020
 - FR-021
@@ -74,10 +64,7 @@ Each requirement uses the following format:
 - FR-025
 - FR-026
 ## Important Product Rules
-1. AI features are assistive and require user initiation.
-2. AI-generated content must remain editable before approval.
 3. If message sending is implemented, the user must explicitly approve a message before sending.
-4. AI unavailability must not disable the core communication workspace.
 5. Provider-specific details must not unnecessarily leak into the unified user interface.
 6. Integration failures must be visible and understandable to the user.
 ## Relationship to Later Documents

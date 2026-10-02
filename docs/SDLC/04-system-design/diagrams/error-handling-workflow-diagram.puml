@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Error Handling Workflow
+title OmniDesk Error Handling Workflow
 
 start
 
@@ -21,9 +21,6 @@ elseif (Synchronization error?) then (yes)
   :Record safe diagnostic event;
   :Report synchronization failure;
   :Allow retry where appropriate;
-elseif (AI service error?) then (yes)
-  :Record AI failure category;
-  :Report AI unavailable status;
   :Keep core communication features available;
   :Allow retry where appropriate;
 else (unknown or unexpected error)

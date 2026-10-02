@@ -16,6 +16,13 @@ export type AuthResponse = {
   token: string
 }
 
+export type LoginChallenge = {
+  message: string
+  challenge: string
+  expires_in: number
+  resend_after: number
+}
+
 export type CaptchaChallenge =
   | {
       driver: 'internal'
@@ -117,6 +124,7 @@ export type PaginatedResponse<T> = {
 }
 
 export type TelegramMessage = {
+  media?: { kind: 'photo' | 'video' | 'voice'; spoiler?: boolean } | null
   id: number
   chat_id: number
   date: number
@@ -129,6 +137,10 @@ export type TelegramChat = {
   type: 'private' | 'group' | 'channel'
   tdlib_type: string
   title: string
+  photo?: {
+    mime_type: 'image/jpeg' | 'image/png' | 'image/webp'
+    data: string
+  } | null
   unread_count: number
   last_message: string
   last_message_date: number | null
@@ -150,6 +162,12 @@ export type TelegramSampleResponse = {
     has_more: boolean
     next_before_message_id: number | null
   }
+}
+
+export type TelegramConnectionStatus = {
+  connected: boolean
+  status: 'disconnected' | 'pending' | 'awaiting_phone' | 'awaiting_code' | 'awaiting_password' | 'connected' | 'error'
+  phone: string | null
 }
 
 const tokenStorageKey = 'omni_desk_auth_token'
@@ -259,15 +277,25 @@ export async function loginUser(data: {
   captcha_token?: string
   captcha_answer?: string
   captcha_response?: string
-}): Promise<AuthResponse> {
-  const response = await request<AuthResponse>('/api/login', {
+}): Promise<LoginChallenge> {
+  return request<LoginChallenge>('/api/login', {
     method: 'POST',
     body: JSON.stringify(data),
   })
+}
 
+export async function verifyLoginCode(challenge: string, code: string): Promise<AuthResponse> {
+  const response = await request<AuthResponse>('/api/login/verify', {
+    method: 'POST', body: JSON.stringify({ challenge, code }),
+  })
   storeToken(response.token)
-
   return response
+}
+
+export function resendLoginCode(challenge: string): Promise<LoginChallenge> {
+  return request<LoginChallenge>('/api/login/resend', {
+    method: 'POST', body: JSON.stringify({ challenge }),
+  })
 }
 
 export async function getCurrentUser(): Promise<CurrentUserResponse> {
@@ -336,9 +364,10 @@ export async function getConversation(
 export async function getConversationMessages(
   conversationId: number,
   perPage = 50,
+  page = 1,
 ): Promise<PaginatedResponse<Message>> {
   return request<PaginatedResponse<Message>>(
-    `/api/conversations/${conversationId}/messages?per_page=${perPage}`,
+    `/api/conversations/${conversationId}/messages?per_page=${perPage}&page=${page}`,
   )
 }
 
@@ -406,9 +435,34 @@ export async function disconnectGmail(): Promise<GmailDisconnectResponse | null>
   return response ?? null
 }
 
+// The native adapter shares a session lock: queue media downloads rather than
+// starting a process per visible photo at once.
+let telegramMediaQueue: Promise<unknown> = Promise.resolve()
+
+export function getTelegramMedia(chatId: number, messageId: number, signal: AbortSignal): Promise<Blob> {
+  const operation = telegramMediaQueue.then(async () => {
+    signal.throwIfAborted()
+    const headers = new Headers({ Accept: 'application/json' })
+    const token = getStoredToken()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+    const params = new URLSearchParams({ chat_id: String(chatId), message_id: String(messageId) })
+    // Keep the queue occupied until the server finishes even if the component
+    // is removed, because cancelling fetch does not stop its TDLib process.
+    const response = await fetch(`/api/integrations/telegram/media?${params}`, { headers, credentials: 'same-origin' })
+    if (response.status === 401) invalidateAuthentication()
+    if (!response.ok) throw new Error(await getErrorMessage(response))
+    const blob = await response.blob()
+    signal.throwIfAborted()
+    return blob
+  })
+  telegramMediaQueue = operation.catch(() => undefined)
+  return operation
+}
+
 export async function getTelegramSample(
   chatId?: number,
   options: TelegramSampleOptions = {},
+  signal?: AbortSignal,
 ): Promise<TelegramSampleResponse> {
   const params = new URLSearchParams()
   params.set('limit', String(options.limit ?? 20))
@@ -423,5 +477,26 @@ export async function getTelegramSample(
 
   return request<TelegramSampleResponse>(
     `/api/integrations/telegram/sample?${params.toString()}`,
+    { signal },
   )
+}
+
+export function getTelegramStatus(): Promise<TelegramConnectionStatus> {
+  return request<TelegramConnectionStatus>('/api/integrations/telegram')
+}
+
+export function connectTelegram(phone: string): Promise<{ status: TelegramConnectionStatus['status'] }> {
+  return request('/api/integrations/telegram/connect', { method: 'POST', body: JSON.stringify({ phone }) })
+}
+
+export function submitTelegramCode(code: string): Promise<{ status: TelegramConnectionStatus['status'] }> {
+  return request('/api/integrations/telegram/code', { method: 'POST', body: JSON.stringify({ code }) })
+}
+
+export function submitTelegramPassword(password: string): Promise<{ status: TelegramConnectionStatus['status'] }> {
+  return request('/api/integrations/telegram/password', { method: 'POST', body: JSON.stringify({ password }) })
+}
+
+export function disconnectTelegram(): Promise<{ message: string }> {
+  return request('/api/integrations/telegram', { method: 'DELETE' })
 }

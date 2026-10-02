@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document describes the Software Development Life Cycle structure used by OmniDesk AI.
+This document describes the Software Development Life Cycle structure used by OmniDesk.
 
 Project Definition is maintained separately under `docs/Project-Definition/`. It defines the project's problem, goals, scope, stakeholders, assumptions, risks, and success criteria. It is an input to the SDLC, not an SDLC phase in this repository's documentation structure.
 

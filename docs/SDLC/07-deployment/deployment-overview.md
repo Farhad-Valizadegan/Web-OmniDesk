@@ -4,9 +4,9 @@
 
 ## Purpose
 
-This directory represents the Deployment phase of the OmniDesk AI SDLC.
+This directory represents the Deployment phase of the OmniDesk SDLC.
 
-Detailed deployment documentation will be produced during M6 when the implementation, target environment, and release candidate provide real evidence to document.
+Detailed deployment documentation will be produced during M5 when the implementation, target environment, and release candidate provide real evidence to document.
 
 Planned deployment artifacts include:
 
@@ -25,4 +25,4 @@ Planned deployment artifacts include:
 - Release procedure
 - Recovery procedure
 
-These are planning destinations, not evidence that production deployment has occurred. Hosting provider, infrastructure topology, production credentials, backup schedule, monitoring tooling, and production validation remain unresolved until the relevant M6/deployment work is selected and executed.
+These are planning destinations, not evidence that production deployment has occurred. Hosting provider, infrastructure topology, production credentials, backup schedule, monitoring tooling, and production validation remain unresolved until the relevant M5/deployment work is selected and executed.

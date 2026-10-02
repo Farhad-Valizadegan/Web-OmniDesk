@@ -15,7 +15,6 @@ Complete the unified inbox experience on top of the provider-neutral workspace a
 - Complete inbox selection, loading, error, and interaction states.
 - Present synchronized Gmail conversations and messages in the unified workspace.
 - Preserve ownership boundaries and provider-neutral API behavior.
-- Keep Telegram integration, AI assistance, and production deployment outside this sprint.
 
 ## Related Milestone
 
@@ -69,7 +68,6 @@ Implemented and verified:
 ## Out of Scope
 
 - Telegram authorization or synchronization.
-- AI-generated replies or summaries.
 - Autonomous message sending.
 - Production deployment and release hardening.
 

@@ -28,11 +28,15 @@ class ProviderConnection extends Model
         'scopes',
         'sync_state',
         'status',
+        'telegram_phone',
+        'telegram_database_key',
     ];
 
     protected $hidden = [
         'access_token',
         'refresh_token',
+        'telegram_phone',
+        'telegram_database_key',
     ];
 
     protected function casts(): array
@@ -44,6 +48,8 @@ class ProviderConnection extends Model
             'scopes' => 'array',
             'sync_state' => 'array',
             'gmail_sync_completed' => 'boolean',
+            'telegram_phone' => 'encrypted',
+            'telegram_database_key' => 'encrypted',
         ];
     }
 

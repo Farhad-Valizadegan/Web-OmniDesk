@@ -4,8 +4,14 @@ title Provider Connection State Diagram
 [*] --> Disconnected
 
 Disconnected --> Connecting : user starts connection
-Connecting --> Connected : authorization succeeds
+Connecting --> AwaitingCode : Telegram accepts phone number
+AwaitingCode --> AwaitingPassword : Telegram requires two-step password
+AwaitingCode --> Connected : code accepted
+AwaitingPassword --> Connected : password accepted
+Connecting --> Connected : OAuth authorization succeeds
 Connecting --> ConnectionFailed : authorization fails
+AwaitingCode --> ConnectionFailed : invalid or expired code
+AwaitingPassword --> ConnectionFailed : invalid password
 
 Connected --> Synchronizing : synchronization starts
 Synchronizing --> Connected : synchronization succeeds
@@ -23,7 +29,7 @@ ConnectionFailed --> Disconnected : cancel or reset
 Disconnecting --> Disconnected : connection invalidated
 
 state Connected {
-  Connected : provider account is active
+  Connected : provider account and owner-scoped runtime are active
 }
 
 state Synchronizing {

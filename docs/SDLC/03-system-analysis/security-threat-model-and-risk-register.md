@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This document is the authoritative V1 threat-model baseline for OmniDesk AI.
+This document is the authoritative V1 threat-model baseline for OmniDesk.
 
 It converts the SEC-001 refinement into an SDLC analysis artifact used to prioritize security requirements, design controls, tests, and release gates.
 
@@ -26,7 +26,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 - conversation metadata.
 - sender/recipient/contact information.
 - provider account identifiers.
-- AI prompts/context and private AI outputs.
 
 ### Operational
 
@@ -45,7 +44,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 5. Laravel/workers -> Gmail/Google OAuth.
 6. Laravel -> future long-lived Telegram/TDLib adapter.
 7. Telegram adapter -> Telegram API/MTProto.
-8. Laravel/workers -> future AI provider.
 9. Application -> filesystem/object storage/backups.
 10. CI/CD -> build/deployment environment.
 11. developer/operator -> production infrastructure/secrets.
@@ -61,7 +59,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 - Gmail synchronization/disconnect;
 - conversation/message retrieval;
 - future Telegram authorization/adapter endpoints;
-- future AI endpoints;
 - future attachment/file endpoints;
 - CI/CD inputs and dependency changes.
 
@@ -92,7 +89,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 - provider-token/session leakage;
 - sensitive logging;
 - remote-content tracking;
-- over-broad AI context;
 - backup/database compromise;
 - privileged infrastructure/operator access to application-readable communication data.
 
@@ -101,7 +97,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 - authentication abuse;
 - synchronization abuse;
 - provider quota exhaustion;
-- expensive AI operations;
 - queue/worker exhaustion.
 
 ### Elevation of Privilege
@@ -116,7 +111,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 - excess data replication;
 - unnecessary retention;
 - tracking pixels/remote resources;
-- unauthorized third-party AI transfer;
 - incomplete disconnect/account deletion.
 
 ### Supply-Chain / Operational Threats
@@ -139,7 +133,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 | RISK-007 | over-broad provider permission enlarges blast radius | Gmail readonly scope | formal provider-scope mapping incomplete | P1 | SEC-009 |
 | RISK-008 | malicious message content executes | rendering safeguards exist | systematic validation required | P1 | SEC-010 |
 | RISK-009 | remote message content tracks user | active content constrained | remote-resource policy incomplete | P1 | SEC-011 |
-| RISK-010 | expensive/sensitive APIs abused | auth throttling exists | sync/MFA/recovery/AI limits incomplete | P1 | SEC-012 |
 | RISK-011 | logs expose private/secrets | requirements prohibit it | centralized redaction/audit verification absent | P1 | SEC-013 |
 | RISK-012 | weak production browser/transport config | HTTPS required by design | concrete headers/TLS/CORS baseline incomplete | P1 | SEC-014 |
 | RISK-013 | DB/Redis/storage or privileged infrastructure access exposes sensitive application data | restricted access required by design | production hardening and the persisted-message protection model remain incomplete; privileged infrastructure access may reach application-readable data | P1 | SEC-015 |
@@ -147,7 +140,6 @@ It converts the SEC-001 refinement into an SDLC analysis artifact used to priori
 | RISK-015 | vulnerable dependency/secret reaches main | CI tests/lint/build | dedicated security gates absent | P1 | SEC-017 |
 | RISK-016 | privacy lifecycle inconsistent | minimization/privacy requirements exist | lifecycle implementation incomplete | P1 | SEC-018 |
 | RISK-017 | Telegram session theft compromises account | PB-023 security constraints | production session boundary not implemented | P1 | SEC-019 |
-| RISK-018 | AI leaks context or follows malicious content | user initiation; no autonomous sending | AI boundary not implemented/security-gated | P1 | SEC-020 |
 | RISK-019 | compromise is not detected/contained | safe failures/CI exist | monitoring/incident process incomplete | P2 | SEC-021 |
 
 ## Infrastructure Trust Assumption
@@ -167,7 +159,6 @@ P1 items remain release- or capability-gating work according to exposure and dep
 Re-run threat modeling when:
 
 - Telegram integration/session architecture changes;
-- an AI provider/data flow is enabled;
 - attachment handling is introduced;
 - authentication/session architecture changes;
 - a provider is added;

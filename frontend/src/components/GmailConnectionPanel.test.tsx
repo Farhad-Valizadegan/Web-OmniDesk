@@ -127,7 +127,7 @@ describe('GmailConnectionPanel', () => {
 
     disconnectGmailMock.mockResolvedValue({
       message:
-        'Gmail was disconnected locally, but Google authorization could not be revoked. Revoke OmniDesk AI access from your Google Account if it remains active.',
+        'Gmail was disconnected locally, but Google authorization could not be revoked. Revoke OmniDesk access from your Google Account if it remains active.',
       error: 'gmail_revocation_failed',
     })
 

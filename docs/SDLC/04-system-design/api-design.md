@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document defines the initial REST API design for OmniDesk AI.
+This document defines the initial REST API design for OmniDesk.
 
 The API provides a stable boundary between the React client and the Laravel backend.
 
@@ -16,7 +16,6 @@ The API provides a stable boundary between the React client and the Laravel back
 - Provider-specific details remain behind connector boundaries.
 - API responses use consistent structures.
 - Sensitive credentials and tokens are never returned to the client.
-- AI operations are user-initiated and require user review.
 - Message sending is not included in the current API scope.
 
 ## Base URL
@@ -95,25 +94,6 @@ direction
 
 Synchronization requests should support idempotent processing.
 
-## AI Assistance Endpoints
-
-| Method | Endpoint | Purpose | Authentication |
-|---|---|---|---|
-| POST | `/conversations/{conversation}/summary` | Request a conversation summary | Required |
-| POST | `/conversations/{conversation}/reply-suggestion` | Request an editable reply suggestion | Required |
-| GET | `/ai-suggestions/{suggestion}` | View a generated suggestion | Required |
-| PATCH | `/ai-suggestions/{suggestion}` | Edit a generated suggestion | Required |
-| DELETE | `/ai-suggestions/{suggestion}` | Discard a generated suggestion | Required |
-
-AI rules:
-
-- The user must initiate every AI request.
-- Only the minimum required conversation context is sent.
-- AI output is treated as untrusted content.
-- Generated content must be reviewable and editable.
-- AI must never send messages autonomously.
-- Message sending remains outside the current API scope.
-
 ## Response Format
 
 Successful responses should use a consistent JSON structure:
@@ -162,7 +142,6 @@ Common error codes include:
 | `VALIDATION_FAILED` | Request data is invalid |
 | `PROVIDER_UNAVAILABLE` | External provider is unavailable |
 | `SYNCHRONIZATION_FAILED` | Synchronization did not complete |
-| `AI_UNAVAILABLE` | AI service is unavailable |
 | `RATE_LIMITED` | Request rate limit was exceeded |
 
 ## HTTP Status Codes
@@ -181,7 +160,6 @@ Common error codes include:
 | 422 | Validation failure |
 | 429 | Rate limit exceeded |
 | 500 | Unexpected server error |
-| 502 | External provider or AI service failure |
 
 ## Security Requirements
 
@@ -191,9 +169,7 @@ Common error codes include:
 - Credentials and tokens must never appear in API responses.
 - Sensitive values must not be written to logs.
 - Request validation must occur at the API boundary.
-- Rate limiting must protect authentication, synchronization, and AI endpoints.
 - Provider callback requests must validate state and authorization data.
-- AI requests must apply data minimization.
 
 ## API Versioning
 
@@ -209,7 +185,6 @@ Backward-compatible changes may be introduced within the existing version.
 
 ## Background Operations
 
-Synchronization and potentially AI requests may be processed asynchronously.
 
 For accepted background operations, the API may return:
 
@@ -232,7 +207,6 @@ The client can use a status endpoint to obtain the latest state.
 | API-002 | Exact authentication mechanism | To be finalized during security design |
 | API-003 | Exact pagination strategy | To be finalized during implementation |
 | API-004 | Exact synchronization scheduling model | To be finalized during deployment design |
-| API-005 | Final AI provider and request limits | Unresolved |
 | API-006 | Exact Telegram authorization flow | Requires provider validation |
 
 ## Relationship to Later Documents
@@ -241,7 +215,6 @@ This API design will provide input for:
 
 - Authentication and Authorization Design
 - Provider Integration Design
-- AI Assistance Design
 - Error Handling Design
 - Frontend Integration
 - Implementation

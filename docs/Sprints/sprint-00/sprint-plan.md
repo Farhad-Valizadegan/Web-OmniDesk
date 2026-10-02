@@ -5,7 +5,7 @@
 
 ## Sprint Goal
 
-Prepare a reliable and repeatable development environment for OmniDesk AI.
+Prepare a reliable and repeatable development environment for OmniDesk.
 
 Sprint 00 does not implement product features. It prepares the repository, tools, environment, quality checks, and workflow required for implementation.
 
@@ -89,7 +89,6 @@ A Sprint 00 task is complete when the result is documented, reproducible, review
 
 ## Out of Scope
 
-User features, authentication, provider integrations, synchronization, AI assistance, and production deployment are outside Sprint 00.
 
 ## Risks
 

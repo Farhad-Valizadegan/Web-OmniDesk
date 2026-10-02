@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document describes how OmniDesk AI backlog items are prepared before sprint planning.
+This document describes how OmniDesk backlog items are prepared before sprint planning.
 
 The canonical backlog remains [product-backlog.md](./product-backlog.md). Detailed refinement specifications for individual items live under [backlog-items/](./backlog-items/) and do not constitute a second backlog.
 
@@ -12,7 +12,7 @@ These refinement and lifecycle rules apply to both canonical `PB-###` and `SEC-#
 
 ## Workflow
 
-![OmniDesk AI Backlog Refinement Workflow](./diagrams/backlog-refinement.svg)
+![OmniDesk Backlog Refinement Workflow](./diagrams/backlog-refinement.svg)
 
 ## Backlog Status Semantics
 

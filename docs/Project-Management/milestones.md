@@ -1,4 +1,4 @@
-# OmniDesk AI Milestones
+# OmniDesk Milestones
 
 > Status: Approved
 > Approved: 2026-09-09
@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This document defines the meaningful project outcomes for OmniDesk AI.
+This document defines the meaningful project outcomes for OmniDesk.
 
 Milestones represent completed capabilities or important project results. They are not the same as SDLC phases, sprints, releases, or versions.
 
@@ -94,22 +94,7 @@ Includes:
 - Telegram synchronization
 - Provider-specific failure isolation
 
-### M5 - AI-Assisted Communication
-
-**Outcome:** A user can request and review AI-generated assistance.
-
-Includes:
-
-- Conversation summaries
-- Editable reply suggestions
-- Context minimization
-- AI provider abstraction
-- Suggestion lifecycle
-- User ownership checks
-- AI failure handling
-- No autonomous message sending
-
-### M6 - Production Hardening
+### M5 - Production Hardening
 
 **Outcome:** The application is sufficiently verified and prepared for release.
 
@@ -135,8 +120,7 @@ Completed historical allocations are recorded below. Future milestone work remai
 | M2 - Gmail Integration | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
 | M3 - Unified Inbox | Sprint 06 | Unified communication workspace |
 | M4 - Telegram Integration | Sprint 07 for validation; later M4 Sprint(s) TBD through Sprint Planning | Telegram connection and synchronization |
-| M5 - AI-Assisted Communication | TBD through Sprint Planning | User-controlled AI assistance |
-| M6 - Production Hardening | TBD through Sprint Planning | Release readiness |
+| M5 - Production Hardening | TBD through Sprint Planning | Release readiness |
 
 ### Completed Sprint Structure
 
@@ -182,7 +166,7 @@ Sprint 07 has M4 as its primary milestone. SEC-001 and SEC-002 are cross-cutting
 
 ## Future Sprint Assignment Rule
 
-Sprint 07 was created only after refinement, prioritization, and Sprint Planning selected PB-023, SEC-001, and SEC-002. M5, M6, and any later M4 work do not reserve future Sprint numbers in advance.
+Sprint 07 was created only after refinement, prioritization, and Sprint Planning selected PB-023, SEC-001, and SEC-002. M5 and any later M4 work do not reserve future Sprint numbers in advance.
 
 Before future work enters a Sprint:
 
@@ -217,7 +201,8 @@ Example:
 - Several sprints may contribute to M2.
 - M2 may be released as version 0.3.0.
 - Later corrections may produce version 0.3.1.
-- A major stable release may eventually become version 1.0.0.
+- The first reviewable MVP is planned as `v1.0.0-mvp.1`.
+- After release checks and stabilization, the final Version 1 release may become `v1.0.0`.
 
 ## Approval Rule
 

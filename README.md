@@ -1,20 +1,20 @@
-# Web-OmniDesk-AI
+# OmniDesk
 
-OmniDesk AI is an AI-powered unified communication workspace for managing supported communication providers in one application.
+OmniDesk is a unified communication workspace for managing supported communication providers in one application.
 
 ## V1 Scope
 
 The current V1 baseline includes:
 
 - Gmail integration
-- Telegram integration
+- Read-only Telegram integration through the local TDLib adapter
 - A unified communication workspace
 - Search, filtering, and message organization
-- User-controlled AI assistance such as conversation summaries and reply suggestions
-- User review and explicit confirmation controls for AI-assisted content
 - Secure synchronization, authentication, testing, and deployment preparation
 
-Whether user-initiated message sending through Gmail or Telegram is included in the initial implementation remains an explicit scope decision in the authoritative Project Scope document.
+Provider message sending is outside the current MVP scope.
+
+The planned first public milestone is `v1.0.0-mvp.1`. It is a pre-release and does not claim production readiness.
 
 Additional communication providers and advanced capabilities are future-scope ideas and are **not** part of V1 unless the authoritative scope is explicitly changed.
 

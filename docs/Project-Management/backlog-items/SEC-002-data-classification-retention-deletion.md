@@ -7,7 +7,7 @@
 
 ## Problem / Risk
 
-OmniDesk AI intentionally creates a local normalized workspace from external communication providers. That makes data minimization, retention, deletion, caching, logging, backup handling, and third-party transfer explicit security/privacy concerns.
+OmniDesk intentionally creates a local normalized workspace from external communication providers. That makes data minimization, retention, deletion, caching, logging, backup handling, and third-party transfer explicit security/privacy concerns.
 
 The repository identifies several relevant entities and privacy principles, but one authoritative V1 lifecycle inventory is still required.
 
@@ -19,7 +19,6 @@ Define what V1 data exists, why it is needed, how sensitive it is, where it move
 
 - SEC-001 threat/risk model.
 - Final Telegram implementation mode for exact Telegram session-data details.
-- Final AI provider/design for exact AI data-transfer and retention details.
 - Deployment planning for exact backup-retention periods.
 
 ## Classification Model
@@ -72,8 +71,6 @@ Examples:
 - authentication/session credentials.
 - password-reset and MFA/OTP secrets.
 - encryption keys.
-- AI prompts/context containing communication content.
-- AI-generated outputs containing private communication content.
 - backups containing any of the above.
 
 ## V1 Data Inventory
@@ -88,17 +85,12 @@ Examples:
 | Gmail access token | Highly Sensitive | Google OAuth | provider API access | encrypted persistence | Google APIs only |
 | Gmail refresh token | Highly Sensitive | Google OAuth | renew/revoke provider access | encrypted persistence | Google OAuth APIs only |
 | Gmail OAuth state | Highly Sensitive temporary authorization state | OmniDesk | bind callback to initiating user | temporary cache only | round-trip through browser/provider authorization flow |
-| Conversation identifiers/subject/status/labels | Confidential | provider + OmniDesk | unified workspace/search/filtering | PostgreSQL | owning user; future AI only when required |
-| Message sender/recipient metadata | Confidential | provider | unified message display | PostgreSQL | owning user; future AI only when required |
-| Message body | Highly Sensitive | provider | unified message display/search/approved AI features | PostgreSQL under current normalized-data model | owning user; AI only when approved/required |
 | Message provider metadata | Confidential to Highly Sensitive depending on field | provider | synchronization/normalization | persist only required fields | normally none beyond provider/user-facing behavior |
 | Attachment metadata | Confidential | provider | display/download support if approved | persist only required metadata | owning user |
 | Attachment content | Highly Sensitive | provider | only if attachment feature is approved | TBD; avoid persistence unless required | owning user; external malware scanning only if explicitly designed |
 | Synchronization cursor/history/page state | Confidential operational | provider/OmniDesk | incremental sync/duplicate prevention | PostgreSQL or approved transient store | provider APIs |
 | Safe synchronization errors | Internal/Confidential | OmniDesk/provider | diagnosis/retry | logs/audit store if needed | operations only |
 | Local labels/tags | Confidential | user | organization | PostgreSQL when implemented | owning user |
-| AI prompt/context | Highly Sensitive | OmniDesk/user/provider data | user-requested AI feature | prefer transient/minimized processing | selected AI provider when approved |
-| AI generated result | Confidential/Highly Sensitive | AI provider | summary/reply assistance | only if V1 feature requires persistence | owning user |
 | Security audit event | Confidential | OmniDesk | investigation/account security | durable audit store | authorized operations only |
 | Logs | Internal; may become Confidential if user-linked | OmniDesk | operations/diagnostics | bounded retention | authorized operations only |
 | Backups | Highest classification of contained data | OmniDesk | disaster recovery | encrypted backup storage | approved backup provider/storage only |
@@ -112,7 +104,6 @@ For each V1 field:
 3. Provider-specific metadata must not be copied wholesale when normalized fields are sufficient.
 4. Temporary authorization/challenge data should remain temporary.
 5. Tokens/session secrets must never be duplicated into logs or frontend-visible responses.
-6. AI context must be selected per request rather than exporting entire mailboxes or conversation stores.
 7. Attachment content must not be persisted merely because metadata is available.
 
 ## Current Retention / Deletion Decisions
@@ -148,9 +139,6 @@ The following remain unresolved and must be finalized before V1 release where ap
 - security audit retention.
 - application log retention.
 - backup retention and deletion.
-- AI prompt/context retention at OmniDesk.
-- AI provider retention/configuration.
-- AI generated-result retention.
 - Telegram session-data lifecycle.
 - attachment content retention if attachments enter V1.
 
@@ -171,7 +159,6 @@ The lifecycle model must support these triggers:
 - disconnect/revoke provider access where possible.
 - delete user-owned provider connections.
 - delete or irreversibly detach user-owned communication data according to the approved policy.
-- delete local labels/settings/AI results.
 - preserve only records that have an explicit justified retention requirement.
 
 ### Expiration
@@ -210,16 +197,6 @@ Until SEC-016 is implemented:
 - deletion from live storage does not imply immediate disappearance from backups; backup expiration behavior must be documented transparently.
 - restore access must be restricted and auditable.
 
-## AI Data Rules
-
-Before M5 AI features:
-
-- send only context required for the user-requested operation.
-- do not assume Telegram-derived content may be sent to an AI provider.
-- review AI-provider retention/training/data-use behavior.
-- avoid persistence of prompts/context unless a specific V1 feature requires it.
-- classify generated content according to the sensitivity of the source context.
-
 ## Acceptance Criteria
 
 - V1 data categories are classified.
@@ -227,7 +204,6 @@ Before M5 AI features:
 - Temporary-vs-durable treatment is explicit for sensitive authorization/challenge state.
 - Current Gmail disconnect lifecycle is recorded.
 - unresolved retention/deletion decisions are explicitly identified.
-- cache, queue, logging, backup, and AI lifecycle rules are defined.
 - downstream security/privacy backlog dependencies are traceable.
 
 ## Security Tests
@@ -239,7 +215,6 @@ Later implementation must include:
 - expired temporary-secret cleanup tests.
 - log-redaction tests.
 - backup lifecycle verification.
-- AI context-minimization tests where AI is introduced.
 
 ## Definition of Done
 
@@ -255,7 +230,6 @@ Completion requires the authoritative lifecycle artifact and concrete retention/
 - Data Model and ERD.
 - Deployment Architecture.
 - Provider Integration Design.
-- AI Assistance Design.
 - Maintenance/backup procedures.
 
 ## V1 Inclusion Rationale

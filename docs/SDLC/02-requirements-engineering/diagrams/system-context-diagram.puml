@@ -7,15 +7,12 @@ skinparam componentStyle rectangle
 actor "Primary User" as User
 rectangle "Gmail Provider" as Gmail
 rectangle "Telegram Provider" as Telegram
-rectangle "AI Service" as AI
 rectangle "Background Sync Trigger" as Sync
-rectangle "OmniDesk AI" as System
+rectangle "OmniDesk" as System
 
 User --> System : authentication and workspace actions
 Gmail <--> System : connection and communication data
 Telegram <--> System : connection and communication data
 Sync --> System : synchronization trigger
-System --> AI : approved feature context
-AI --> System : summary or editable suggestion
 System --> User : messages, status, and results
 @enduml

@@ -1,8 +1,7 @@
-﻿# Security and Privacy Requirements
+# Security and Privacy Requirements
 > Status: Draft
 ## Purpose
-This document defines the security and privacy requirements for OmniDesk AI.
-These requirements protect user accounts, external provider connections, communication data, AI interactions, and system operations.
+This document defines the security and privacy requirements for OmniDesk.
 ## Security and Privacy Requirement Catalog
 | ID | Category | Requirement | Priority |
 |---|---|---|---|
@@ -18,9 +17,6 @@ These requirements protect user accounts, external provider connections, communi
 | SPR-010 | Output Safety | The system shall protect rendered communication content against unsafe content execution. | Must Have |
 | SPR-011 | Error Handling | The system shall not expose credentials, tokens, or sensitive implementation details in error messages. | Must Have |
 | SPR-012 | Logging | The system shall prevent credentials, tokens, and unnecessary message content from being written to logs. | Must Have |
-| SPR-013 | AI Privacy | The system shall send communication data to an AI service only when required by an approved AI feature. | Must Have |
-| SPR-014 | AI User Control | The system shall require user initiation before generating an AI summary or reply suggestion. | Must Have |
-| SPR-015 | AI Sending Control | The system shall never allow AI to send content autonomously. | Must Have |
 | SPR-016 | Data Minimization | The system should store only communication data and metadata required by supported features. | Should Have |
 | SPR-017 | Data Removal | The system should support removal of locally stored provider data when the user disconnects an account, where applicable. | Should Have |
 | SPR-018 | Transport Security | The system shall use secure communication channels for authentication, synchronization, and external API requests. | Must Have |
@@ -33,7 +29,6 @@ These requirements protect user accounts, external provider connections, communi
 | SPR-025 | Backup Protection | Production backups containing sensitive application data shall be protected, access-controlled, recoverable, and lifecycle-managed as governed by SEC-016. | Must Have |
 ## Clarification of Data Minimization and Removal
 
-SPR-016 remains **Should Have** for general local storage minimization. This priority does not make all minimization optional: stricter mandatory minimization still applies where separately required, including log minimization, secret handling, temporary authorization data, and AI context minimization through the applicable security/privacy controls.
 
 SPR-016 concerns avoiding unnecessary durable storage while still permitting communication data and metadata required by approved V1 functionality such as synchronization, search, filtering, and message display.
 
@@ -47,13 +42,11 @@ The system may process:
 - External provider connection information
 - Access tokens or authorization data
 - Messages and conversation metadata
-- AI prompts and generated suggestions
 - Synchronization and error information
 ## Security Principles
-1. External provider passwords shall not be collected or stored by OmniDesk AI.
+1. External provider passwords shall not be collected or stored by OmniDesk.
 2. Access tokens shall be treated as sensitive secrets.
 3. Users shall not access another user's communication data.
-4. AI-generated content shall remain under user control.
 5. Logs shall contain only the minimum information required for diagnosis.
 6. Errors shall be useful without revealing sensitive information.
 7. External data shall be treated as untrusted input.
@@ -62,7 +55,6 @@ The system may process:
 1. Communication data shall be processed only for documented product features.
 2. The system should minimize the amount of stored communication data.
 3. The system shall not use communication data for unrelated purposes.
-4. AI processing shall be limited to user-requested features.
 5. Provider disconnection shall invalidate access where applicable.
 6. Privacy-related decisions shall be reviewed before production deployment.
 
@@ -70,7 +62,7 @@ The system may process:
 
 The following security decisions are implemented in the current V1 codebase. This section records implementation evidence only; it does not imply that all V1 Required security backlog items are complete:
 
-- OmniDesk AI user authentication uses Laravel Sanctum personal access bearer tokens for the REST API.
+- OmniDesk user authentication uses Laravel Sanctum personal access bearer tokens for the REST API.
 - The web client keeps the bearer token in `sessionStorage`; authentication tokens are not stored in `localStorage`.
 - Sanctum bearer tokens have a finite lifetime configured through `SANCTUM_TOKEN_EXPIRATION`. The documented default is 480 minutes, and production deployments may set a different finite value through the environment.
 - A `401 Unauthenticated` response causes the web client to remove the stored bearer token and return to the unauthenticated application state.
@@ -96,7 +88,6 @@ These security and privacy requirements will provide input for:
 - Authentication and Authorization Design
 - Data Protection Design
 - Integration Design
-- AI Feature Design
 - Testing
 - Deployment Planning
 - Requirements Traceability Matrix

@@ -1,7 +1,7 @@
-﻿# Integration Requirements
+# Integration Requirements
 > Status: Draft
 ## Purpose
-This document defines the integration requirements for connecting OmniDesk AI with external communication providers.
+This document defines the integration requirements for connecting OmniDesk with external communication providers.
 The initial integration scope includes Gmail and Telegram. Additional providers may be considered in future releases.
 ## Integration Requirement Catalog
 | ID | Requirement | Provider | Priority |
@@ -43,7 +43,6 @@ Future providers are not part of the current MVP commitment.
 3. Provider data shall be mapped to a common internal model.
 4. Provider failures shall be visible without exposing credentials or tokens.
 5. The system shall request the minimum permissions required.
-6. The integration design shall not depend on a single AI provider.
 7. Adding a future provider should require limited changes to the core workspace.
 ## Integration Error Categories
 The system should distinguish between:

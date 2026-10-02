@@ -1,10 +1,10 @@
-# OmniDesk AI Backend Agent Guidelines
+# OmniDesk Backend Agent Guidelines
 
 These instructions apply to automated coding assistants working in the `backend` directory.
 
 ## Project Context
 
-OmniDesk AI is a Laravel-based backend for a provider-neutral unified communication workspace.
+OmniDesk is a Laravel-based backend for a provider-neutral unified communication workspace.
 
 Current Version 1 providers are Gmail and Telegram. Gmail is implemented; Telegram work remains subject to backlog prioritization and provider validation.
 
@@ -16,7 +16,6 @@ Current Version 1 providers are Gmail and Telegram. Gmail is implemented; Telegr
 - Preserve authenticated-user ownership boundaries for conversations, messages, and provider connections.
 - Use official provider APIs and documented authorization flows.
 - Do not introduce undocumented scraping or browser automation as a core provider integration.
-- Do not implement autonomous AI message sending.
 - Do not expand Version 1 scope without an explicit backlog/scope decision.
 
 ## Development Workflow

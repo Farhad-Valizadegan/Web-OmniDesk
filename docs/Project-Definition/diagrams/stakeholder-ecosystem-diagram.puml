@@ -9,15 +9,13 @@ actor "Project Owner and Developer" as Owner
 actor "Technical Reviewers and Recruiters" as Reviewers
 rectangle "Gmail Provider" as Gmail
 rectangle "Telegram Provider" as Telegram
-rectangle "AI Service" as AI
 rectangle "Future Providers" as Future
-rectangle "OmniDesk AI" as System
+rectangle "OmniDesk" as System
 
 User --> System : uses workspace
 Owner --> System : owns and develops
 Reviewers --> System : evaluate
 System <--> Gmail : integration
 System <--> Telegram : integration
-System <--> AI : assistance
 System ..> Future : future integration
 @enduml

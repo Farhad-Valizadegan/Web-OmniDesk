@@ -4,11 +4,11 @@
 
 ## Purpose
 
-This document describes how OmniDesk AI maintains traceability from approved requirements to design, implementation, testing, and release evidence.
+This document describes how OmniDesk maintains traceability from approved requirements to design, implementation, testing, and release evidence.
 
 ## Traceability Diagram
 
-![OmniDesk AI Requirements Traceability](./diagrams/traceability.svg)
+![OmniDesk Requirements Traceability](./diagrams/traceability.svg)
 
 ## Traceability Chain
 
@@ -59,7 +59,6 @@ The authoritative risk identifiers come from the SEC-001 threat model. The table
 | RISK-015 | SPR-019, SPR-020 | SEC-017 | CI tests/lint/build exist; dedicated security CI/CD controls remain Planned |
 | RISK-016 | SPR-016, SPR-017, NFR-004, NFR-006 | SEC-018 | SEC-002 lifecycle baseline exists; GDPR/privacy engineering implementation remains Planned |
 | RISK-017 | SPR-005, IR-005 | SEC-019 | TDLib architecture direction exists; Telegram credential/session security gate remains Planned before PB-024 |
-| RISK-018 | SPR-013, SPR-014, SPR-015 | SEC-020 | AI security/privacy gate remains Planned before applicable M5 functionality |
 | RISK-019 | NFR-019 | SEC-021 | Monitoring/incident-response baseline remains Planned; release/operational evidence pending |
 
 Release and deployment evidence must remain explicitly pending until the relevant security control and environment actually exist.

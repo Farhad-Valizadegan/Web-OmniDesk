@@ -1,9 +1,15 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import GmailConnectionPanel from './GmailConnectionPanel'
+import TelegramMedia from './TelegramMedia'
 import {
   getConversationMessages,
   getConversations,
   getGmailStatus,
+  getTelegramStatus,
+  connectTelegram,
+  submitTelegramCode,
+  submitTelegramPassword,
+  disconnectTelegram,
   getTelegramSample,
   syncGmailPage,
   type AuthUser,
@@ -11,6 +17,7 @@ import {
   type Message,
   type TelegramChat,
   type TelegramMessage,
+  type TelegramConnectionStatus,
 } from '../lib/api'
 
 type WorkspaceProps = {
@@ -57,6 +64,31 @@ function initials(value: string | null): string {
       : [(words[0] ?? '?').slice(0, 2)]
 
   return letters.join('').toUpperCase()
+}
+
+function TelegramChatAvatar({ chat }: { chat: TelegramChat }) {
+  const [failed, setFailed] = useState(false)
+  const photo = chat.photo
+
+  return (
+    <span className="telegram-chat-avatar">
+      {photo && !failed ? (
+        <img
+          src={`data:${photo.mime_type};base64,${photo.data}`}
+          alt={`${chat.title} profile`}
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        initials(chat.title)
+      )}
+    </span>
+  )
+}
+
+function sortTelegramMessages(messages: TelegramMessage[]): TelegramMessage[] {
+  return [...messages].sort(
+    (left, right) => left.date - right.date || left.id - right.id,
+  )
 }
 
 function formatAttachmentSize(size: number): string {
@@ -171,7 +203,7 @@ function sanitizeEmailHtml(html: string): string {
       if (name === 'href' || name === 'src') {
         if (
           !/^https?:\/\//i.test(value) &&
-          !/^data:image\//i.test(value)
+          !(name === 'src' && /^data:image\//i.test(value))
         ) {
           element.removeAttribute(attribute.name)
         }
@@ -249,6 +281,9 @@ function Workspace({
   const [gmailHasMore, setGmailHasMore] = useState(false)
 
   const [telegramSearch, setTelegramSearch] = useState('')
+  const [telegramConnection, setTelegramConnection] = useState<TelegramConnectionStatus>({ connected: false, status: 'disconnected', phone: null })
+  const [telegramCredential, setTelegramCredential] = useState('')
+  const [telegramConnectionLoading, setTelegramConnectionLoading] = useState(false)
   const [telegramChats, setTelegramChats] = useState<
     TelegramChat[]
   >([])
@@ -269,13 +304,91 @@ function Workspace({
   const [isTelegramMoreLoading, setIsTelegramMoreLoading] = useState(false)
 
   const hasInitializedLazySync = useRef(false)
+  const inboxRequestId = useRef(0)
+  const messageRequestId = useRef(0)
+  const telegramRequestId = useRef(0)
+  const telegramAbortController = useRef<AbortController | null>(null)
+  const telegramRequestInFlight = useRef(false)
+  const telegramScrollToLatest = useRef(false)
+  const telegramMessageListRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('omni_desk_theme', theme)
   }, [theme])
 
+  useEffect(() => {
+    if (activeProvider === 'telegram') {
+      return
+    }
+
+    telegramRequestId.current += 1
+    telegramAbortController.current?.abort()
+    telegramAbortController.current = null
+    telegramRequestInFlight.current = false
+  }, [activeProvider])
+
+  const handleTelegramConnection = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setTelegramConnectionLoading(true)
+    setTelegramError(null)
+    try {
+      const isPhoneStep = telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone'
+      const credential = isPhoneStep
+        ? telegramCredential.trim().replace(/^00/, '+')
+        : telegramCredential.trim()
+      const result = telegramConnection.status === 'awaiting_code'
+        ? await submitTelegramCode(credential)
+        : telegramConnection.status === 'awaiting_password'
+          ? await submitTelegramPassword(credential)
+          : await connectTelegram(credential)
+      const next = { connected: result.status === 'connected', status: result.status, phone: isPhoneStep ? credential : telegramConnection.phone }
+      setTelegramConnection(next)
+      setTelegramCredential('')
+      if (next.connected) await handleTelegramLoad()
+    } catch (error) {
+      setTelegramError(error instanceof Error ? error.message : 'Telegram connection failed.')
+    } finally {
+      setTelegramConnectionLoading(false)
+    }
+  }
+
+  const handleTelegramDisconnect = async () => {
+    setTelegramConnectionLoading(true)
+    setTelegramError(null)
+    try {
+      await disconnectTelegram()
+      setTelegramConnection({ connected: false, status: 'disconnected', phone: null })
+      setTelegramCredential('')
+      setTelegramChats([])
+      setTelegramMessages([])
+    } catch (error) {
+      setTelegramError(error instanceof Error ? error.message : 'Telegram could not be disconnected.')
+    } finally {
+      setTelegramConnectionLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (
+      !telegramScrollToLatest.current ||
+      telegramMessages.length === 0
+    ) {
+      return
+    }
+
+    const messageList = telegramMessageListRef.current
+
+    if (!messageList) {
+      return
+    }
+
+    messageList.scrollTop = messageList.scrollHeight
+    telegramScrollToLatest.current = false
+  }, [telegramMessages.length, selectedTelegramChatId])
+
   const loadConversations = useCallback(async () => {
+    const requestId = ++inboxRequestId.current
     try {
       setIsInboxLoading(true)
       setInboxError(null)
@@ -288,6 +401,7 @@ function Workspace({
 
           if (gmailStatus.connected) {
             const syncResponse = await syncGmailPage()
+            if (requestId !== inboxRequestId.current) return
             setGmailHasMore(syncResponse.sync.has_more)
           }
         } catch {
@@ -310,6 +424,7 @@ function Workspace({
         page,
       })
 
+      if (requestId !== inboxRequestId.current) return
       setConversations(response.data)
 
       setPagination({
@@ -334,16 +449,18 @@ function Workspace({
         )
       })
     } catch {
+      if (requestId !== inboxRequestId.current) return
       setConversations([])
       setSelectedConversation(null)
       setInboxError('Conversations could not be loaded.')
     } finally {
-      setIsInboxLoading(false)
+      if (requestId === inboxRequestId.current) setIsInboxLoading(false)
     }
   }, [labelFilter, page, readFilter, search, statusFilter])
 
   const loadMessages = useCallback(
     async (conversationId: number) => {
+      const requestId = ++messageRequestId.current
       try {
         setIsMessagesLoading(true)
         setMessagesError(null)
@@ -351,31 +468,50 @@ function Workspace({
         const response =
           await getConversationMessages(conversationId)
 
-        setMessages(response.data)
+        if (requestId !== messageRequestId.current) return
+        const allMessages = [...response.data]
+        for (let page = 2; page <= response.last_page; page += 1) {
+          const nextPage = await getConversationMessages(conversationId, 50, page)
+          if (requestId !== messageRequestId.current) return
+          allMessages.push(...nextPage.data)
+        }
+        setMessages(allMessages)
       } catch {
+        if (requestId !== messageRequestId.current) return
         setMessages([])
         setMessagesError('Messages could not be loaded.')
       } finally {
-        setIsMessagesLoading(false)
+        if (requestId === messageRequestId.current) setIsMessagesLoading(false)
       }
     },
     [],
   )
 
   useEffect(() => {
+    let active = true
     queueMicrotask(() => {
-      void loadConversations()
+      if (active) void loadConversations()
     })
+    return () => {
+      active = false
+      inboxRequestId.current += 1
+    }
   }, [loadConversations])
 
   useEffect(() => {
+    let active = true
     queueMicrotask(() => {
+      if (!active) return
       if (selectedConversation) {
         void loadMessages(selectedConversation.id)
       } else {
         setMessages([])
       }
     })
+    return () => {
+      active = false
+      messageRequestId.current += 1
+    }
   }, [loadMessages, selectedConversation])
 
   const handleSearchSubmit = (
@@ -419,12 +555,52 @@ function Workspace({
     setPage((current) => current + 1)
   }
 
+  const beginTelegramRequest = () => {
+    telegramAbortController.current?.abort()
+
+    const controller = new AbortController()
+    const requestId = telegramRequestId.current + 1
+
+    telegramRequestId.current = requestId
+    telegramAbortController.current = controller
+    telegramRequestInFlight.current = true
+
+    return { controller, requestId }
+  }
+
+  const isCurrentTelegramRequest = (
+    requestId: number,
+    controller: AbortController,
+  ) =>
+    telegramRequestId.current === requestId &&
+    telegramAbortController.current === controller &&
+    !controller.signal.aborted
+
   const handleTelegramLoad = async () => {
+    if (telegramRequestInFlight.current) {
+      telegramAbortController.current?.abort()
+    }
+
+    const { controller, requestId } = beginTelegramRequest()
+
     try {
       setIsTelegramLoading(true)
+      setIsTelegramMoreLoading(false)
       setTelegramError(null)
+      setTelegramMessages([])
+      setTelegramChatTitle(null)
+      setTelegramHasMore(false)
+      setTelegramNextBeforeMessageId(null)
 
-      const response = await getTelegramSample()
+      const response = await getTelegramSample(
+        undefined,
+        {},
+        controller.signal,
+      )
+
+      if (!isCurrentTelegramRequest(requestId, controller)) {
+        return
+      }
 
       const initialTelegramMessage = response.data.messages[0]
       const initialSelectedChat = {
@@ -446,41 +622,118 @@ function Workspace({
         ),
       )
       setSelectedTelegramChatId(initialSelectedChat.id)
-      setTelegramMessages(response.data.messages)
+      telegramScrollToLatest.current = true
+      setTelegramMessages(sortTelegramMessages(response.data.messages))
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
       setTelegramChatTitle(initialSelectedChat.title)
+
+      if (response.data.messages.length === 0) {
+        const historyResponse = await getTelegramSample(
+          initialSelectedChat.id,
+          {},
+          controller.signal,
+        )
+
+        if (!isCurrentTelegramRequest(requestId, controller)) {
+          return
+        }
+
+        const initialHistoryMessage = historyResponse.data.messages[0]
+        const selectedChatWithHistory = {
+          ...historyResponse.data.selected_chat,
+          last_message:
+            historyResponse.data.selected_chat.last_message ||
+            initialHistoryMessage?.text ||
+            '',
+          messages_count:
+            historyResponse.data.selected_chat.messages_count ??
+            historyResponse.data.messages.length,
+        }
+
+        setTelegramChats((currentChats) =>
+          currentChats.map((currentChat) =>
+            currentChat.id === selectedChatWithHistory.id
+              ? selectedChatWithHistory
+              : currentChat,
+          ),
+        )
+        setTelegramMessages(
+          sortTelegramMessages(historyResponse.data.messages),
+        )
+        setTelegramHasMore(historyResponse.data.has_more)
+        setTelegramNextBeforeMessageId(
+          historyResponse.data.next_before_message_id,
+        )
+        setTelegramChatTitle(selectedChatWithHistory.title)
+      }
     } catch (error) {
+      if (
+        controller.signal.aborted ||
+        !isCurrentTelegramRequest(requestId, controller)
+      ) {
+        return
+      }
+
       setTelegramMessages([])
       setTelegramChatTitle(null)
-
       setTelegramError(
         error instanceof Error
           ? error.message
           : 'Telegram content could not be loaded.',
       )
     } finally {
-      setIsTelegramLoading(false)
+      if (isCurrentTelegramRequest(requestId, controller)) {
+        telegramRequestInFlight.current = false
+        telegramAbortController.current = null
+        setIsTelegramLoading(false)
+      }
     }
   }
+
+  useEffect(() => {
+    if (activeProvider !== 'telegram') return
+    void getTelegramStatus().then((status) => {
+      setTelegramConnection(status)
+      if (status.connected && !telegramRequestInFlight.current) {
+        void handleTelegramLoad()
+      }
+    }).catch(() => setTelegramError('Telegram connection status could not be loaded.'))
+    // Re-run only when the user opens the Telegram provider. The loader itself
+    // updates state and is intentionally not an effect dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProvider])
 
   const handleTelegramLoadMore = async () => {
     if (
       selectedTelegramChatId === null ||
       !telegramHasMore ||
       telegramNextBeforeMessageId === null ||
-      isTelegramMoreLoading
+      isTelegramMoreLoading ||
+      telegramRequestInFlight.current
     ) {
       return
     }
 
+    const { controller, requestId } = beginTelegramRequest()
+
     try {
       setIsTelegramMoreLoading(true)
       setTelegramError(null)
-      const response = await getTelegramSample(selectedTelegramChatId, {
-        limit: 20,
-        beforeMessageId: telegramNextBeforeMessageId,
-      })
+
+      const response = await getTelegramSample(
+        selectedTelegramChatId,
+        {
+          limit: 20,
+          beforeMessageId: telegramNextBeforeMessageId,
+        },
+        controller.signal,
+      )
+
+      if (!isCurrentTelegramRequest(requestId, controller)) {
+        return
+      }
+
       setTelegramMessages((currentMessages) => {
         const messagesById = new Map(
           currentMessages.map((message) => [message.id, message]),
@@ -490,31 +743,56 @@ function Workspace({
           messagesById.set(message.id, message)
         })
 
-        return Array.from(messagesById.values()).sort(
-          (left, right) => right.date - left.date,
-        )
+        return sortTelegramMessages(Array.from(messagesById.values()))
       })
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
     } catch (error) {
+      if (
+        controller.signal.aborted ||
+        !isCurrentTelegramRequest(requestId, controller)
+      ) {
+        return
+      }
+
       setTelegramError(
         error instanceof Error
           ? error.message
           : 'Older Telegram messages could not be loaded.',
       )
     } finally {
-      setIsTelegramMoreLoading(false)
+      if (isCurrentTelegramRequest(requestId, controller)) {
+        telegramRequestInFlight.current = false
+        telegramAbortController.current = null
+        setIsTelegramMoreLoading(false)
+      }
     }
   }
 
   const handleTelegramChatSelect = async (chat: TelegramChat) => {
+    const { controller, requestId } = beginTelegramRequest()
+
+    setSelectedTelegramChatId(chat.id)
+    setTelegramChatTitle(chat.title)
+    setTelegramMessages([])
+    setTelegramHasMore(false)
+    setTelegramNextBeforeMessageId(null)
+    telegramScrollToLatest.current = true
+
     try {
       setIsTelegramLoading(true)
+      setIsTelegramMoreLoading(false)
       setTelegramError(null)
-      setSelectedTelegramChatId(chat.id)
-      setTelegramChatTitle(chat.title)
 
-      const response = await getTelegramSample(chat.id)
+      const response = await getTelegramSample(
+        chat.id,
+        {},
+        controller.signal,
+      )
+
+      if (!isCurrentTelegramRequest(requestId, controller)) {
+        return
+      }
 
       const selectedTelegramMessage = response.data.messages[0]
       const selectedChat = {
@@ -535,10 +813,18 @@ function Workspace({
             : currentChat,
         ),
       )
-      setTelegramMessages(response.data.messages)
+      setTelegramMessages(sortTelegramMessages(response.data.messages))
       setTelegramHasMore(response.data.has_more)
       setTelegramNextBeforeMessageId(response.data.next_before_message_id)
+      setTelegramChatTitle(selectedChat.title)
     } catch (error) {
+      if (
+        controller.signal.aborted ||
+        !isCurrentTelegramRequest(requestId, controller)
+      ) {
+        return
+      }
+
       setTelegramMessages([])
       setTelegramError(
         error instanceof Error
@@ -546,7 +832,11 @@ function Workspace({
           : 'Telegram chat could not be loaded.',
       )
     } finally {
-      setIsTelegramLoading(false)
+      if (isCurrentTelegramRequest(requestId, controller)) {
+        telegramRequestInFlight.current = false
+        telegramAbortController.current = null
+        setIsTelegramLoading(false)
+      }
     }
   }
 
@@ -571,9 +861,9 @@ function Workspace({
     >
       <header className="workspace-header">
         <div>
-          <p className="workspace-brand">OmniDesk AI</p>
+          <p className="workspace-brand">OmniDesk</p>
           <p className="workspace-subtitle">
-            AI-Powered Unified Communication Workplace
+            Unified Communication Workspace
           </p>
         </div>
 
@@ -609,39 +899,6 @@ function Workspace({
       </header>
 
       <div className="workspace-body">
-        <aside
-          className="workspace-sidebar"
-          aria-label="Workspace navigation"
-        >
-          <p className="sidebar-title">Workspace</p>
-
-          <nav>
-            <button
-              type="button"
-              className="navigation-item active"
-            >
-              Inbox
-            </button>
-
-            <button type="button" className="navigation-item">
-              Starred
-            </button>
-
-            <button type="button" className="navigation-item">
-              Labels
-            </button>
-
-            <button type="button" className="navigation-item">
-              Settings
-            </button>
-          </nav>
-
-          <div className="sidebar-account">
-            <p className="sidebar-title">Account</p>
-            <p>{user.email}</p>
-          </div>
-        </aside>
-
         <main className="workspace-content">
           <div className="content-heading">
             <div>
@@ -663,9 +920,6 @@ function Workspace({
               className={activeProvider === 'telegram' ? 'provider-tab active' : 'provider-tab'}
               onClick={() => {
                 setActiveProvider('telegram')
-                if (telegramChats.length === 0 && !isTelegramLoading) {
-                  void handleTelegramLoad()
-                }
               }}
             >
               Telegram
@@ -694,6 +948,46 @@ function Workspace({
               role="tabpanel"
               aria-label="Telegram provider"
             >
+              {!telegramConnection.connected && (
+                <form className="telegram-connect-card" onSubmit={handleTelegramConnection}>
+                  <div>
+                    <h3>Connect your Telegram account</h3>
+                    <p>Your Telegram session is stored separately from every other OmniDesk user.</p>
+                  </div>
+                  <label>
+                    {telegramConnection.status === 'awaiting_code' ? 'Telegram code' : telegramConnection.status === 'awaiting_password' ? 'Telegram two-step password' : 'Phone number'}
+                    <input
+                      type={telegramConnection.status === 'awaiting_password' ? 'password' : 'text'}
+                      inputMode={telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone' ? 'tel' : 'numeric'}
+                      placeholder={telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone' ? '+491234567890' : ''}
+                      value={telegramCredential}
+                      onChange={(event) => setTelegramCredential(event.target.value)}
+                      autoComplete="off"
+                      required
+                    />
+                  </label>
+                  <button type="submit" className="primary-button" disabled={telegramConnectionLoading}>
+                    {telegramConnectionLoading ? 'Connecting…' : telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone' ? 'Send Telegram code' : 'Continue'}
+                  </button>
+                  {telegramConnection.status !== 'disconnected' && (
+                    <button type="button" className="secondary-button" onClick={() => void handleTelegramDisconnect()} disabled={telegramConnectionLoading}>
+                      Start over with phone number
+                    </button>
+                  )}
+                </form>
+              )}
+              {telegramError && (
+                <p className="inbox-error" role="alert">
+                  {telegramError}
+                </p>
+              )}
+              {telegramConnection.connected && (
+                <div className="telegram-connection-summary">
+                  <span>Telegram connected{telegramConnection.phone ? ` · ${telegramConnection.phone}` : ''}</span>
+                  <button type="button" className="secondary-button" onClick={() => void handleTelegramDisconnect()} disabled={telegramConnectionLoading}>Disconnect</button>
+                </div>
+              )}
+              {telegramConnection.connected && <>
               <div className="telegram-toolbar">
                 <input
                   type="search"
@@ -712,13 +1006,17 @@ function Workspace({
                 </button>
               </div>
 
-              {telegramError && (
-                <p className="inbox-error" role="alert">
-                  {telegramError}
-                </p>
+              {isTelegramLoading && telegramChats.length === 0 && !telegramError && (
+                <div className="telegram-loading-state" role="status">
+                  <span className="telegram-loading-dot" aria-hidden="true" />
+                  <p>Loading Telegram chats…</p>
+                  <small>Discovery is bounded and includes main, archive, and folders.</small>
+                </div>
               )}
 
-              {!telegramError && telegramChats.length === 0 && (
+              {!telegramError &&
+                !isTelegramLoading &&
+                telegramChats.length === 0 && (
                 <div className="telegram-empty">
                   <h3>Telegram</h3>
                   <p>Load your chats, groups, and channels.</p>
@@ -738,7 +1036,7 @@ function Workspace({
                   <aside className="telegram-chat-list" aria-label="Telegram chats">
                     <div className="telegram-list-heading">
                       <strong>Chats</strong>
-                      <span>{visibleTelegramChats.length}</span>
+                      <span>{telegramChats.length}</span>
                     </div>
 
                     <div className="telegram-chat-items">
@@ -760,9 +1058,7 @@ function Workspace({
                             void handleTelegramChatSelect(chat)
                           }}
                         >
-                          <span className="telegram-chat-avatar">
-                            {initials(chat.title)}
-                          </span>
+                          <TelegramChatAvatar chat={chat} />
                           <span className="telegram-chat-copy">
                             <strong>{chat.title}</strong>
                             <small>
@@ -794,17 +1090,36 @@ function Workspace({
                               : 'Private chat'}
                         </span>
                       </div>
-                      <button type="button" className="secondary-button">
-                        Chat info
-                      </button>
+                      <span className="telegram-chat-type">
+                        {selectedTelegramChat?.type === 'channel'
+                          ? 'Channel'
+                          : selectedTelegramChat?.type === 'group'
+                            ? 'Group'
+                            : 'Private chat'}
+                      </span>
                     </header>
 
-                    <div className="telegram-message-list">
-                      {telegramMessages.length === 0 ? (
-                        <p className="inbox-status">No text messages found.</p>
+                    <div
+                      ref={telegramMessageListRef}
+                      className="telegram-message-list"
+                      aria-busy={isTelegramLoading || isTelegramMoreLoading}
+                    >
+                      {isTelegramLoading ? (
+                        <p className="inbox-status" role="status">
+                          Loading messages…
+                        </p>
+                      ) : telegramMessages.length === 0 ? (
+                        <p className="inbox-status">
+                          {telegramError
+                            ? 'Messages could not be loaded. Refresh to try again.'
+                            : selectedTelegramChat
+                            ? 'No messages available in this chat.'
+                            : 'Select a chat to load its messages.'}
+                        </p>
                       ) : (
                         telegramMessages.map((message) => (
                           <article className="telegram-bubble" key={message.id}>
+                            {message.media && <TelegramMedia message={message} />}
                             <p>{renderMessageBody(message.text)}</p>
                             <time>
                               {formatDate(
@@ -813,6 +1128,13 @@ function Workspace({
                             </time>
                           </article>
                         ))
+                      )}
+                      {!isTelegramLoading &&
+                        telegramMessages.length > 0 &&
+                        !telegramHasMore && (
+                        <p className="telegram-history-end" role="status">
+                          End of chat history
+                        </p>
                       )}
                       {telegramHasMore && (
                         <div className="telegram-load-more">
@@ -870,6 +1192,7 @@ function Workspace({
                   </aside>
                 </div>
               )}
+              </>}
             </section>
           )}
 
@@ -1169,7 +1492,7 @@ function Workspace({
                                   srcDoc={sanitizeEmailHtml(
                                     message.metadata.html_body,
                                   )}
-                                  sandbox=""
+                                  sandbox="allow-popups allow-popups-to-escape-sandbox"
                                   referrerPolicy="no-referrer"
                                 />
                               ) : (

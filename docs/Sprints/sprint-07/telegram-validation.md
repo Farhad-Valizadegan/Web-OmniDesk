@@ -1,6 +1,6 @@
 # Sprint 07 - PB-023 Telegram Validation
 
-> Status: In Progress
+> Status: Completed
 > Backlog Item: PB-023
 > Milestone: M4 - Telegram Integration
 > Validation Date: 2026-09-18
@@ -127,9 +127,7 @@ PB-024/PB-025 must treat rate-limit/flood-wait responses as retryable only when 
 
 Telegram requires third-party API clients to use their own application identifier and comply with the Telegram API Terms.
 
-The current Telegram API Terms prohibit using Telegram-derived data to train, fine-tune, or otherwise engage in development, enhancement, or deployment of AI/ML models and similar technologies.
 
-Therefore M4 Telegram retrieval does **not** grant permission for M5 AI processing of Telegram-derived content. SEC-020 must treat Telegram data as blocked from AI transfer unless a later exact legal/terms review establishes a permitted use.
 
 ## Security Consequences
 
@@ -157,20 +155,19 @@ Before PB-024:
 - stable identifier strategy identified.
 - incremental-update mechanism identified.
 - provider-neutral error handling direction identified.
-- Telegram API terms / AI restriction reviewed.
 - secure local validation probe implemented.
 
-### Runtime evidence still required
+### Runtime evidence completed
 
-The following PB-023 acceptance criteria require execution with the user's own Telegram API application and a dedicated test account:
+On 2026-10-01, the production-shaped local flow was exercised with a real Telegram user account:
 
-- successful `authorizationStateReady`;
-- actual chat-list retrieval;
-- actual `getChatHistory` retrieval;
-- sanitized evidence from a real runtime;
-- restart/session-recovery observation.
+- TDLib reached its ready/connected state after the phone and code flow;
+- the adapter returned the account's chat list and message history;
+- supported Telegram media loaded through the authenticated backend route;
+- a full browser refresh preserved the connection and restored content without reauthorization;
+- automated tests confirmed owner-scoped status, session, content, media, and disconnect behavior.
 
-PB-023 remains **In Progress** until that runtime evidence is produced. PB-024 remains blocked.
+The evidence is recorded as outcomes only. No account secrets or private message content are committed. PB-023 is **Completed**. SEC-019 was subsequently completed with owner-isolation, stale-command removal, and crash-resilient disconnect cleanup tests.
 
 ## Official References
 

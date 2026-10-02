@@ -1,7 +1,7 @@
-﻿# Non-Functional Requirements
+# Non-Functional Requirements
 > Status: Draft
 ## Purpose
-This document defines the non-functional requirements of OmniDesk AI.
+This document defines the non-functional requirements of OmniDesk.
 Non-functional requirements describe the expected quality, security, performance, reliability, usability, and maintainability of the system.
 ## Non-Functional Requirement Catalog
 | ID | Category | Requirement | Priority |
@@ -14,7 +14,6 @@ Non-functional requirements describe the expected quality, security, performance
 | NFR-006 | Privacy | The system shall allow users to disconnect external accounts and remove related local data where applicable. | Should Have |
 | NFR-007 | Performance | The unified workspace should display locally available communication data within three seconds under normal conditions. | Should Have |
 | NFR-008 | Performance | Search results should be returned within three seconds for a normal MVP-sized dataset. | Should Have |
-| NFR-009 | Reliability | The system shall continue providing core non-AI features when an AI provider is unavailable. | Must Have |
 | NFR-010 | Reliability | Synchronization failures shall not corrupt previously synchronized communication data. | Must Have |
 | NFR-011 | Reliability | The system shall communicate integration and synchronization failures to the user. | Must Have |
 | NFR-012 | Usability | The system shall provide a consistent interaction model across supported providers. | Must Have |
@@ -42,7 +41,6 @@ Non-functional requirements describe the expected quality, security, performance
 - Maintainability improvements
 ## Important Quality Rules
 1. Security and privacy requirements apply to every system component.
-2. AI failure must not disable the core communication workspace.
 3. Logs must not contain credentials, tokens, or unnecessary message content.
 4. External provider failures must be isolated from unrelated providers where possible.
 5. Performance targets are initial MVP targets and may be refined after measurement.

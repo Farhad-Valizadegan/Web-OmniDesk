@@ -1,8 +1,8 @@
 # PB-041 - Labels Workspace View
 
-> Status: Refined
-> Priority: Should
-> Milestone: TBD
+> Status: Deferred; placeholder removed
+> Priority: Won't Yet
+> Milestone: None
 
 ## Purpose
 
@@ -10,7 +10,7 @@ Provide a dedicated Labels workspace view that supports provider-neutral organiz
 
 ## Approved Label Source and API Rule
 
-The Labels workspace must use a provider-neutral label catalog owned by OmniDesk AI.
+The Labels workspace must use a provider-neutral label catalog owned by OmniDesk.
 
 The current conversation `labels` JSON field remains the per-conversation provider-label membership source, but it is not sufficient by itself for the Labels workspace because provider-specific identifiers such as Gmail custom label IDs do not reliably contain user-readable names.
 

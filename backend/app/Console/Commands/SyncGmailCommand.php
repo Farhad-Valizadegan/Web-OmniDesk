@@ -71,13 +71,22 @@ class SyncGmailCommand extends Command
             } catch (Throwable $exception) {
                 $exitCode = self::FAILURE;
 
-                Log::error('Scheduled Gmail synchronization failed.', [
-                    'provider_connection_id' => $connection->id,
-                    'user_id' => $connection->user_id,
-                    'error' => $exception instanceof ProviderException
-                        ? $exception->errorCode()
-                        : 'gmail_sync_failed',
-                ]);
+                Log::error(
+                    'Scheduled Gmail synchronization failed.',
+                    [
+                        'provider' => 'gmail',
+                        'category' => 'scheduler',
+                        'operation' => 'scheduled_sync',
+                        'provider_connection_id' => $connection->id,
+                        'user_id' => $connection->user_id,
+                        'error' => $exception instanceof ProviderException
+                            ? $exception->errorCode()
+                            : 'gmail_sync_failed',
+                        'retryable' => $exception instanceof ProviderException
+                            ? $exception->isRetryable()
+                            : false,
+                    ],
+                );
 
                 $this->error(sprintf(
                     'User %d: synchronization failed.',

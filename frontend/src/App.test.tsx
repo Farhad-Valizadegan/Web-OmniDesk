@@ -15,13 +15,18 @@ import {
   getCaptchaChallenge,
   getCurrentUser,
   getHealth,
+  getTelegramSample,
+  getTelegramStatus,
   loginUser,
   logoutUser,
   registerUser,
   syncGmailPage,
+  verifyLoginCode,
   type Conversation,
   type Message,
   type PaginatedResponse,
+  type TelegramChat,
+  type TelegramSampleResponse,
 } from './lib/api'
 
 vi.mock('./lib/api', () => ({
@@ -31,10 +36,18 @@ vi.mock('./lib/api', () => ({
   getGmailStatus: vi.fn(),
   getCurrentUser: vi.fn(),
   getHealth: vi.fn(),
+  getTelegramSample: vi.fn(),
+  getTelegramStatus: vi.fn(),
+  connectTelegram: vi.fn(),
+  submitTelegramCode: vi.fn(),
+  submitTelegramPassword: vi.fn(),
+  disconnectTelegram: vi.fn(),
   loginUser: vi.fn(),
   logoutUser: vi.fn(),
   registerUser: vi.fn(),
+  resendLoginCode: vi.fn(),
   syncGmailPage: vi.fn(),
+  verifyLoginCode: vi.fn(),
 }))
 
 const getCaptchaChallengeMock = vi.mocked(getCaptchaChallenge)
@@ -42,10 +55,13 @@ const getConversationMessagesMock = vi.mocked(getConversationMessages)
 const getConversationsMock = vi.mocked(getConversations)
 const getGmailStatusMock = vi.mocked(getGmailStatus)
 const getHealthMock = vi.mocked(getHealth)
+const getTelegramSampleMock = vi.mocked(getTelegramSample)
+const getTelegramStatusMock = vi.mocked(getTelegramStatus)
 const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
 const registerUserMock = vi.mocked(registerUser)
+const verifyLoginCodeMock = vi.mocked(verifyLoginCode)
 const syncGmailPageMock = vi.mocked(syncGmailPage)
 
 function emptyPagination<T>(): PaginatedResponse<T> {
@@ -70,12 +86,14 @@ afterEach(() => {
   cleanup()
   vi.clearAllMocks()
   vi.useRealTimers()
+  vi.unstubAllEnvs()
   window.history.replaceState({}, '', '/')
   sessionStorage.clear()
 })
 
 describe('App', () => {
   beforeEach(() => {
+    vi.stubEnv('VITE_CAPTCHA_ENABLED', 'true')
     getCaptchaChallengeMock.mockResolvedValue({
       driver: 'internal',
       token: 'captcha-token',
@@ -95,6 +113,12 @@ describe('App', () => {
     getGmailStatusMock.mockResolvedValue({
       connected: false,
       connection: null,
+    })
+
+    getTelegramStatusMock.mockResolvedValue({
+      connected: true,
+      status: 'connected',
+      phone: '+49123456789',
     })
 
     getConversationMessagesMock.mockResolvedValue(
@@ -117,6 +141,69 @@ describe('App', () => {
     expect(
       await screen.findByText('Backend is connected. Status: ok'),
     ).toBeInTheDocument()
+  })
+
+  test('allows local development login with CAPTCHA disabled', async () => {
+    vi.stubEnv('VITE_CAPTCHA_ENABLED', 'false')
+    loginUserMock.mockResolvedValue({ message: 'Check email', challenge: 'challenge', expires_in: 600, resend_after: 60 })
+    verifyLoginCodeMock.mockResolvedValue({ message: 'OK', token: 'token', user: { id: 1, name: 'Freddie', email: 'freddie@example.com' } })
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'freddie@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+    fireEvent.change(await screen.findByLabelText('Email verification code'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify and sign in' }))
+    expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
+    expect(getCaptchaChallengeMock).not.toHaveBeenCalled()
+    expect(loginUserMock).toHaveBeenCalledWith({ email: 'freddie@example.com', password: 'password123' })
+  })
+
+  test('keeps CAPTCHA required outside development even when the flag is false', async () => {
+    vi.stubEnv('DEV', false)
+    vi.stubEnv('VITE_CAPTCHA_ENABLED', 'false')
+    render(<App />)
+    expect(await screen.findByLabelText('CAPTCHA answer')).toBeInTheDocument()
+  })
+
+  test('explains that another Gmail account requires disconnecting first', async () => {
+    window.history.replaceState({}, '', '/?gmail=gmail_account_mismatch')
+    render(<App />)
+    expect(await screen.findByText('Disconnect your current Gmail account before connecting a different account.')).toBeInTheDocument()
+  })
+
+  test('clears the visible workspace when logout fails', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+    getCurrentUserMock.mockResolvedValue({ user: { id: 1, name: 'Freddie', email: 'freddie@example.com' } })
+    logoutUserMock.mockRejectedValueOnce(new Error('Server unavailable'))
+    render(<App />)
+    await screen.findByText('Welcome, Freddie')
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
+    expect(await screen.findByRole('button', { name: 'Log in' })).toBeInTheDocument()
+    expect(screen.queryByText('Welcome, Freddie')).not.toBeInTheDocument()
+    expect(screen.getByText('Server unavailable')).toBeInTheDocument()
+  })
+
+  test('recreates Google CAPTCHA after failed authentication and switching modes', async () => {
+    getCaptchaChallengeMock.mockResolvedValue({ driver: 'google', site_key: 'site-key' })
+    const renderCaptcha = vi.fn((_container: HTMLElement, options: { callback: (token: string) => void }) => {
+      options.callback('solved-token')
+      return 1
+    })
+    window.grecaptcha = { ready: (callback) => callback(), render: renderCaptcha }
+    try {
+      loginUserMock.mockRejectedValueOnce(new Error('Wrong password'))
+      render(<App />)
+      await waitFor(() => expect(renderCaptcha).toHaveBeenCalledTimes(1))
+      fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'freddie@example.com' } })
+      fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+      await screen.findByText('Wrong password')
+      await waitFor(() => expect(renderCaptcha).toHaveBeenCalledTimes(2))
+      fireEvent.click(screen.getByRole('tab', { name: 'Register' }))
+      await waitFor(() => expect(renderCaptcha).toHaveBeenCalledTimes(3))
+    } finally {
+      delete window.grecaptcha
+    }
   })
 
   test('displays the backend connection loading state', () => {
@@ -195,14 +282,11 @@ describe('App', () => {
 
   test('allows a user to log in', async () => {
     loginUserMock.mockResolvedValue({
-      message: 'Login successful.',
-      token: 'login-token',
-      user: {
-        id: 2,
-        name: 'Freddie',
-        email: 'freddie@example.com',
-      },
+      message: 'Check email', challenge: 'challenge', expires_in: 600, resend_after: 60,
     })
+    verifyLoginCodeMock.mockResolvedValue({ message: 'Login successful.', token: 'login-token', user: {
+      id: 2, name: 'Freddie', email: 'freddie@example.com',
+    } })
 
     render(<App />)
 
@@ -221,6 +305,11 @@ describe('App', () => {
     })
 
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    fireEvent.change(await screen.findByLabelText('Email verification code'), {
+      target: { value: '123456' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify and sign in' }))
 
     await waitFor(() => {
       expect(loginUserMock).toHaveBeenCalledWith({
@@ -307,6 +396,91 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
+  test('loads Telegram chats before selected chat history', async () => {
+    sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
+
+    const user = {
+      id: 1,
+      name: 'Freddie',
+      email: 'freddie@example.com',
+    }
+
+    getCurrentUserMock.mockResolvedValue({ user })
+
+    const channel: TelegramChat = {
+      id: 100,
+      type: 'channel',
+      tdlib_type: 'chatTypeSupergroup',
+      title: 'News channel',
+      unread_count: 2,
+      last_message: 'Latest news',
+      last_message_date: 200,
+      messages_count: 0,
+    }
+
+    const historyResponse: TelegramSampleResponse = {
+      message: 'Telegram content loaded.',
+      data: {
+        provider: 'telegram',
+        chats: [channel],
+        selected_chat: {
+          ...channel,
+          last_message: 'Latest news',
+          messages_count: 1,
+        },
+        messages: [
+          {
+            id: 200,
+            chat_id: 100,
+            date: 200,
+            sender_id: null,
+            text: 'Latest news',
+          },
+        ],
+        has_more: false,
+        next_before_message_id: null,
+      },
+    }
+
+    getTelegramSampleMock
+      .mockResolvedValueOnce({
+        message: 'Telegram content loaded.',
+        data: {
+          provider: 'telegram',
+          chats: [channel],
+          selected_chat: channel,
+          messages: [],
+          has_more: false,
+          next_before_message_id: null,
+        },
+      })
+      .mockResolvedValueOnce(historyResponse)
+
+    render(<App />)
+
+    expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Telegram' }))
+
+    expect(
+      await screen.findByRole('button', { name: /News channel/ }),
+    ).toBeInTheDocument()
+    expect((await screen.findAllByText('Latest news')).length).toBeGreaterThanOrEqual(1)
+
+    expect(getTelegramSampleMock).toHaveBeenNthCalledWith(
+      1,
+      undefined,
+      {},
+      expect.any(AbortSignal),
+    )
+    expect(getTelegramSampleMock).toHaveBeenNthCalledWith(
+      2,
+      100,
+      {},
+      expect.any(AbortSignal),
+    )
+  })
+
   test('allows an authenticated user to log out', async () => {
     sessionStorage.setItem('omni_desk_auth_token', 'existing-token')
 
@@ -349,8 +523,8 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findByText('Welcome, Freddie')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Labels' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Inbox' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Labels' })).not.toBeInTheDocument()
     expect(await screen.findByRole('region', { name: 'Empty inbox' })).toBeInTheDocument()
     expect(screen.getByText('No conversations found')).toBeInTheDocument()
     expect(

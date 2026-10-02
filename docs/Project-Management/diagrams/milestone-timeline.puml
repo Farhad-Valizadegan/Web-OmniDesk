@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Milestone Timeline
+title OmniDesk Milestone Timeline
 
 left to right direction
 skinparam componentStyle rectangle
@@ -9,15 +9,13 @@ rectangle "M1\nAuthentication and Workspace" as M1
 rectangle "M2\nGmail Integration" as M2
 rectangle "M3\nUnified Inbox" as M3
 rectangle "M4\nTelegram Integration" as M4
-rectangle "M5\nAI-Assisted Communication" as M5
-rectangle "M6\nProduction Hardening" as M6
+rectangle "M5\nProduction Hardening" as M5
 
 M0 --> M1
 M1 --> M2
 M2 --> M3
 M3 --> M4
 M4 --> M5
-M5 --> M6
 
 note bottom of M0
 Sprint 00 and Sprint 01
@@ -40,11 +38,7 @@ Sprint 07
 end note
 
 note bottom of M5
-Sprint 08
-end note
-
-note bottom of M6
-Sprint 09
+Future Sprint(s), assigned during Sprint Planning
 end note
 
 @enduml

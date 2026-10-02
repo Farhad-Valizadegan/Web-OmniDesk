@@ -1,14 +1,14 @@
 # PB-023 - Validate the Telegram Integration Mode
 
-> Status: In Progress
+> Status: Completed
 > Priority: Must
 > Milestone: M4
 
 ## Purpose
 
-Validate the technically and operationally appropriate Telegram integration mode for OmniDesk AI before implementation begins.
+Validate the technically and operationally appropriate Telegram integration mode for OmniDesk before implementation begins.
 
-OmniDesk AI is intended to let an authenticated user bring their existing Telegram communication into the same workspace as Gmail. The integration therefore needs access to the user's own Telegram account and conversation history rather than behaving only as a standalone bot account.
+OmniDesk is intended to let an authenticated user bring their existing Telegram communication into the same workspace as Gmail. The integration therefore needs access to the user's own Telegram account and conversation history rather than behaving only as a standalone bot account.
 
 ## Current Validation Direction
 
@@ -39,7 +39,6 @@ PB-023 must answer the following before the Telegram connector is implemented:
 5. Can synchronization be implemented incrementally without relying on scraping or browser automation?
 6. Can Telegram failures and rate-limit conditions be isolated from Gmail and other providers?
 7. What runtime boundary is appropriate between Laravel and the Telegram client implementation?
-8. What Telegram terms, privacy, and AI-processing constraints affect V1 behavior?
 
 ## Candidate Integration Modes
 
@@ -174,20 +173,6 @@ The selected Telegram client approach must support:
 
 PB-023 does not implement the full synchronization pipeline.
 
-## Terms, Privacy, and AI Constraint
-
-Telegram requires third-party clients to comply with its API Terms of Service and privacy/security requirements.
-
-The current Telegram API Terms also contain restrictions relating to use of Telegram-derived data for artificial-intelligence or machine-learning purposes.
-
-Therefore:
-
-- M4 retrieval/inbox integration must not assume that Telegram content can automatically be passed into the later M5 AI pipeline.
-- Before Telegram-derived content is used for summaries, reply suggestions, embeddings, model inference, training, fine-tuning, or similar AI processing, the applicable Telegram terms must be reviewed against the exact planned data flow.
-- That compliance decision belongs in the AI/Telegram integration boundary and must be resolved before enabling AI processing of Telegram content.
-
-PB-023 may proceed with retrieval validation independently of that later AI decision.
-
 ## Acceptance Criteria
 
 - The Bot API is explicitly accepted or rejected as the primary M4 integration mode with rationale.
@@ -201,7 +186,6 @@ PB-023 may proceed with retrieval validation independently of that later AI deci
 - Rate-limit/flood-wait and provider-error handling requirements are documented.
 - The Laravel/Telegram runtime boundary is documented.
 - Telegram API Terms/privacy constraints are reviewed and recorded.
-- AI use of Telegram-derived data is not silently assumed.
 - No scraping or browser automation is selected as the core integration mechanism.
 - PB-024 receives enough architectural information to begin connector implementation without reopening the basic integration-mode decision.
 
@@ -254,7 +238,7 @@ No real user message content, verification code, password, session key, `api_has
 
 ## Sprint 07 Execution Status
 
-PB-023 is selected in Sprint 07 and is **In Progress**.
+PB-023 was completed in Sprint 07.
 
 Completed validation work:
 
@@ -264,16 +248,16 @@ Completed validation work:
 - chat/history retrieval and stable identifier paths are documented.
 - TDLib update streaming is selected as the basis for incremental synchronization.
 - a sanitized TDLib validation probe is implemented under `spikes/telegram-tdlib/`.
-- Telegram API Terms and AI restrictions are recorded.
 
-Runtime evidence still required before completion:
+Runtime evidence completed on 2026-10-01:
 
-- successful authorization of a dedicated test Telegram account;
-- successful bounded chat-list retrieval;
-- successful bounded message-history retrieval;
-- sanitized local evidence from the runtime;
-- restart/session-recovery observation.
+- a real Telegram user account completed the phone, code, and optional-password authorization flow;
+- the connected account loaded its chat list and bounded message history;
+- supported photos, videos, voice messages, and profile photos were exercised through the adapter;
+- the browser was refreshed and the session recovered without reconnecting;
+- automated feature tests verified owner scoping and blocked cross-user session access;
+- no verification code, password, API hash, session key, or private message content was added to repository evidence.
 
 See [Sprint 07 Telegram Validation](../../Sprints/sprint-07/telegram-validation.md).
 
-PB-024, PB-025, and PB-026 remain downstream work. PB-024 remains blocked until PB-023 runtime evidence is complete and SEC-019 is finalized against the validated runtime/session boundary.
+PB-024, PB-025, and PB-026 remain downstream work. PB-024 is no longer blocked by PB-023, but SEC-019 remains its security gate until the remaining release checks are closed.

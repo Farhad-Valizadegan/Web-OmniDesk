@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document defines the Project Planning phase of the OmniDesk AI SDLC.
+This document defines the Project Planning phase of the OmniDesk SDLC.
 
 Project Planning marks the formal start of the development lifecycle. It coordinates already-defined project intent, delivery approach, engineering direction, and execution structure. It does **not** redefine the product's identity, goals, scope, or stakeholders.
 
@@ -27,7 +27,6 @@ These documents define what the project is and what it intends to achieve. Plann
 
 ## Development Approach
 
-Web-OmniDesk-AI follows an Agile, iterative, and incremental development approach using a lightweight Scrum-style workflow appropriate for a solo software engineering project.
 
 Work is planned and refined progressively rather than treating the project as a single fixed sequence of phases. Product Backlog items are selected into Sprints according to current priorities, dependencies, and readiness, and each Sprint works toward a specific Sprint Goal and a meaningful Increment.
 
@@ -37,7 +36,6 @@ The SDLC documentation structure organizes the project's engineering activities 
 
 Agile defines how the work is executed, reviewed, and adapted over time. Work is organized through the Product Backlog and Sprints. Depending on its Sprint Goal, a Sprint may involve Requirements, Analysis, Design, Implementation, Testing, and Documentation activities as needed. A Sprint is not required to mechanically execute every SDLC activity.
 
-Review, feedback, technical learning, and newly discovered constraints may refine or reprioritize future work. Web-OmniDesk-AI therefore uses the SDLC as its engineering and lifecycle structure while executing development iteratively and incrementally through Agile practices.
 
 ## Delivery and Agile Planning References
 
@@ -55,7 +53,6 @@ Sprint-specific execution plans remain under `docs/Sprints/` and are not duplica
 
 ## Initial Technical Direction
 
-Project Planning acknowledges the technical direction already documented by System Design rather than redefining it. The current direction includes a modular monolith, Laravel backend, React and TypeScript frontend, PostgreSQL, REST/JSON communication, provider connector abstractions, and controlled AI-service integration.
 
 Authoritative technical details remain in:
 

@@ -1,7 +1,7 @@
-﻿# User Stories
+# User Stories
 > Status: Draft
 ## Purpose
-This document describes the main user stories for OmniDesk AI.
+This document describes the main user stories for OmniDesk.
 User stories express system needs from the perspective of the people who use, own, develop, review, or evaluate the project.
 ## User Story Format
 Each user story follows this format:
@@ -21,12 +21,8 @@ Each user story follows this format:
 | US-010 | Primary User | As a user, I want to organize communication with local labels or tags so that I can manage my personal workflow. | FR-014, FR-015 | Should Have |
 | US-011 | Primary User | As a user, I want to see conversations in chronological order so that I can understand their context. | FR-016 | Must Have |
 | US-012 | Primary User | As a user, I want to request a summary of a long conversation so that I can understand it more quickly. | FR-017 | Should Have |
-| US-013 | Primary User | As a user, I want to request an AI-generated reply suggestion so that I can reduce the effort of preparing a response. | FR-018 | Should Have |
-| US-014 | Primary User | As a user, I want to review and edit an AI-generated suggestion so that I remain in control of the final content. | FR-019 | Must Have |
 | US-015 | Primary User | As a user, I want to know when synchronization fails so that I understand whether my data is current. | FR-009, FR-011 | Should Have |
-| US-016 | Primary User | As a user, I want to continue using core communication features when AI is unavailable so that AI failure does not block my workflow. | FR-022 | Must Have |
 | US-017 | Primary User | As a user, I want the system to protect my communication data so that unauthorized people cannot access it. | SPR-001, SPR-002, SPR-008 | Must Have |
-| US-018 | Primary User | As a user, I want AI to require my approval before any external sending so that messages are never sent unintentionally. | FR-020, FR-021, SPR-015 | Must Have |
 | US-019 | Project Owner and Developer | As a developer, I want provider-specific logic to be isolated so that future integrations can be added more easily. | FR-025, IR-015 | Should Have |
 | US-020 | Project Owner and Developer | As a developer, I want core business logic to be independently testable so that system quality can be verified. | NFR-018 | Must Have |
 | US-021 | Technical Reviewer or Recruiter | As a reviewer, I want to understand the project's requirements and design decisions so that I can evaluate its engineering quality. | SN-015 | Should Have |
@@ -44,12 +40,6 @@ Each user story follows this format:
 - US-009
 - US-010
 - US-011
-### AI Assistance
-- US-012
-- US-013
-- US-014
-- US-016
-- US-018
 ### Security and Privacy
 - US-017
 - US-018
@@ -58,10 +48,6 @@ Each user story follows this format:
 - US-020
 - US-021
 ## Product Rules Reflected in User Stories
-1. AI features are initiated by the user.
-2. AI-generated content must be reviewed and editable.
-3. AI must never send content autonomously.
-4. Core communication features must remain available when AI is unavailable.
 5. Gmail and Telegram are the initial integrations.
 6. Future providers are not part of the current MVP commitment.
 7. Message sending remains conditional and requires a separate product decision.

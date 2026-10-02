@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document defines the purpose, activities, outputs, responsibilities, and boundaries of the Implementation phase for OmniDesk AI.
+This document defines the purpose, activities, outputs, responsibilities, and boundaries of the Implementation phase for OmniDesk.
 
 Implementation transforms the approved requirements and System Design artifacts into working software.
 
@@ -22,7 +22,6 @@ It includes:
 - Implementing authentication and authorization
 - Implementing provider integrations
 - Implementing synchronization
-- Implementing AI assistance
 - Connecting the application components
 - Running developer-level verification
 
@@ -42,7 +41,6 @@ The main inputs are:
 - API Design
 - Authentication and Authorization Design
 - Provider Integration Design
-- AI Assistance Design
 - Data Model and ERD
 - Error Handling Design
 - Deployment Architecture
@@ -58,7 +56,6 @@ The Implementation phase shall:
 - Isolate Gmail and Telegram provider logic.
 - Support initial and incremental synchronization.
 - Prevent duplicate synchronized records.
-- Support user-controlled AI assistance.
 - Protect credentials, tokens, and sensitive data.
 - Provide consistent API responses and errors.
 - Keep implementation testable and maintainable.
@@ -75,7 +72,6 @@ The implementation follows the current System Design direction:
 - MVC where appropriate
 - Object-oriented design
 - Provider connector abstraction
-- AI provider abstraction
 
 These choices may be refined only when implementation evidence identifies a valid technical constraint.
 
@@ -113,9 +109,6 @@ The initial implementation scope includes:
 - Duplicate prevention
 - Synchronization status tracking
 - Provider failure handling
-- AI-generated summaries
-- Editable AI reply suggestions
-- AI result lifecycle
 - Safe API error responses
 - Basic operational diagnostics
 
@@ -196,18 +189,6 @@ Implementation should proceed in controlled stages.
 - Implement retry behavior for temporary failures.
 - Preserve existing data during failures.
 
-### Stage 8: AI Assistance
-- Implement user-initiated AI requests.
-- Verify conversation ownership.
-- Retrieve only approved conversation context.
-- Minimize context before external processing.
-- Implement the AI provider abstraction.
-- Implement summaries.
-- Implement editable reply suggestions.
-- Implement suggestion lifecycle states.
-- Store user decisions where required.
-- Prevent autonomous external sending.
-
 ### Stage 9: Frontend Integration
 - Connect the React client to the REST API.
 - Display authentication states.
@@ -216,7 +197,6 @@ Implementation should proceed in controlled stages.
 - Display conversations and messages.
 - Implement search and filtering controls.
 - Implement labels and tags.
-- Display AI results as editable suggestions.
 - Display safe error messages.
 - Preserve accessibility requirements.
 
@@ -229,7 +209,6 @@ Implementation should proceed in controlled stages.
 - Run integration checks.
 - Verify ownership boundaries.
 - Verify provider failure handling.
-- Verify AI failure handling.
 - Verify migration behavior.
 - Record implementation issues and decisions.
 
@@ -245,7 +224,6 @@ The backend should separate responsibilities among:
 - Domain models
 - Provider connectors
 - Synchronization services
-- AI assistance services
 - Repositories where justified
 - Error and exception handlers
 - Background jobs
@@ -280,7 +258,6 @@ Implementation must protect:
 - Provider access tokens
 - Provider refresh tokens
 - Database credentials
-- AI request data
 - Sensitive communication content
 - Internal diagnostic information
 
@@ -296,20 +273,6 @@ Adding or changing one provider should not require unrelated core modules to cha
 
 Provider responses must be treated as untrusted external input.
 
-## AI Safety
-
-AI assistance must:
-- Require an authenticated user.
-- Verify conversation ownership.
-- Be initiated by the user.
-- Use minimized context.
-- Treat generated output as untrusted.
-- Allow user review and editing.
-- Allow the user to discard generated content.
-- Avoid autonomous external actions.
-- Remain available as an optional capability.
-- Fail without blocking core communication features.
-
 ## Error Handling During Implementation
 
 Implementation must use the defined error categories:
@@ -318,7 +281,6 @@ Implementation must use the defined error categories:
 - Validation error
 - Provider error
 - Synchronization error
-- AI error
 - Persistence error
 - Rate-limit error
 - Unexpected error
@@ -335,7 +297,6 @@ Background jobs may be used for:
 - Synchronization
 - Large provider imports
 - Retryable provider requests
-- Long-running AI operations
 - Other operations that should not block normal API requests
 
 Background jobs must:
@@ -397,7 +358,6 @@ The Implementation phase should produce:
 - Authentication and authorization logic
 - Provider connector implementations
 - Synchronization jobs and services
-- AI assistance services
 - Error handling components
 - Automated developer tests
 - Configuration templates
@@ -444,6 +404,5 @@ Completed implementation increments include:
 
 Sprint 07 under M4 - Telegram Integration is currently in progress as a validation/de-risking Sprint. PB-023 is the active Telegram integration-mode validation item; SEC-001 and SEC-002 baseline work is completed. PB-024 Telegram connector implementation has not started and remains gated by PB-023 completion and SEC-019.
 
-AI assistance and production hardening remain planned for later milestones.
 
 Implementation progress is recorded incrementally and verified against the Requirements Traceability Matrix.

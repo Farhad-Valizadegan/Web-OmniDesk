@@ -14,6 +14,39 @@ from typing import Any
 JsonObject = dict[str, Any]
 
 
+class TdLibRequestError(RuntimeError):
+    def __init__(
+        self,
+        operation: str,
+        code: int | None,
+        message: str,
+    ) -> None:
+        self.operation = operation
+        self.code = code
+        self.tdlib_message = message
+        super().__init__(
+            "TDLib request failed "
+            f"operation={operation} code={code} message={message}"
+        )
+
+    @property
+    def is_end_of_list(self) -> bool:
+        return (
+            self.operation.startswith("chat_discovery:")
+            and self.code == 404
+        )
+
+
+class TdLibResponseTimeout(TimeoutError):
+    def __init__(self, operation: str, tag: str) -> None:
+        self.operation = operation
+        self.tag = tag
+        super().__init__(
+            "Timed out waiting for TDLib response "
+            f"operation={operation} tag={tag}"
+        )
+
+
 def _required_env(name: str) -> str:
     value = os.getenv(name, "").strip()
     if not value:
@@ -71,13 +104,21 @@ class TdJsonClient:
         return event
 
     def _observe(self, event: JsonObject) -> None:
-        if event.get("@type") == "updateNewChat":
+        event_type = event.get("@type")
+
+        if event_type == "updateNewChat":
             chat = event.get("chat")
 
             if isinstance(chat, dict) and isinstance(chat.get("id"), int):
                 self.chats[chat["id"]] = chat
+            return
 
-        if event.get("@type") == "updateChatAddedToList":
+        chat_id = event.get("chat_id")
+        if not isinstance(chat_id, int) or chat_id not in self.chats:
+            if event_type != "updateChatAddedToList":
+                return
+
+        if event_type == "updateChatAddedToList":
             chat_list = event.get("chat_list") or {}
             list_type = chat_list.get("@type")
             folder_id = chat_list.get("chat_folder_id")
@@ -88,11 +129,32 @@ class TdJsonClient:
                         folder_id if isinstance(folder_id, int) else None,
                     )
                 )
+            return
+
+        chat = self.chats[chat_id]
+
+        if event_type == "updateChatTitle":
+            title = event.get("title")
+            if isinstance(title, str):
+                chat["title"] = title
+        elif event_type == "updateChatLastMessage":
+            last_message = event.get("last_message")
+            if isinstance(last_message, dict):
+                chat["last_message"] = last_message
+        elif event_type == "updateChatUnreadCount":
+            unread_count = event.get("unread_count")
+            if isinstance(unread_count, int):
+                chat["unread_count"] = unread_count
+        elif event_type == "updateChatReadInbox":
+            unread_count = event.get("unread_count")
+            if isinstance(unread_count, int):
+                chat["unread_count"] = unread_count
 
     def wait_for_response(
         self,
         tag: str,
         timeout: float = 15.0,
+        operation: str = "request",
     ) -> JsonObject:
         deadline = time.monotonic() + timeout
 
@@ -103,17 +165,21 @@ class TdJsonClient:
 
             if event and event.get("@extra") == tag:
                 if event.get("@type") == "error":
-                    raise RuntimeError(
-                        "TDLib request failed: "
-                        f"code={event.get('code')} "
-                        f"message={event.get('message')}"
+                    raw_code = event.get("code")
+                    try:
+                        code = int(raw_code) if raw_code is not None else None
+                    except (TypeError, ValueError):
+                        code = None
+
+                    raise TdLibRequestError(
+                        operation,
+                        code,
+                        str(event.get("message") or "Unknown TDLib error"),
                     )
 
                 return event
 
-        raise TimeoutError(
-            f"Timed out waiting for TDLib response {tag}"
-        )
+        raise TdLibResponseTimeout(operation, tag)
 
 
 def _authorization_loop(
@@ -163,6 +229,14 @@ def _authorization_loop(
                         "OmniDesk PB-023 validation probe"
                     ),
                     "application_version": "0.1.0-spike",
+                }
+            )
+
+        elif state_type == "authorizationStateWaitEncryptionKey":
+            client.send(
+                {
+                    "@type": "checkDatabaseEncryptionKey",
+                    "encryption_key": os.getenv("TELEGRAM_DATABASE_KEY", ""),
                 }
             )
 
@@ -254,52 +328,75 @@ def _authorization_loop(
             )
 
 
+def _drain_updates(
+    client: TdJsonClient,
+    max_wait: float = 1.5,
+    quiet_period: float = 0.35,
+) -> None:
+    deadline = time.monotonic() + max_wait
+    quiet_deadline = time.monotonic() + quiet_period
+
+    while time.monotonic() < deadline:
+        event = client.receive(
+            min(0.25, max(0.0, deadline - time.monotonic()))
+        )
+
+        if event:
+            quiet_deadline = min(
+                deadline,
+                time.monotonic() + quiet_period,
+            )
+        elif time.monotonic() >= quiet_deadline:
+            return
+
+
 def _load_chat_list(
     client: TdJsonClient,
     chat_list: JsonObject,
     max_pages: int,
 ) -> None:
-    previous_count = -1
-    idle_rounds = 0
+    list_type = str(chat_list.get("@type") or "unknown")
 
-    for _ in range(max_pages):
+    for page in range(1, max_pages + 1):
         tag = client.send(
             {
                 "@type": "loadChats",
                 "chat_list": chat_list,
                 "limit": 100,
-            }
+            },
+            tag=f"chat-discovery-{list_type}-{page}",
         )
 
         try:
-            client.wait_for_response(tag, timeout=12.0)
-        except RuntimeError as exc:
-            if "404" in str(exc) or "Not Found" in str(exc):
-                break
+            client.wait_for_response(
+                tag,
+                timeout=15.0,
+                operation=f"chat_discovery:{list_type}",
+            )
+        except TdLibRequestError as exc:
+            # TDLib explicitly uses 404 when this chat list is exhausted.
+            if exc.is_end_of_list:
+                return
             raise
 
-        deadline = time.monotonic() + 2.0
-        while time.monotonic() < deadline:
-            client.receive(0.25)
-
-        current_count = len(client.chats)
-        if current_count == previous_count:
-            idle_rounds += 1
-        else:
-            idle_rounds = 0
-
-        if idle_rounds >= 2:
-            break
-
-        previous_count = current_count
+        # loadChats returns before all updateNewChat updates have necessarily
+        # been observed. Drain a short quiet window before requesting the next
+        # bounded page, without using an idle count as a false end condition.
+        _drain_updates(client)
 
 
 def _load_main_chats(client: TdJsonClient) -> None:
     """Load Main, Archive, and discovered Telegram folders incrementally."""
-    max_pages = max(
-        1,
-        min(int(os.getenv("TELEGRAM_CHAT_DISCOVERY_PAGES", "3")), 5),
-    )
+    try:
+        max_pages = int(
+            os.getenv("TELEGRAM_CHAT_DISCOVERY_PAGES", "50")
+        )
+    except ValueError as exc:
+        raise RuntimeError(
+            "TELEGRAM_CHAT_DISCOVERY_PAGES must be an integer."
+        ) from exc
+
+    max_pages = max(1, min(max_pages, 100))
 
     _load_chat_list(
         client,
@@ -350,6 +447,43 @@ def _select_supported_chat(client: TdJsonClient) -> JsonObject:
     )
 
 
+
+def _get_chat(client: TdJsonClient, chat_id: int) -> JsonObject:
+    tag = client.send(
+        {
+            "@type": "getChat",
+            "chat_id": chat_id,
+        }
+    )
+    chat = client.wait_for_response(
+        tag,
+        timeout=10.0,
+        operation="chat_metadata",
+    )
+
+    if chat.get("@type") != "chat":
+        raise RuntimeError(
+            "TDLib returned an invalid chat metadata response."
+        )
+
+    client.chats[chat_id] = chat
+    return chat
+
+
+def _open_chat(client: TdJsonClient, chat_id: int) -> None:
+    tag = client.send(
+        {
+            "@type": "openChat",
+            "chat_id": chat_id,
+        }
+    )
+    client.wait_for_response(
+        tag,
+        timeout=10.0,
+        operation="chat_open",
+    )
+
+
 def _get_history(
     client: TdJsonClient,
     chat_id: int,
@@ -358,6 +492,17 @@ def _get_history(
     only_local: bool = False,
 ) -> JsonObject:
     bounded_limit = max(1, min(limit, 20))
+
+    try:
+        timeout = float(
+            os.getenv("TELEGRAM_HISTORY_TIMEOUT_SECONDS", "30")
+        )
+    except ValueError as exc:
+        raise RuntimeError(
+            "TELEGRAM_HISTORY_TIMEOUT_SECONDS must be numeric."
+        ) from exc
+
+    timeout = max(5.0, min(timeout, 120.0))
     tag = client.send(
         {
             "@type": "getChatHistory",
@@ -369,7 +514,13 @@ def _get_history(
         }
     )
 
-    return client.wait_for_response(tag, timeout=60.0)
+    return client.wait_for_response(
+        tag,
+        timeout=timeout,
+        operation="history_pagination"
+        if before_message_id
+        else "history_initial",
+    )
 
 
 def _build_evidence(
@@ -474,7 +625,7 @@ def main() -> int:
         _load_main_chats(client)
 
         chat = _select_supported_chat(client)
-
+        _open_chat(client, int(chat["id"]))
         history = _get_history(
             client,
             int(chat["id"]),

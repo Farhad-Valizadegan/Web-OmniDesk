@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This document is the authoritative V1 data-sensitivity and lifecycle baseline for OmniDesk AI.
+This document is the authoritative V1 data-sensitivity and lifecycle baseline for OmniDesk.
 
 It defines which data categories exist, their sensitivity, why they are processed, where they may persist, and which lifecycle events must remove or expire them.
 
@@ -48,8 +48,6 @@ Data capable of authenticating as a user, granting provider access, exposing sub
 | synchronization state | Confidential operational | initial/incremental synchronization | PostgreSQL/approved transient store |
 | safe synchronization errors | Internal/Confidential | retry/diagnosis | bounded log/audit storage |
 | local labels/tags | Confidential | organization | PostgreSQL when implemented |
-| AI prompt/context | Highly Sensitive | explicit user-requested AI feature | prefer transient/minimized processing |
-| AI output | Confidential/Highly Sensitive | summary/reply assistance | persist only when feature requires |
 | security audit events | Confidential | investigation/account security | durable bounded audit store |
 | application logs | Internal; possibly Confidential | operations | bounded retention |
 | backups | inherits highest contained level | disaster recovery | encrypted/restricted backup storage |
@@ -61,7 +59,6 @@ Data capable of authenticating as a user, granting provider access, exposing sub
 - Provider-specific payloads must not be copied wholesale when normalized fields are sufficient.
 - Temporary authorization/challenge data must remain temporary.
 - Secrets must never be duplicated into logs or frontend-visible responses.
-- AI context must be selected per explicit request rather than exporting entire communication stores.
 - Attachment content must not be persisted merely because provider metadata exposes it.
 
 ## Deletion Triggers
@@ -85,7 +82,6 @@ The final account-deletion implementation must:
 - disconnect/revoke provider access where possible;
 - delete provider connections;
 - delete or apply approved retention rules to user-owned communication data;
-- delete local labels/settings/AI results;
 - retain only records with explicit justified retention requirements.
 
 ### Expiration
@@ -130,18 +126,6 @@ Until SEC-016 is completed:
 - restore activity must be controlled/auditable;
 - backup expiration behavior must be documented because live deletion cannot guarantee immediate deletion from historical backups.
 
-## AI Data Rules
-
-Before M5:
-
-- send only context required for the user-requested operation;
-- prefer transient context;
-- review provider retention/training/data-use settings;
-- classify generated output according to source sensitivity;
-- do not send Telegram-derived data to AI merely because Telegram is integrated.
-
-Telegram API terms are a separate gate and currently prohibit use of Telegram-derived data for training, fine-tuning, or otherwise engaging in development, enhancement, or deployment of AI/ML models and similar technologies. SEC-020 must resolve the exact permitted M5 behavior before any Telegram-to-AI flow is enabled.
-
 ## Retention Values Still Requiring Production Decisions
 
 Exact durations remain unresolved for:
@@ -150,8 +134,6 @@ Exact durations remain unresolved for:
 - security audit events;
 - application logs;
 - backups;
-- AI prompts/context;
-- AI output;
 - future attachment content.
 
 These are not silently assigned arbitrary durations in this baseline. Exact values must be set during the relevant privacy/deployment/security implementation work.
@@ -164,8 +146,4 @@ SEC-002 is satisfied at the baseline/requirements level because:
 - temporary versus durable treatment is explicit;
 - provider credential/session data is Highly Sensitive;
 - disconnect/account-delete/expiration triggers are defined;
-- cache, queue, logging, backup, and AI rules are defined;
 - unresolved exact retention durations are explicit rather than hidden;
-- downstream SEC-016, SEC-018, SEC-019, and SEC-020 dependencies are traceable.
-
-The artifact remains living documentation and must be updated when the data model or provider/AI/deployment architecture changes.

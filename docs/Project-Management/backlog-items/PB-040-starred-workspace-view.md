@@ -1,8 +1,8 @@
 # PB-040 - Starred Workspace View
 
-> Status: Refined
-> Priority: Should
-> Milestone: TBD
+> Status: Deferred; placeholder removed
+> Priority: Won't Yet
+> Milestone: None
 
 ## Purpose
 

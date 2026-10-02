@@ -1,6 +1,6 @@
 # Sprint 07 Plan - Security Foundation and Telegram Validation
 
-> Status: In Progress
+> Status: Completed
 > Primary Milestone: M4 - Telegram Integration
 > Cross-Cutting Focus: Security and Privacy
 
@@ -20,9 +20,7 @@ These three items form a bounded de-risking Sprint:
 
 - PB-023 resolves the technical integration mode required before PB-024.
 - SEC-001 provides the authoritative risk model needed to prioritize security controls consistently.
-- SEC-002 provides the authoritative data-sensitivity and lifecycle baseline needed for provider, privacy, backup, and AI decisions.
 
-The Sprint intentionally does not implement PB-024, Telegram synchronization, AI features, or the remaining P1 security controls.
 
 ## Sprint Scope
 
@@ -51,7 +49,6 @@ The Sprint intentionally does not implement PB-024, Telegram synchronization, AI
 - Confirm data categories, sensitivity, origin, purpose, persistence, caching, logging, backup, and external-transfer behavior.
 - Confirm current Gmail disconnect lifecycle.
 - Identify unresolved retention/deletion values requiring later implementation/deployment decisions.
-- Establish downstream rules for Telegram, AI, backups, logs, queues, and temporary secrets.
 
 ## Dependencies
 
@@ -87,14 +84,12 @@ The Sprint intentionally does not implement PB-024, Telegram synchronization, AI
 - Temporary versus durable treatment is explicit.
 - Existing Gmail lifecycle behavior is captured.
 - unresolved retention/deletion values are explicit and traceable.
-- AI/Telegram/backup/logging lifecycle dependencies are recorded.
 
 ## Security and Privacy Constraints
 
 - Provider credentials/session material remain backend-only.
 - Sensitive secrets are not logged.
 - Test evidence must not commit real private communication data.
-- Telegram-derived data must not be assumed eligible for AI processing.
 - User-ownership boundaries remain enforced.
 - No new production infrastructure or provider permissions are approved implicitly by this Sprint.
 
@@ -104,7 +99,6 @@ The Sprint intentionally does not implement PB-024, Telegram synchronization, AI
 - PB-025 Telegram synchronization implementation.
 - PB-026 provider-failure isolation implementation.
 - SEC-003 through SEC-021 implementation.
-- AI implementation.
 - attachment implementation.
 - production deployment.
 - workspace-navigation enhancements PB-039 through PB-042.
@@ -144,17 +138,17 @@ Completed:
 - PB-023 TDLib runtime boundary selected.
 - PB-023 sanitized local TDLib probe added.
 
-Remaining selected work:
+Runtime validation completed on 2026-10-01:
 
-- execute the TDLib probe with an OmniDesk Telegram API application and dedicated test account;
-- capture sanitized runtime evidence;
-- observe restart/session recovery;
-- close PB-023 after runtime evidence satisfies its acceptance criteria.
+- real Telegram authorization, chat retrieval, and message-history retrieval passed;
+- browser refresh confirmed session recovery;
+- owner-isolation tests passed without committing account secrets or message content;
+- PB-023 was closed as completed.
 
-PB-024 remains outside Sprint 07 and blocked.
+PB-024 remains outside Sprint 07. Its prerequisite PB-023 and SEC-019 gates are complete.
 
 ## Planning Decision
 
 Sprint Planning selected exactly PB-023, SEC-001, and SEC-002.
 
-Sprint 07 is therefore created now as the next Sprint. No later Sprint number or M4/M5/M6 allocation is reserved by this decision.
+Sprint 07 is therefore created now as the next Sprint. No later Sprint number or M4/M5/M5 allocation is reserved by this decision.

@@ -1,16 +1,14 @@
-﻿# Use Cases
+# Use Cases
 > Status: Draft
 ## Purpose
-This document describes the primary interactions between users, OmniDesk AI, external communication providers, and AI services.
 Use cases describe how actors achieve specific goals by using the system.
 ## Actors
 | Actor | Description |
 |---|---|
-| Primary User | The person who uses the OmniDesk AI workspace |
+| Primary User | The person who uses the OmniDesk workspace |
 | Gmail Provider | External communication provider connected by the user |
 | Telegram Provider | External communication provider connected by the user |
-| AI Service | External service used for user-requested summaries or reply suggestions |
-| OmniDesk AI | The system that coordinates communication data and user interactions |
+| OmniDesk | The system that coordinates communication data and user interactions |
 ## Use Case Catalog
 | ID | Use Case | Primary Actor | Related Requirements | Priority |
 |---|---|---|---|---|
@@ -19,12 +17,9 @@ Use cases describe how actors achieve specific goals by using the system.
 | UC-003 | Connect Telegram account | Primary User | FR-004, IR-002, SPR-006 | Must Have |
 | UC-004 | Browse unified communication workspace | Primary User | FR-006, FR-007, FR-008 | Must Have |
 | UC-005 | Search and filter communication | Primary User | FR-012, FR-013 | Must Have |
-| UC-006 | Synchronize provider communication | OmniDesk AI | FR-010, IR-007, IR-008 | Must Have |
-| UC-007 | Request conversation summary | Primary User | FR-017, SPR-013, SPR-014 | Should Have |
-| UC-008 | Generate editable reply suggestion | Primary User | FR-018, FR-019, SPR-013, SPR-014 | Should Have |
+| UC-006 | Synchronize provider communication | OmniDesk | FR-010, IR-007, IR-008 | Must Have |
 | UC-009 | Disconnect external account | Primary User | FR-005, IR-006, SPR-007 | Must Have |
-| UC-010 | Handle unavailable AI service | Primary User | FR-022, NFR-009 | Must Have |
-| UC-011 | Handle provider synchronization failure | OmniDesk AI | FR-011, IR-011, IR-014 | Must Have |
+| UC-011 | Handle provider synchronization failure | OmniDesk | FR-011, IR-011, IR-014 | Must Have |
 ## UC-001 - Create and Authenticate User Account
 ### Goal
 The user creates an account and securely accesses the workspace.
@@ -131,40 +126,27 @@ The system retrieves and stores supported communication data.
 - If the provider is unavailable, the system records the failure safely.
 - If the response is invalid, the system rejects the invalid data.
 - If rate limits apply, the system handles the condition gracefully.
-## UC-007 - Request Conversation Summary
 ### Goal
-The user obtains an AI-generated summary of a selected conversation.
 ### Preconditions
 - The user is authenticated.
 - A conversation is available.
-- An AI service is available.
 ### Main Flow
 1. The user selects a conversation.
 2. The user requests a summary.
-3. The system sends the required communication data to the AI service.
-4. The AI service returns a summary.
 5. The system displays the summary to the user.
 ### Alternative Flows
-- If the AI service is unavailable, the system informs the user.
 - If the request fails, the original conversation remains available.
 - The system does not send any external message as part of this use case.
-## UC-008 - Generate Editable Reply Suggestion
 ### Goal
-The user obtains and edits an AI-generated reply suggestion.
 ### Preconditions
 - The user is authenticated.
 - A conversation is available.
-- An AI service is available.
 ### Main Flow
 1. The user selects a conversation.
-2. The user requests a reply suggestion.
-3. The system sends the required context to the AI service.
-4. The AI service returns a suggestion.
 5. The system displays the suggestion.
 6. The user reviews and edits the suggestion.
 7. The user decides whether to use or discard it.
 ### Alternative Flows
-- If the AI service is unavailable, the system informs the user.
 - If the generated content is unsuitable, the user discards it.
 - Sending the suggestion remains outside this use case unless separately approved as a product capability.
 ## UC-009 - Disconnect External Account
@@ -183,14 +165,9 @@ The user disconnects a provider account and revokes its access.
 ### Alternative Flows
 - If the user cancels, the connection remains active.
 - If disconnection fails, the system displays the failure and current status.
-## UC-010 - Handle Unavailable AI Service
 ### Goal
-The user continues using core communication features when AI is unavailable.
 ### Main Flow
 1. The user opens the workspace.
-2. The system detects that the AI service is unavailable.
-3. The system informs the user that AI features are temporarily unavailable.
-4. The system continues to provide non-AI communication features.
 5. The user can browse, search, filter, and organize available communication.
 ## UC-011 - Handle Provider Synchronization Failure
 ### Goal

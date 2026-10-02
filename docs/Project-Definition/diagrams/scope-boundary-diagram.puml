@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Scope Boundary
+title OmniDesk Scope Boundary
 
 left to right direction
 skinparam componentStyle rectangle
@@ -10,7 +10,6 @@ rectangle "Inside Current MVP Scope" as In {
   rectangle "Unified communication workspace" as C
   rectangle "Synchronization and normalization" as D
   rectangle "Search and local organization" as E
-  rectangle "User-requested AI assistance" as F
 }
 
 rectangle "Outside Current MVP Scope" as Out {
@@ -18,6 +17,5 @@ rectangle "Outside Current MVP Scope" as Out {
   rectangle "Autonomous message sending" as H
   rectangle "Unapproved future-provider features" as I
   rectangle "Provider policy and availability" as J
-  rectangle "AI model ownership or training" as K
 }
 @enduml

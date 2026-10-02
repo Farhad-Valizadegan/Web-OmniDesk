@@ -33,6 +33,9 @@ Route::post(
     [AuthController::class, 'login']
 )->middleware('throttle:login');
 
+Route::post('/login/verify', [AuthController::class, 'verifyCode'])->middleware('throttle:10,1');
+Route::post('/login/resend', [AuthController::class, 'resendCode'])->middleware('throttle:5,1');
+
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -67,6 +70,14 @@ Route::middleware('auth:sanctum')->group(function (): void {
         '/integrations/telegram/sample',
         [TelegramIntegrationController::class, 'sample']
     );
+
+    Route::get('/integrations/telegram', [TelegramIntegrationController::class, 'status']);
+    Route::post('/integrations/telegram/connect', [TelegramIntegrationController::class, 'connect'])->middleware('throttle:5,1');
+    Route::post('/integrations/telegram/code', [TelegramIntegrationController::class, 'code'])->middleware('throttle:10,1');
+    Route::post('/integrations/telegram/password', [TelegramIntegrationController::class, 'password'])->middleware('throttle:5,1');
+    Route::delete('/integrations/telegram', [TelegramIntegrationController::class, 'disconnect']);
+
+    Route::get('/integrations/telegram/media', [TelegramIntegrationController::class, 'media']);
 
     Route::get(
         '/conversations',

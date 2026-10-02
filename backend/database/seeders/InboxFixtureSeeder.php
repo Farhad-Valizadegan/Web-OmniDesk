@@ -43,10 +43,10 @@ class InboxFixtureSeeder extends Seeder
 
         $this->createConversation(
             user: $user,
-            subject: 'Welcome to OmniDesk AI',
+            subject: 'Welcome to OmniDesk',
             labels: ['personal'],
             isRead: true,
-            firstBody: 'Welcome to your OmniDesk AI workspace.',
+            firstBody: 'Welcome to your OmniDesk workspace.',
             secondBody: 'Your unified inbox foundation is ready.',
         );
 

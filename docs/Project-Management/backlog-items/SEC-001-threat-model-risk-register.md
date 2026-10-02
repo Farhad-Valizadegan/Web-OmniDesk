@@ -50,7 +50,6 @@ These controls reduce risk, but they are not yet connected through one threat-to
 - Conversation metadata.
 - Contact/sender/recipient information.
 - Attachments when supported.
-- AI prompts/context and generated results containing communication data.
 - Provider account identifiers.
 
 ### Internal / Operational
@@ -71,7 +70,6 @@ The threat model must explicitly cover at least these boundaries:
 4. Laravel API / workers -> Redis or queue/cache infrastructure.
 5. Laravel/worker -> Gmail/Google OAuth APIs.
 6. Laravel/worker -> future Telegram client/API runtime.
-7. Laravel/worker -> future AI provider.
 8. Application runtime -> filesystem/object storage/backups.
 9. CI/CD -> repository/build/deployment environments.
 10. Administrator/developer -> production infrastructure and secrets.
@@ -88,7 +86,6 @@ The threat model must explicitly cover at least these boundaries:
 - Conversation/message retrieval.
 - Provider disconnect.
 - Future Telegram authorization/session endpoints.
-- Future AI endpoints.
 - Future attachment/file endpoints.
 - CI/CD inputs and dependency updates.
 
@@ -121,7 +118,6 @@ Use STRIDE where useful, supplemented by privacy and supply-chain analysis.
 - provider-token leakage.
 - sensitive logging.
 - remote email content leaking user activity/IP data.
-- AI context over-disclosure.
 - backup/database compromise.
 
 ### Denial of Service
@@ -129,7 +125,6 @@ Use STRIDE where useful, supplemented by privacy and supply-chain analysis.
 - authentication abuse.
 - provider synchronization abuse.
 - provider quota exhaustion.
-- expensive AI requests.
 - queue/worker exhaustion.
 
 ### Elevation of Privilege
@@ -144,7 +139,6 @@ Use STRIDE where useful, supplemented by privacy and supply-chain analysis.
 - unnecessary provider-data replication.
 - excessive retention.
 - tracking pixels/remote resources.
-- unintended third-party AI disclosure.
 - incomplete disconnect/account-deletion cleanup.
 
 ### Supply-Chain / Operational Threats
@@ -168,7 +162,6 @@ Use STRIDE where useful, supplemented by privacy and supply-chain analysis.
 | RISK-007 | Excess provider permission increases blast radius | Gmail uses readonly mailbox scope | all provider scopes not yet formally mapped/justified | P1 | SEC-009 |
 | RISK-008 | Malicious provider HTML executes active content | existing sandbox/sanitization controls | custom rendering boundary requires systematic security validation | P1 | SEC-010 |
 | RISK-009 | Remote email resources disclose open/IP metadata | sandboxing limits active content | remote-resource privacy policy incomplete | P1 | SEC-011 |
-| RISK-010 | Sensitive/expensive APIs abused | auth endpoints throttled; provider errors handled | sync/MFA/recovery/AI rate limits incomplete | P1 | SEC-012 |
 | RISK-011 | Logs leak secrets/private content | requirements prohibit sensitive logs; safe error tests exist | centralized audit/redaction verification absent | P1 | SEC-013 |
 | RISK-012 | Production transport/browser config is weak | deployment design requires HTTPS | concrete production headers/TLS/CORS baseline unresolved | P1 | SEC-014 |
 | RISK-013 | PostgreSQL/Redis/storage compromise | deployment docs require restricted access | production topology/hardening unresolved | P1 | SEC-015 |
@@ -176,7 +169,6 @@ Use STRIDE where useful, supplemented by privacy and supply-chain analysis.
 | RISK-015 | Vulnerable/leaked dependency or secret reaches main | CI tests/lint/build | dedicated dependency/secret/SAST security gates absent | P1 | SEC-017 |
 | RISK-016 | Privacy/GDPR behavior is inconsistent | privacy principles and data minimization requirements exist | lifecycle/legal-processing engineering model incomplete | P1 | SEC-018 |
 | RISK-017 | Telegram session theft compromises Telegram account | PB-023 identifies sensitive session/auth state | final Telegram runtime/session boundary not yet validated | P1 | SEC-019 |
-| RISK-018 | AI leaks context or follows malicious provider instructions | AI is user-initiated; autonomous send prohibited | AI boundary not yet implemented/security-gated | P1 before M5 | SEC-020 |
 | RISK-019 | Compromise is not detected/contained quickly | safe failures and CI exist | monitoring/incident-response baseline incomplete | P2 | SEC-021 |
 
 ## Risk Assessment Method
@@ -201,14 +193,12 @@ No P0 issue is currently confirmed by this refinement.
 - A repository-specific initial risk register exists.
 - Existing controls and residual concerns are recorded.
 - High-risk scenarios trace to security backlog items.
-- Review triggers are defined for new providers, AI features, attachments, deployment changes, authentication changes, and newly discovered threats.
 
 ## Review Triggers
 
 Reassess this threat model when:
 
 - Telegram integration architecture is finalized.
-- AI provider/data flow is finalized.
 - attachment handling is introduced.
 - authentication/session architecture changes.
 - a new provider is added.
@@ -218,7 +208,6 @@ Reassess this threat model when:
 
 ## Security Tests
 
-- Review the threat model against implemented routes, providers, data stores, workers, CI/CD, and planned AI boundaries.
 - During later implementation, trace each P1 risk to at least one implemented control and verification activity.
 
 ## Definition of Done
@@ -232,7 +221,6 @@ Completion requires the authoritative threat/risk artifact to be reviewed and ac
 - Project Definition: scope, stakeholders, assumptions/constraints.
 - Requirements Engineering: security/privacy requirements.
 - System Analysis: system boundary and data flows.
-- System Design: authentication, data model, deployment, provider and AI boundaries.
 - Testing: security verification.
 - Project Management: security backlog and risk prioritization.
 

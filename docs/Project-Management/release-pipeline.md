@@ -10,7 +10,7 @@
 
 
 
-This document describes how a reviewable sprint increment becomes a versioned release in OmniDesk AI.
+This document describes how a reviewable sprint increment becomes a versioned release in OmniDesk.
 
 
 
@@ -18,7 +18,7 @@ This document describes how a reviewable sprint increment becomes a versioned re
 
 
 
-![OmniDesk AI Release Pipeline](./diagrams/release-pipeline.svg)
+![OmniDesk Release Pipeline](./diagrams/release-pipeline.svg)
 
 
 

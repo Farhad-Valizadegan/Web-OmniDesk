@@ -1,10 +1,10 @@
-# OmniDesk AI Product Backlog
+# OmniDesk Product Backlog
 
 > Status: Draft
 
 ## Purpose
 
-This document contains the canonical prioritized Product Backlog for OmniDesk AI.
+This document contains the canonical prioritized Product Backlog for OmniDesk.
 
 Backlog items represent capabilities, improvements, technical work, and verification work. They are selected for Sprint Planning only after sufficient refinement and prioritization.
 
@@ -61,26 +61,20 @@ Security backlog items use the separate canonical `SEC-###` namespace. They rema
 | PB-020 | Implement incremental synchronization | Must | M2 | Completed |
 | PB-021 | Prevent duplicate synchronized records | Must | M2 | Completed |
 | PB-022 | Record synchronization status and failures | Must | M2 | Completed |
-| PB-023 | [Validate the Telegram integration mode](./backlog-items/PB-023-telegram-integration-mode.md) | Must | M4 | In Progress |
-| PB-024 | Implement the Telegram connector | Must | M4 | Planned |
-| PB-025 | Implement Telegram synchronization | Must | M4 | Planned |
-| PB-026 | Isolate failures between providers | Must | M4 | Planned |
-| PB-027 | Implement conversation summaries | Should | M5 | Planned |
-| PB-028 | Implement editable reply suggestions | Should | M5 | Planned |
-| PB-029 | Minimize context before AI processing | Must | M5 | Planned |
-| PB-030 | Implement the AI provider abstraction | Must | M5 | Planned |
-| PB-031 | Implement the AI suggestion lifecycle | Should | M5 | Planned |
-| PB-032 | Prevent autonomous message sending | Must | M5 | Planned |
-| PB-033 | Implement consistent API error responses | Must | M6 | Planned |
-| PB-034 | Implement retry handling for temporary failures | Should | M6 | Planned |
-| PB-035 | Verify security and ownership boundaries | Must | M6 | Planned |
-| PB-036 | Add integration and end-to-end tests | Must | M6 | Planned |
-| PB-037 | Prepare deployment and recovery documentation | Must | M6 | Planned |
-| PB-038 | Prepare release notes and release candidate | Must | M6 | Planned |
-| PB-039 | [Complete functional workspace sidebar navigation and active-state behavior](./backlog-items/PB-039-workspace-sidebar-navigation.md) | Should | TBD | Refined |
-| PB-040 | [Implement a Starred workspace view](./backlog-items/PB-040-starred-workspace-view.md) | Should | TBD | Refined |
-| PB-041 | [Implement a Labels workspace view with dynamic/custom label support](./backlog-items/PB-041-labels-workspace-view.md) | Should | TBD | Refined |
-| PB-042 | [Define and implement the Settings workspace view or remove the placeholder until its scope is approved](./backlog-items/PB-042-settings-workspace-view.md) | Could | TBD | Refined |
+| PB-023 | [Validate the Telegram integration mode](./backlog-items/PB-023-telegram-integration-mode.md) | Must | M4 | Completed |
+| PB-024 | Implement the per-user Telegram connector | Must | M4 | In Progress |
+| PB-025 | Implement Telegram synchronization | Must | M4 | In Progress |
+| PB-026 | Isolate failures between providers and users | Must | M4 | In Progress |
+| PB-033 | Implement consistent API error responses | Must | M5 | Planned |
+| PB-034 | Implement retry handling for temporary failures | Should | M5 | Planned |
+| PB-035 | Verify security and ownership boundaries | Must | M5 | Planned |
+| PB-036 | Add integration and end-to-end tests | Must | M5 | Planned |
+| PB-037 | Prepare deployment and recovery documentation | Must | M5 | Planned |
+| PB-038 | Prepare release notes and release candidate | Must | M5 | Planned |
+| PB-039 | [Complete functional workspace sidebar navigation and active-state behavior](./backlog-items/PB-039-workspace-sidebar-navigation.md) | Won't Yet | — | Deferred; placeholder removed |
+| PB-040 | [Implement a Starred workspace view](./backlog-items/PB-040-starred-workspace-view.md) | Won't Yet | — | Deferred; placeholder removed |
+| PB-041 | [Implement a Labels workspace view with dynamic/custom label support](./backlog-items/PB-041-labels-workspace-view.md) | Won't Yet | — | Deferred; placeholder removed |
+| PB-042 | [Define and implement the Settings workspace view or remove the placeholder until its scope is approved](./backlog-items/PB-042-settings-workspace-view.md) | Won't Yet | — | Completed by removing placeholder |
 
 ## Security Backlog Items
 
@@ -91,7 +85,7 @@ These items were accepted from the read-only Security & Privacy Gap Analysis. Se
 | SEC-001 | [Establish Threat Model and Risk Register](./backlog-items/SEC-001-threat-model-risk-register.md) | P1 | V1 Required | Completed |
 | SEC-002 | [Data Classification, Retention, and Deletion Model](./backlog-items/SEC-002-data-classification-retention-deletion.md) | P1 | V1 Required | Completed |
 | SEC-003 | [Harden Browser Authentication Session Architecture](./backlog-items/SEC-003-browser-auth-session-hardening.md) | P1 | V1 Required | Planned |
-| SEC-004 | [Implement Email-Based Two-Step Verification](./backlog-items/SEC-004-email-two-step-verification.md) | P1 | V1 Required | Planned |
+| SEC-004 | [Implement Email-Based Two-Step Verification](./backlog-items/SEC-004-email-two-step-verification.md) | P1 | V1 Required | Completed |
 | SEC-005 | [Secure Email Verification, Password Change, and Account Recovery](./backlog-items/SEC-005-account-verification-password-recovery.md) | P1 | V1 Required | Planned |
 | SEC-006 | [Sensitive-Action Reauthentication](./backlog-items/SEC-006-sensitive-action-reauthentication.md) | P1 | V1 Required | Planned |
 | SEC-007 | [Expand Authorization and Cross-User Isolation Testing](./backlog-items/SEC-007-authorization-isolation-regression-matrix.md) | P1 | V1 Required | Planned |
@@ -106,16 +100,16 @@ These items were accepted from the read-only Security & Privacy Gap Analysis. Se
 | SEC-016 | [Backup Security, Recovery, and Secure Deletion](./backlog-items/SEC-016-backup-recovery-secure-deletion.md) | P1 | V1 Required before production data | Planned |
 | SEC-017 | [Security Controls in CI/CD](./backlog-items/SEC-017-security-ci-cd.md) | P1 | V1 Required baseline | Planned |
 | SEC-018 | [Privacy and GDPR Engineering Baseline](./backlog-items/SEC-018-privacy-gdpr-engineering.md) | P1 | V1 Required | Planned |
-| SEC-019 | [Telegram Credential and Session Security Gate](./backlog-items/SEC-019-telegram-credential-session-security.md) | P1 | V1 Required before PB-024 | Planned |
-| SEC-020 | [AI Security and Privacy Gate](./backlog-items/SEC-020-ai-security-privacy-gate.md) | P1 | V1 Required before M5 AI features | Planned |
+| SEC-019 | [Telegram Credential and Session Security Gate](./backlog-items/SEC-019-telegram-credential-session-security.md) | P1 | V1 Required before PB-024 | Completed |
 | SEC-021 | [Security Monitoring and Incident Response Baseline](./backlog-items/SEC-021-security-monitoring-incident-response.md) | P2 | V1 Recommended | Planned |
+
+IDs PB-027 through PB-032 and SEC-020 were retired when assisted-generation features were removed from Version 1. Their identifiers are intentionally not reused.
 
 ### Security Prioritization Rules
 
 - No security item is automatically assigned to a Sprint merely because it is P1 or V1 Required.
 - SEC-001 and SEC-002 establish the security/risk/data baseline and should precede dependent controls.
-- SEC-019 is a security gate before PB-024 Telegram connector implementation.
-- SEC-020 is a security gate before M5 AI features.
+- SEC-019 was completed as the security gate before PB-024 Telegram connector implementation.
 - SEC-016 must be satisfied before production data relies on backup/recovery.
 - Security findings are integrated into normal development Sprints rather than collected into one oversized Security Sprint.
 - P0 findings, if discovered later, become immediate release-blocking candidates and trigger reprioritization.
@@ -140,7 +134,6 @@ The following items are outside the current approved scope:
 - Autonomous message sending
 - Unsupported provider integrations
 - Unvalidated Telegram capabilities
-- Unapproved AI features
 - Production infrastructure decisions before deployment planning
 
 ## Backlog Management
@@ -243,14 +236,6 @@ These items become release/deployment gates according to exposure timing:
 
 They remain V1-oriented, but deployment-specific implementation should be synchronized with the actual deployment architecture rather than performed prematurely.
 
-### Priority Band 4 - AI Security Gate
-
-Before M5 AI functionality:
-
-- SEC-020 - AI Security and Privacy Gate.
-
-SEC-020 remains P1 before AI functionality is enabled. It must resolve context minimization, authorization, prompt-injection risk, provider data-use/retention, and Telegram-derived-data constraints.
-
 ### Priority Band 5 - Workspace and Organization Improvements
 
 After required M4/security-gate work is sufficiently resolved:
@@ -273,7 +258,7 @@ Dependency guidance remains:
 
 ### Current Planning-Ready Items
 
-Sprint 07 is already in progress. SEC-001 and SEC-002 are completed baseline work; PB-023 remains the active validation item.
+Sprint 07 is completed. SEC-001 and SEC-002 established the baseline, and PB-023 supplied real Telegram runtime evidence.
 - PB-039 - Workspace sidebar navigation, subject to current prioritization.
 - PB-040 - Starred workspace view, subject to current prioritization.
 - PB-041 - Labels workspace view, subject to current prioritization.
@@ -295,7 +280,7 @@ Sprint Goal: establish the V1 security/data-risk baseline and validate the Teleg
 
 No other P1 security item, M4 implementation item, or workspace enhancement is automatically committed to Sprint 07.
 
-PB-024/PB-025/PB-026 remain outside Sprint 07. SEC-019 must be finalized against the PB-023 outcome before PB-024 can be selected into a later Sprint.
+PB-024/PB-025/PB-026 remain outside Sprint 07 and continue as the implementation work built on the completed PB-023 and SEC-019 foundations.
 
 ## Unresolved Decisions
 | ID | Decision | Current State |
@@ -303,7 +288,6 @@ PB-024/PB-025/PB-026 remain outside Sprint 07. SEC-019 must be finalized against
 | BACKLOG-001 | Final backlog prioritization | Security foundation and M4 validation ordering updated; reprioritized continuously through refinement and Sprint Planning |
 | BACKLOG-002 | Acceptance criteria for planned items | Defined during refinement before Sprint selection |
 | BACKLOG-003 | Future Sprint assignments | Sprint 07 assigned through completed Sprint Planning; later Sprint numbers remain unassigned until future Sprint Planning |
-| BACKLOG-004 | Telegram scope | TDLib/MTProto long-lived-adapter direction selected; PB-023 runtime evidence remains pending before SEC-019 finalization and PB-024 implementation |
-| BACKLOG-005 | Final AI provider | Unresolved |
+| BACKLOG-004 | Telegram scope | TDLib/MTProto adapter direction validated with real authorization, content retrieval, refresh recovery, owner isolation, and crash-resilient cleanup; PB-023 and SEC-019 completed |
 | BACKLOG-006 | Priority and milestone assignment for PB-039 through PB-042 | Prioritization resolved: deferred behind M4; milestone remains TBD until future selection |
 | BACKLOG-007 | Milestone and priority for PB-014 local labels/tags | Should priority retained; deferred behind M4; milestone remains TBD until future selection |
