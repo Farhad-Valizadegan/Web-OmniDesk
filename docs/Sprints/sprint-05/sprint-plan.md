@@ -4,7 +4,7 @@
 
 ## Sprint Goal
 
-Synchronize Gmail data into the provider-neutral OmniDesk AI inbox using safe full and incremental synchronization.
+Synchronize Gmail data into the provider-neutral OmniDesk inbox using safe full and incremental synchronization.
 
 ## Related Milestone
 
@@ -114,7 +114,6 @@ Temporary provider failures must preserve existing data and must not expose prov
 - Gmail push notifications or Pub/Sub webhooks.
 - Telegram synchronization.
 - Sending or modifying Gmail messages.
-- AI-generated replies.
 - Production deployment.
 
 ## Completion Evidence

@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document describes how OmniDesk AI verifies software quality across Sprints and release preparation.
+This document describes how OmniDesk verifies software quality across Sprints and release preparation.
 
 Testing is not treated as a single activity that begins only after implementation. In the project's Agile workflow, relevant testing occurs continuously inside each Sprint and is expanded during production-hardening and release preparation.
 
@@ -111,7 +111,6 @@ Security-relevant verification should include, where applicable:
 - prevention of secret exposure in API responses and frontend state
 - safe provider error handling
 - message-content rendering protections
-- explicit user control over AI-assisted external actions
 
 ## Planned Security Verification Coverage
 
@@ -136,7 +135,6 @@ Future security verification should reference the accepted SEC backlog items rat
 - SEC-017 - dependency, supply-chain, secret-scanning/static-analysis, and CI/CD security controls as approved.
 - SEC-018 - privacy, deletion/export, retention, and user-control behavior where implemented.
 - SEC-019 - Telegram credential/session protection after PB-023 establishes the runtime boundary.
-- SEC-020 - AI authorization, context minimization, provider-data-use/privacy, prompt-injection, and output-handling defenses before applicable M5 functionality.
 - SEC-021 - monitoring and incident-response verification appropriate to the deployed environment.
 
 A listed verification category is not evidence that a corresponding test already exists. Test existence and completion must be supported by repository or deployment evidence.
@@ -157,7 +155,7 @@ Sprint completion requires the relevant verification defined by the Sprint plan 
 
 ## Production-Hardening Relationship
 
-M6 - Production Hardening expands verification beyond normal Sprint-level checks and includes:
+M5 - Production Hardening expands verification beyond normal Sprint-level checks and includes:
 
 - security verification
 - integration and end-to-end testing

@@ -5,11 +5,11 @@
 
 ## Purpose
 
-This document presents the planned progression of OmniDesk AI milestones.
+This document presents the planned progression of OmniDesk milestones.
 
 ## Timeline
 
-![OmniDesk AI Milestone Timeline](./diagrams/milestone-timeline.svg)
+![OmniDesk Milestone Timeline](./diagrams/milestone-timeline.svg)
 
 ## Milestones
 
@@ -20,8 +20,7 @@ This document presents the planned progression of OmniDesk AI milestones.
 | 3 | M2 - Gmail Integration | Sprint 04 and Sprint 05 | Gmail connection and synchronization |
 | 4 | M3 - Unified Inbox | Sprint 06 | Unified communication workspace |
 | 5 | M4 - Telegram Integration | Sprint 07 | Telegram connection and synchronization |
-| 6 | M5 - AI-Assisted Communication | Sprint 08 | User-controlled AI assistance |
-| 7 | M6 - Production Hardening | Sprint 09 | Release readiness |
+| 7 | M5 - Production Hardening | Sprint 09 | Release readiness |
 
 ## Important Planning Rule
 

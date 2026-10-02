@@ -15,7 +15,6 @@ Make user isolation systematic for every user-owned object and action.
 
 ## Assets Protected
 
-Provider connections; conversations; messages; labels; attachments; AI requests; synchronization jobs; exports; settings.
 
 ## Threats Addressed
 

@@ -1,4 +1,4 @@
-﻿# Project Scope
+# Project Scope
 
 
 
@@ -10,7 +10,7 @@
 
 
 
-This document defines the initial boundaries of OmniDesk AI. It identifies what the first version is expected to address and what is outside the initial scope.
+This document defines the initial boundaries of OmniDesk. It identifies what the first version is expected to address and what is outside the initial scope.
 
 
 
@@ -60,20 +60,6 @@ This document defines the initial boundaries of OmniDesk AI. It identifies what 
 
 
 
-### AI Assistance
-
-
-
-- Conversation summarization
-
-- Reply suggestions
-
-- User review and editing of generated content
-
-- Explicit user confirmation before an AI-assisted message is sent
-
-
-
 ### Synchronization and Reliability
 
 
@@ -120,7 +106,6 @@ This document defines the initial boundaries of OmniDesk AI. It identifies what 
 
 - Voice and video calling
 
-- Autonomous sending of AI-generated messages
 
 - Fully replacing the native Gmail or Telegram applications
 

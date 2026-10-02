@@ -14,16 +14,16 @@ User -> Client : select provider connection
 Client -> API : request authorization
 API -> Boundary : start provider authorization
 Boundary -> Connector : create authorization request
-Connector -> Provider : request authorization URL
+Connector -> Provider : begin provider authorization
 
-alt authorization request succeeds
+alt Gmail OAuth authorization
   Provider --> Connector : authorization URL
   Connector --> Boundary : authorization URL
   Boundary --> API : authorization URL
   API --> Client : redirect information
   Client --> User : display provider authorization
 
-  User -> Provider : authorize OmniDesk AI
+  User -> Provider : authorize OmniDesk
   Provider --> Client : authorization callback
   Client -> API : submit callback data
   API -> Boundary : process callback
@@ -51,6 +51,20 @@ else authorization request fails
   Boundary --> API : integration failure status
   API --> Client : display failure
   Client --> User : show provider error
+end
+
+group Telegram owner-scoped authorization
+  User -> Client : enter phone number
+  Client -> API : submit phone number
+  API -> Connector : use application API credentials and user runtime
+  Connector -> Provider : request Telegram code
+  Provider --> User : deliver code
+  User -> Client : enter code and optional two-step password
+  Client -> API : submit authorization value
+  API -> Connector : continue same user's TDLib session
+  Connector -> Store : persist encrypted phone and database key
+  Connector --> API : connected status
+  API --> Client : show connected account
 end
 
 User -> Client : request synchronization
@@ -82,7 +96,8 @@ end note
 
 note over Store
 Provider credentials and tokens are never returned
-to the frontend or exposed in logs.
+to the frontend or exposed in logs. Telegram
+sessions are isolated by provider connection.
 end note
 
 @enduml

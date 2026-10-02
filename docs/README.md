@@ -1,6 +1,5 @@
-# OmniDesk AI Documentation Map
+# OmniDesk Documentation Map
 
-This directory organizes the engineering documentation for Web-OmniDesk-AI.
 
 The structure is a project-specific information architecture. It is not intended to represent a mandatory industry-standard folder layout.
 
@@ -26,13 +25,12 @@ flowchart TD
     RL[Releases] -. delivered states .-> DE
 ```
 
-The numbered SDLC documentation areas organize engineering activities and artifacts. They do **not** require strict sequential Waterfall execution. Web-OmniDesk-AI executes work iteratively and incrementally through Agile practices and lightweight Scrum-style Sprints.
 
 ## Documentation Areas
 
 ### [Project Definition](./Project-Definition/)
 
-Defines what OmniDesk AI is, why it exists, its goals, V1 scope, stakeholders, assumptions, constraints, risks, and success criteria.
+Defines what OmniDesk is, why it exists, its goals, V1 scope, stakeholders, assumptions, constraints, risks, and success criteria.
 
 Project Definition remains outside the numbered SDLC documentation sequence and provides foundational input to Project Planning.
 

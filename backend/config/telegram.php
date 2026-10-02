@@ -1,9 +1,6 @@
 <?php
 
 return [
-    // Explicit owner of the local validation session; disabled when unset.
-    'sample_owner_user_id' => env('TELEGRAM_SAMPLE_OWNER_USER_ID'),
-
     'python_binary' => env(
         'TELEGRAM_PYTHON_BINARY',
         'python'
@@ -13,13 +10,21 @@ return [
         '../spikes/telegram-tdlib/adapter/telegram_content_demo.py'
     ),
 
+    'auth_script' => base_path(
+        '../spikes/telegram-tdlib/adapter/telegram_auth.py'
+    ),
+
+    'auth_worker_script' => base_path(
+        '../spikes/telegram-tdlib/adapter/telegram_auth_worker.py'
+    ),
+
     'api_id' => env('TELEGRAM_API_ID'),
 
     'api_hash' => env('TELEGRAM_API_HASH'),
 
     'runtime_directory' => env(
         'TELEGRAM_TDLIB_RUNTIME',
-        base_path('../spikes/telegram-tdlib/runtime')
+        storage_path('app/private/telegram')
     ),
 
     'timeout_seconds' => (int) env(

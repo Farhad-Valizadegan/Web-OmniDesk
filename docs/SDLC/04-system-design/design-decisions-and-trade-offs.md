@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document records the main technical design decisions for OmniDesk AI.
+This document records the main technical design decisions for OmniDesk.
 
 It explains the selected direction, considered alternatives, rationale, trade-offs, and consequences of each decision.
 
@@ -22,7 +22,6 @@ Unresolved decisions remain open for later validation.
 
 ### Context
 
-OmniDesk AI requires several related capabilities, including authentication, communication management, synchronization, provider integration, and AI assistance.
 
 ### Considered Options
 - Modular monolith
@@ -143,7 +142,6 @@ The frontend must not contain provider credentials or provider-specific integrat
 
 ### Context
 
-OmniDesk AI must store users, provider accounts, conversations, messages, labels, synchronization records, and AI suggestions.
 
 ### Considered Options
 - PostgreSQL
@@ -371,25 +369,17 @@ Disadvantages:
 
 Synchronization operations must record status, failures, timestamps, and safe diagnostic information.
 
-## Decision DD-010: AI Provider Abstraction
-
 ### Context
 
-AI provider selection remains unresolved and external AI services may differ in capability, cost, privacy policy, and availability.
 
 ### Considered Options
-- Direct dependency on one AI provider
-- AI provider abstraction
-- No AI integration
 
 ### Decision
 
-Use an AI provider abstraction behind the AI Assistance Module.
 
 ### Rationale
 - The final provider has not been selected.
 - Provider replacement should not require changes to core communication logic.
-- AI failures should be isolated.
 - Request and response handling should remain under application control.
 
 ### Trade-offs
@@ -407,28 +397,19 @@ Disadvantages:
 
 ### Consequences
 
-AI requests must pass through the AI Assistance Module and Context Minimizer.
-
-## Decision DD-011: User-Controlled AI Assistance
 
 ### Context
 
-AI-generated summaries and reply suggestions may be useful but can be incomplete, inaccurate, or inappropriate.
 
 ### Considered Options
-- Autonomous AI actions
-- AI suggestions requiring user review
-- No AI assistance
 
 ### Decision
 
-AI features remain assistive and user-controlled.
 
 Generated content must be reviewable, editable, accepted, or discarded by the user.
 
 ### Rationale
 - Users must retain control over communication actions.
-- AI output is untrusted content.
 - Autonomous message sending introduces additional safety and authorization risks.
 - The current scope excludes autonomous sending.
 
@@ -442,12 +423,10 @@ Advantages:
 
 Disadvantages:
 - Users must review generated content.
-- AI does not fully automate communication workflows.
 - Additional suggestion lifecycle handling is required.
 
 ### Consequences
 
-AI must never send external messages autonomously.
 
 ## Decision DD-012: Backend Protection of Secrets
 
@@ -559,7 +538,6 @@ The synchronization design must define checkpoints, duplicate prevention, retry 
 
 ### Context
 
-Provider, synchronization, persistence, and AI operations may fail.
 
 ### Decision
 
@@ -593,8 +571,6 @@ Synchronization operations must be status-aware and should use safe transaction 
 | DD-OPEN-002 | Session-based or token-based API authentication | To be finalized during security design |
 | DD-OPEN-003 | Final Gmail scopes | Requires provider validation |
 | DD-OPEN-004 | Exact Telegram integration mode | Requires provider validation |
-| DD-OPEN-005 | Final AI provider | Unresolved |
-| DD-OPEN-006 | AI data retention period | Requires privacy decision |
 | DD-OPEN-007 | Exact database uniqueness constraints | To be finalized during implementation |
 | DD-OPEN-008 | Exact retry and backoff limits | To be finalized during implementation |
 | DD-OPEN-009 | Production hosting model | Unresolved |
@@ -619,7 +595,6 @@ This document will provide input for:
 - Authentication and Authorization Implementation
 - Provider Connector Implementation
 - Synchronization Implementation
-- AI Service Integration
 - Error Handling Implementation
 - Security Implementation
 - Deployment Planning

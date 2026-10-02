@@ -4,13 +4,13 @@
 
 ## Purpose
 
-This document describes the standard workflow used to plan, execute, verify, and complete an OmniDesk AI Sprint.
+This document describes the standard workflow used to plan, execute, verify, and complete an OmniDesk Sprint.
 
 A Sprint is a fixed/defined timeboxed execution iteration, not an SDLC phase. Depending on the Sprint Goal, it may involve Requirements, Analysis, Design, Implementation, Testing, and Documentation activities as needed.
 
 ## Workflow
 
-![OmniDesk AI Sprint Workflow](./diagrams/sprint-workflow.svg)
+![OmniDesk Sprint Workflow](./diagrams/sprint-workflow.svg)
 
 The editable workflow source is [sprint-workflow.puml](./diagrams/sprint-workflow.puml).
 

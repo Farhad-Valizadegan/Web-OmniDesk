@@ -164,6 +164,12 @@ export type TelegramSampleResponse = {
   }
 }
 
+export type TelegramConnectionStatus = {
+  connected: boolean
+  status: 'disconnected' | 'pending' | 'awaiting_phone' | 'awaiting_code' | 'awaiting_password' | 'connected' | 'error'
+  phone: string | null
+}
+
 const tokenStorageKey = 'omni_desk_auth_token'
 
 export const authenticationInvalidatedEvent =
@@ -473,4 +479,24 @@ export async function getTelegramSample(
     `/api/integrations/telegram/sample?${params.toString()}`,
     { signal },
   )
+}
+
+export function getTelegramStatus(): Promise<TelegramConnectionStatus> {
+  return request<TelegramConnectionStatus>('/api/integrations/telegram')
+}
+
+export function connectTelegram(phone: string): Promise<{ status: TelegramConnectionStatus['status'] }> {
+  return request('/api/integrations/telegram/connect', { method: 'POST', body: JSON.stringify({ phone }) })
+}
+
+export function submitTelegramCode(code: string): Promise<{ status: TelegramConnectionStatus['status'] }> {
+  return request('/api/integrations/telegram/code', { method: 'POST', body: JSON.stringify({ code }) })
+}
+
+export function submitTelegramPassword(password: string): Promise<{ status: TelegramConnectionStatus['status'] }> {
+  return request('/api/integrations/telegram/password', { method: 'POST', body: JSON.stringify({ password }) })
+}
+
+export function disconnectTelegram(): Promise<{ message: string }> {
+  return request('/api/integrations/telegram', { method: 'DELETE' })
 }

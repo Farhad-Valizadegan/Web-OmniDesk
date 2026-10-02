@@ -1,6 +1,6 @@
-# OmniDesk AI Frontend
+# OmniDesk Frontend
 
-React + TypeScript frontend for the OmniDesk AI unified communication workspace.
+React + TypeScript frontend for the OmniDesk unified communication workspace.
 
 ## Stack
 
@@ -18,19 +18,21 @@ The frontend currently provides:
 - registration, login, logout, and authenticated application state
 - the unified communication workspace
 - Gmail connection and synchronization controls
+- per-user Telegram connection with phone, code, and optional two-step password
+- read-only Telegram chats and supported media
 - conversation list and detail presentation
 - message rendering
 - search and filtering
 - loading, empty, error, and synchronization states
 - light/dark theme behavior
 
-The frontend must not store provider credentials such as Gmail access tokens, refresh tokens, or provider client secrets.
+The frontend must not store provider credentials such as Gmail access tokens, refresh tokens, Telegram sessions, application API credentials, or provider client secrets.
 
 ## Requirements
 
 - Node.js 24 or a compatible version supported by the project toolchain
 - npm
-- running OmniDesk AI backend API
+- running OmniDesk backend API
 
 ## Installation
 

@@ -1,10 +1,10 @@
-# OmniDesk AI Implementation Plan
+# OmniDesk Implementation Plan
 
 > Status: Draft
 
 ## Purpose
 
-This document defines the implementation approach for OmniDesk AI.
+This document defines the implementation approach for OmniDesk.
 
 It translates the approved System Design artifacts and approved milestones into incremental, testable implementation work.
 
@@ -35,7 +35,6 @@ The initial implementation uses:
 - MVC where appropriate
 - Object-oriented design
 - Provider connector abstractions
-- AI provider abstraction
 - Background jobs for long-running operations
 
 ## Relationship to Milestones
@@ -49,8 +48,7 @@ Implementation work follows the approved project milestones:
 | M2 | Gmail can be connected and synchronized |
 | M3 | Users can view and organize unified communication |
 | M4 | Telegram can be connected and synchronized |
-| M5 | Users can request and review AI assistance |
-| M6 | The application is verified and prepared for release |
+| M5 | The application is verified and prepared for release |
 
 Milestones represent outcomes. They are not SDLC phases, sprints, releases, or versions.
 
@@ -69,7 +67,7 @@ Historical and current Sprint assignments are recorded below. Future milestone w
 | Sprint 6 | Unified inbox completion | M3 |
 | Sprint 7 | Security Foundation and Telegram Validation | M4 primary; cross-cutting security/privacy |
 
-Future M4, M5, and M6 implementation direction remains unassigned until backlog refinement, prioritization, and Sprint Planning create a later Sprint.
+Future M4, M5, and M5 implementation direction remains unassigned until backlog refinement, prioritization, and Sprint Planning create a later Sprint.
 
 Milestone != Sprint. Sprint != Release. Release != Version.
 
@@ -306,17 +304,9 @@ After PB-023 runtime validation:
 
 This direction does not reserve a future Sprint number.
 
-## Future M5 Implementation Direction - AI Assistance
+## Future M5 Implementation Direction - Production Hardening and Release Preparation
 
-Future M5 work may include the already-approved Product Backlog items for summaries, reply suggestions, context minimization, AI provider abstraction, suggestion lifecycle, and prevention of autonomous sending.
-
-SEC-020 remains a required security/privacy gate before applicable M5 AI functionality is enabled.
-
-No Sprint number is assigned here.
-
-## Future M6 Implementation Direction - Production Hardening and Release Preparation
-
-Future M6 work may include security verification, integration/end-to-end testing, performance checks, backup/recovery validation, deployment preparation, monitoring/logging readiness, release documentation, and release-candidate preparation.
+Future M5 work may include security verification, integration/end-to-end testing, performance checks, backup/recovery validation, deployment preparation, monitoring/logging readiness, release documentation, and release-candidate preparation.
 
 No Sprint number is assigned here. Production evidence must be created only when the relevant deployment environment and controls actually exist.
 
@@ -361,6 +351,5 @@ Implementation tasks should be traceable to approved requirements, System Analys
 | IMP-003 | Exact Redis usage | To be decided during implementation |
 | IMP-004 | Exact Gmail scopes | Resolved in Sprint 04 |
 | IMP-005 | Exact Telegram integration mode | Telegram API/MTProto through official TDLib behind a long-lived adapter is the selected direction; PB-023 runtime evidence remains pending in Sprint 07 |
-| IMP-006 | Final AI provider | Unresolved |
 | IMP-007 | Exact release schedule | To be finalized during release planning |
 | IMP-008 | Production deployment method | To be finalized during deployment planning |

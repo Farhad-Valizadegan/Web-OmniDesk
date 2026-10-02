@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ProviderConnection;
 use App\Services\TelegramAdapterService;
 use Tests\TestCase;
 
@@ -26,12 +27,14 @@ class TelegramAdapterEnvironmentTest extends TestCase
 
         try {
             $adapter = app(TelegramAdapterService::class);
-            $discovery = $adapter->fetchContentSample();
+            $connection = new ProviderConnection(['telegram_database_key' => 'test-database-key']);
+            $connection->id = 123;
+            $discovery = $adapter->fetchContentSample($connection);
             $this->assertSame('network-runtime-setting', $discovery['inherited_setting']);
             $this->assertContains($discovery['chat_id'], ['', false]);
             $this->assertContains($discovery['cursor'], ['', false]);
 
-            $history = $adapter->fetchContentSample(-100123, 5, 42);
+            $history = $adapter->fetchContentSample($connection, -100123, 5, 42);
             $this->assertSame('-100123', $history['chat_id']);
             $this->assertSame('42', $history['cursor']);
             $this->assertSame('5', $history['limit']);
@@ -39,8 +42,12 @@ class TelegramAdapterEnvironmentTest extends TestCase
             foreach ($original as $key => $value) {
                 putenv($value === false ? $key : $key.'='.$value);
             }
-            if (is_file($runtime.DIRECTORY_SEPARATOR.'.telegram-adapter.lock')) {
-                unlink($runtime.DIRECTORY_SEPARATOR.'.telegram-adapter.lock');
+            $connectionRuntime = $runtime.DIRECTORY_SEPARATOR.'connection-123';
+            if (is_file($connectionRuntime.DIRECTORY_SEPARATOR.'.telegram-adapter.lock')) {
+                unlink($connectionRuntime.DIRECTORY_SEPARATOR.'.telegram-adapter.lock');
+            }
+            if (is_dir($connectionRuntime)) {
+                rmdir($connectionRuntime);
             }
             if (is_dir($runtime)) {
                 rmdir($runtime);

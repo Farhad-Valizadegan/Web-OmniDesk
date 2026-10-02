@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document defines the initial design for integrating Gmail and Telegram with OmniDesk AI.
+This document defines the initial design for integrating Gmail and Telegram with OmniDesk.
 
 The design isolates provider-specific behavior and exposes provider-independent communication capabilities to the rest of the system.
 
@@ -39,7 +39,7 @@ The core application must not depend directly on Gmail or Telegram API details.
 | Provider | Initial Scope | Integration Status |
 |---|---|---|
 | Gmail | Retrieve supported Gmail communication data | Implemented: OAuth, connector, normalization, synchronization, and disconnect/revocation behavior are present in the current repository |
-| Telegram | Retrieve supported Telegram communication data | TDLib/MTProto selected; runtime evidence pending PB-023 |
+| Telegram | Retrieve supported Telegram communication data | TDLib/MTProto through a persistent per-connection authorization worker; real authorization, retrieval, and refresh recovery validated |
 
 Future providers are outside the current MVP commitment.
 
@@ -71,7 +71,7 @@ Provider data should be mapped to common internal concepts, including:
 Provider identifiers must be preserved for traceability and duplicate prevention.
 
 ## Authorization Rules
-- The user must authenticate with OmniDesk AI before connecting a provider.
+- The user must authenticate with OmniDesk before connecting a provider.
 - Provider authorization must use official provider mechanisms.
 - Authorization state must be validated during callbacks.
 - Provider tokens must remain on the backend.
@@ -147,7 +147,7 @@ These implemented controls do not complete SEC-008 or SEC-009. SEC-008 still own
 ## Unresolved Decisions
 | ID | Decision | Current State |
 |---|---|---|
-| PI-001 | Exact Telegram integration mode | Selected direction: Telegram API/MTProto through official TDLib behind a long-lived adapter; PB-023 runtime evidence still pending |
+| PI-001 | Exact Telegram integration mode | Validated: Telegram API/MTProto through official TDLib behind a persistent adapter worker; PB-023 completed with real runtime evidence |
 | PI-002 | Gmail scopes | Current implemented default: `openid`, `email`, `profile`, and `https://www.googleapis.com/auth/gmail.readonly`; formal feature-to-scope least-privilege review remains pending under SEC-009 |
 | PI-003 | Exact Telegram permissions | User-account client authorization through TDLib; exact production session/security controls finalized by SEC-019 |
 | PI-004 | Provider credential protection | Gmail access/refresh-token encryption is implemented with Laravel encrypted model casts and hidden serialization; production key lifecycle remains under SEC-008; Telegram credential/session protection remains under SEC-019 |

@@ -1,4 +1,4 @@
-﻿# Project Problem Statement
+# Project Problem Statement
 
 
 
@@ -32,7 +32,6 @@ Each platform provides its own interface, search mechanism, notification system,
 
 - Repeated manual review of long conversations
 
-- Limited ability to use AI assistance within a unified workflow
 
 
 
@@ -60,7 +59,6 @@ This fragmentation can lead to:
 
 
 
-OmniDesk AI aims to address the lack of a unified workspace where users can manage communication from multiple supported platforms through a consistent interface, while using AI to assist with understanding and organizing communication.
 
 
 

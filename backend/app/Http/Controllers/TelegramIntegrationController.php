@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ProviderErrorType;
 use App\Exceptions\ProviderException;
+use App\Models\ProviderConnection;
 use App\Services\TelegramAdapterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,16 +14,126 @@ use Throwable;
 
 class TelegramIntegrationController extends Controller
 {
-    private function ensureOwner(Request $request): void
+    private function connection(Request $request): ProviderConnection
     {
-        $ownerId = (int) config('telegram.sample_owner_user_id', 0);
-        abort_unless(app()->environment('local') && $ownerId > 0
-            && (int) $request->user()->getAuthIdentifier() === $ownerId, 404);
+        return ProviderConnection::query()
+            ->where('user_id', $request->user()->id)
+            ->where('provider', 'telegram')
+            ->firstOrFail();
+    }
+
+    public function status(Request $request, TelegramAdapterService $adapterService): JsonResponse
+    {
+        $connection = ProviderConnection::query()->where('user_id', $request->user()->id)->where('provider', 'telegram')->first();
+
+        if ($connection?->status === 'disconnecting') {
+            try {
+                $adapterService->deleteRuntime($connection);
+                $connection->delete();
+                $connection = null;
+            } catch (Throwable $exception) {
+                Log::channel('telegram')->warning('[telegram] disconnect.cleanup_retry_failed', [
+                    'connection_id' => $connection->id,
+                    'exception' => $exception::class,
+                ]);
+            }
+        }
+
+        if ($connection && $connection->status !== 'connected') {
+            try {
+                $result = $adapterService->authorize($connection, 'status');
+                $connection->status = $result['status'];
+                $connection->save();
+            } catch (Throwable $exception) {
+                Log::channel('telegram')->warning('[telegram] authorization.status_failed', [
+                    'connection_id' => $connection->id,
+                    'exception' => $exception::class,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'connected' => $connection?->status === 'connected',
+            'status' => $connection?->status ?? 'disconnected',
+            'phone' => $this->maskedPhone($connection?->telegram_phone),
+        ]);
+    }
+
+    public function connect(Request $request, TelegramAdapterService $adapterService): JsonResponse
+    {
+        $phone = trim((string) $request->input('phone'));
+        if (str_starts_with($phone, '00')) {
+            $phone = '+'.substr($phone, 2);
+        }
+        $request->merge(['phone' => $phone]);
+        $validated = $request->validate(['phone' => ['required', 'string', 'regex:/^\+[1-9][0-9]{6,14}$/']]);
+        $disconnecting = ProviderConnection::query()
+            ->where('user_id', $request->user()->id)
+            ->where('provider', 'telegram')
+            ->where('status', 'disconnecting')
+            ->first();
+        if ($disconnecting) {
+            $adapterService->deleteRuntime($disconnecting);
+            $disconnecting->delete();
+        }
+        $connection = ProviderConnection::query()->firstOrCreate(
+            ['user_id' => $request->user()->id, 'provider' => 'telegram'],
+            ['status' => 'pending', 'telegram_database_key' => bin2hex(random_bytes(32))],
+        );
+        if (! $connection->telegram_database_key) {
+            $connection->telegram_database_key = bin2hex(random_bytes(32));
+        }
+        $connection->telegram_phone = $validated['phone'];
+        $result = $adapterService->authorize($connection, 'phone', $validated['phone']);
+        $connection->status = $result['status'];
+        $connection->save();
+
+        return response()->json(['status' => $connection->status]);
+    }
+
+    public function code(Request $request, TelegramAdapterService $adapterService): JsonResponse
+    {
+        $validated = $request->validate(['code' => ['required', 'string', 'min:3', 'max:12']]);
+
+        return $this->continueAuthorization($request, $adapterService, 'code', $validated['code']);
+    }
+
+    public function password(Request $request, TelegramAdapterService $adapterService): JsonResponse
+    {
+        $validated = $request->validate(['password' => ['required', 'string', 'max:255']]);
+
+        return $this->continueAuthorization($request, $adapterService, 'password', $validated['password']);
+    }
+
+    public function disconnect(Request $request, TelegramAdapterService $adapterService): JsonResponse
+    {
+        $connection = $this->connection($request);
+        $wasConnected = $connection->status === 'connected';
+        $connection->status = 'disconnecting';
+        $connection->save();
+
+        if ($wasConnected) {
+            try {
+                $adapterService->authorize($connection, 'logout');
+            } catch (Throwable) {
+                // Local deletion still removes access even if Telegram logout fails.
+            }
+        }
+        try {
+            $adapterService->authorize($connection, 'shutdown');
+        } catch (Throwable) {
+            // A missing worker does not prevent local session deletion.
+        }
+        $adapterService->deleteRuntime($connection);
+        $connection->delete();
+
+        return response()->json(['message' => 'Telegram disconnected.']);
     }
 
     public function media(Request $request, TelegramAdapterService $adapterService): BinaryFileResponse|JsonResponse
     {
-        $this->ensureOwner($request);
+        $connection = $this->connection($request);
+        abort_unless($connection->status === 'connected', 409, 'Connect Telegram first.');
         $validated = $request->validate([
             'chat_id' => ['required', 'integer'],
             'message_id' => ['required', 'integer', 'min:1'],
@@ -31,6 +142,7 @@ class TelegramIntegrationController extends Controller
 
         try {
             $result = $adapterService->fetchContentSample(
+                $connection,
                 (int) $validated['chat_id'], 1, null, (int) $validated['message_id'],
             );
         } catch (ProviderException $exception) {
@@ -38,7 +150,7 @@ class TelegramIntegrationController extends Controller
         }
 
         $path = realpath($result['media_path'] ?? '');
-        $root = realpath((string) config('telegram.runtime_directory'));
+        $root = realpath($adapterService->runtimeDirectory($connection));
         abort_unless($path && $root && is_file($path), 404);
         $comparisonPath = PHP_OS_FAMILY === 'Windows' ? strtolower($path) : $path;
         $comparisonRoot = PHP_OS_FAMILY === 'Windows' ? strtolower($root) : $root;
@@ -59,7 +171,8 @@ class TelegramIntegrationController extends Controller
         Request $request,
         TelegramAdapterService $adapterService,
     ): JsonResponse {
-        $this->ensureOwner($request);
+        $connection = $this->connection($request);
+        abort_unless($connection->status === 'connected', 409, 'Connect Telegram first.');
 
         $validated = $request->validate([
             'chat_id' => ['nullable', 'integer'],
@@ -83,6 +196,7 @@ class TelegramIntegrationController extends Controller
 
         try {
             $result = $adapterService->fetchContentSample(
+                $connection,
                 $validated['chat_id'] ?? null,
                 $validated['limit'] ?? 20,
                 $validated['before_message_id'] ?? null,
@@ -161,5 +275,24 @@ class TelegramIntegrationController extends Controller
     private function durationMs(float $startedAt): int
     {
         return (int) round((microtime(true) - $startedAt) * 1000);
+    }
+
+    private function continueAuthorization(Request $request, TelegramAdapterService $adapterService, string $action, string $value): JsonResponse
+    {
+        $connection = $this->connection($request);
+        $result = $adapterService->authorize($connection, $action, $value);
+        $connection->status = $result['status'];
+        $connection->save();
+
+        return response()->json(['status' => $connection->status]);
+    }
+
+    private function maskedPhone(?string $phone): ?string
+    {
+        if ($phone === null || strlen($phone) < 5) {
+            return $phone;
+        }
+
+        return substr($phone, 0, 3).str_repeat('•', max(2, strlen($phone) - 6)).substr($phone, -3);
     }
 }

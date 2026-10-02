@@ -53,7 +53,6 @@ Sprint 03 shall:
 - Keep provider-specific authentication outside this sprint.
 - Keep Gmail synchronization outside this sprint.
 - Keep Telegram integration outside this sprint.
-- Keep AI assistance outside this sprint.
 
 ## Planned Tasks
 
@@ -168,7 +167,6 @@ The exact schema and pagination format may be refined during implementation.
 - Gmail authorization is not implemented in this sprint.
 - Gmail synchronization is not implemented in this sprint.
 - Telegram integration is not implemented in this sprint.
-- AI assistance is not implemented in this sprint.
 - Backend tests pass.
 - Frontend tests pass.
 - Frontend lint passes.
@@ -235,8 +233,6 @@ Sprint 03 is complete when:
 - Gmail synchronization.
 - Telegram authorization.
 - Telegram synchronization.
-- AI-generated replies.
-- AI-generated summaries.
 - Sending messages through providers.
 - Production deployment.
 - Production email processing.

@@ -4,3 +4,6 @@
 
 # Local frontend settings (including development proxy overrides)
 frontend/.env
+
+# Local snapshots created before manual fixes; these may contain local settings.
+**/*.before-*

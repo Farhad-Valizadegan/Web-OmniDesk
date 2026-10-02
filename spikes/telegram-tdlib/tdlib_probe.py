@@ -232,6 +232,14 @@ def _authorization_loop(
                 }
             )
 
+        elif state_type == "authorizationStateWaitEncryptionKey":
+            client.send(
+                {
+                    "@type": "checkDatabaseEncryptionKey",
+                    "encryption_key": os.getenv("TELEGRAM_DATABASE_KEY", ""),
+                }
+            )
+
         elif state_type == "authorizationStateWaitPhoneNumber":
             phone = getpass(
                 "Telegram phone number (hidden): "

@@ -2,17 +2,22 @@
 
 > Status: Exploratory
 >
-> This document intentionally describes capabilities that are **outside OmniDesk AI Version 1**. It does not modify the approved Version 1 scope, existing sprint commitments, or current acceptance criteria.
+> This document intentionally describes capabilities that are **outside OmniDesk Version 1**. It does not modify the approved Version 1 scope, existing sprint commitments, or current acceptance criteria.
 
 ## Purpose
 
-Version 1 remains focused on the currently defined foundation: supported provider integration, a unified communication workspace, conversation-level workflows, and assistive AI that remains under user control.
 
 The items below are future product possibilities. They may be evaluated incrementally after Version 1 based on technical feasibility, provider API availability, security, product value, maintenance cost, and development capacity.
 
 Nothing in this document is a delivery commitment.
 
 ## Potential Future Capabilities
+
+### Optional Local Model Integration
+
+OmniDesk may later offer an optional connection to a user-hosted model runtime such as Ollama. This would use an already trained open model running on the user's own computer; building or training a model is not required.
+
+This capability is outside Version 1 and is not part of the OmniDesk product identity. It may enter planning only after a separate feasibility, privacy, security, hardware, and user-experience review. The core Gmail and Telegram workspace must remain fully usable without it, and no paid external model API may be required by default.
 
 ### Multiple Accounts per Provider
 
@@ -43,23 +48,6 @@ Potential behavior could include:
 
 This is broader than Version 1 search, which remains scoped to the current product model and implemented provider data.
 
-### AI Retrieval Across Sources
-
-Introduce a retrieval layer that identifies and collects relevant content from one or more connected sources before sending selected context to an AI model.
-
-A future retrieval pipeline could include:
-
-1. Accepting a user question or analysis request.
-2. Searching indexed or provider-backed communication data.
-3. Selecting the most relevant conversations, messages, or excerpts.
-4. Preserving source references and provider attribution.
-5. Building a bounded context package.
-6. Sending only the selected context to the AI layer for summarization, comparison, extraction, or analysis.
-
-This capability would require careful work around privacy, authorization, context size, ranking quality, provenance, and hallucination control.
-
-It is not part of Version 1.
-
 ### Telegram Channel Indexing and Content Analysis
 
 A future Telegram capability may support deeper analysis of channels or large message collections where the Telegram API and account permissions permit access.
@@ -72,26 +60,9 @@ Potential capabilities include:
 - Keyword and entity extraction
 - Time-based topic trends
 - Topic clustering
-- Channel-level summaries
 - Comparative analysis across selected channels
 
 This is distinct from basic Telegram communication integration and is not part of Version 1.
-
-### Thematic Reports
-
-Generate reports around user-selected themes rather than only individual conversations.
-
-Examples may include:
-
-- Summarizing discussion around a selected topic across multiple conversations
-- Comparing how a topic appears across different providers or channels
-- Producing a time-bounded thematic digest
-- Extracting recurring concerns, decisions, entities, or action items
-- Linking report findings back to source conversations or messages
-
-Thematic reporting would depend on future search, indexing, retrieval, and provenance capabilities.
-
-It is not part of Version 1.
 
 ### Additional Providers
 
@@ -109,7 +80,7 @@ Undocumented scraping or browser automation should not become the default integr
 
 ## Evaluation Principles
 
-Future capabilities should be considered only when they preserve the core engineering constraints of OmniDesk AI:
+Future capabilities should be considered only when they preserve the core engineering constraints of OmniDesk:
 
 - Official and maintainable integrations
 - Explicit user authorization
@@ -118,7 +89,6 @@ Future capabilities should be considered only when they preserve the core engine
 - Source attribution and traceability
 - Duplicate prevention
 - Graceful handling of provider failures and rate limits
-- User control over AI-assisted actions
 - Incremental delivery rather than uncontrolled scope expansion
 
 ## Relationship to Version 1
@@ -139,7 +109,7 @@ Future Scope records product possibilities that are intentionally outside the cu
 
 It answers:
 
-> What capabilities might OmniDesk AI explore later?
+> What capabilities might OmniDesk explore later?
 
 Items here are exploratory and may never be implemented.
 

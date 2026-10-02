@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document defines the conceptual data model for OmniDesk AI.
+This document defines the conceptual data model for OmniDesk.
 
 It identifies the main entities, relationships, ownership boundaries, and persistence responsibilities without finalizing implementation-specific migrations.
 
@@ -16,17 +16,16 @@ It identifies the main entities, relationships, ownership boundaries, and persis
 - Protect credentials and tokens.
 - Support local labels and organization.
 - Record synchronization activity.
-- Store user-controlled AI suggestions.
 - Enforce user ownership across all protected data.
 
 ## Data Model and ERD
 
-![OmniDesk AI Data Model and ERD](./diagrams/data-model-and-erd.svg)
+![OmniDesk Data Model and ERD](./diagrams/data-model-and-erd.svg)
 
 ## Entity Responsibilities
 | Entity | Responsibility |
 |---|---|
-| Users | Stores OmniDesk AI user identity and authentication data |
+| Users | Stores OmniDesk user identity and authentication data |
 | Providers | Identifies supported external communication providers |
 | Provider Accounts | Represents a user's connected provider account |
 | Conversations | Represents provider-independent communication threads |
@@ -34,7 +33,6 @@ It identifies the main entities, relationships, ownership boundaries, and persis
 | Labels | Stores user-defined local organization metadata |
 | Conversation Labels | Associates conversations with local labels |
 | Synchronizations | Records synchronization activity and status |
-| AI Suggestions | Stores user-requested summaries and reply suggestions |
 
 ## Ownership Rules
 - A user owns their provider accounts.
@@ -43,7 +41,6 @@ It identifies the main entities, relationships, ownership boundaries, and persis
 - Conversations belong to a provider account.
 - Messages belong to a conversation.
 - Synchronization records belong to a provider account.
-- AI suggestions belong to a user and refer to a conversation.
 - Users must not access entities owned by another user.
 
 ## Identifier and Duplicate Rules
@@ -88,19 +85,6 @@ Synchronization records may contain:
 
 Synchronization records must not contain passwords, tokens, or unnecessary message content.
 
-## AI Suggestion Data
-
-AI suggestions may contain:
-- User reference
-- Conversation reference
-- Suggestion type
-- Suggestion status
-- Generated or edited content
-- Creation timestamp
-- Update timestamp
-
-AI suggestions remain assistive and user-controlled.
-
 ## Persistence Rules
 - PostgreSQL is the durable persistence store.
 - Repository boundaries should isolate persistence access.
@@ -115,7 +99,6 @@ SEC-002 is the authoritative V1 data-classification and lifecycle baseline. The 
 The following implementation/operational values remain unresolved:
 - exact retention period for synchronized communication data;
 - exact account-deletion workflow and retention exceptions;
-- exact retention period for AI suggestions;
 - backup retention/expiration timing;
 - provider-specific lifecycle details that depend on implementation;
 - treatment of locally created labels after related data is deleted.
@@ -149,7 +132,6 @@ The decision must consider:
 - breach blast radius;
 - search and indexing behavior;
 - synchronization and duplicate detection;
-- AI context retrieval where later approved;
 - application/runtime complexity;
 - key rotation and recovery;
 - backup and restore behavior.
@@ -163,7 +145,6 @@ The decision must consider:
 | DATA-004 | Deletion behavior after provider disconnection | SEC-002 baseline exists; Gmail local disconnect cleanup is implemented; remaining provider-specific behavior is pending |
 | DATA-005 | Exact provider-specific metadata to preserve | To be finalized during integration implementation/refinement |
 | DATA-006 | Exact database uniqueness constraints | Implemented where required by current features; future provider constraints remain change-controlled |
-| DATA-007 | AI suggestion retention period | Exact duration remains unresolved and is gated by SEC-018/SEC-020 |
 | DATA-008 | Persisted communication-content protection model | Unresolved security architecture decision owned by SEC-015; application-level message encryption and E2EE are not implicitly required |
 
 ## PlantUML Source

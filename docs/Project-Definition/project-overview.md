@@ -1,4 +1,4 @@
-﻿# Project Overview
+# Project Overview
 
 
 
@@ -10,7 +10,7 @@
 
 
 
-OmniDesk AI
+OmniDesk
 
 
 
@@ -26,7 +26,7 @@ Web-based unified communication workspace.
 
 
 
-OmniDesk AI is an integrated and intelligent workspace for managing communication across multiple platforms.
+OmniDesk is an integrated and intelligent workspace for managing communication across multiple platforms.
 
 
 
@@ -34,7 +34,6 @@ The system brings communications from services such as Gmail and Telegram into o
 
 
 
-It also provides AI-assisted capabilities such as conversation summarization and reply suggestions. AI-generated content must be reviewed and explicitly approved by the user before any external message is sent.
 
 
 
@@ -57,14 +56,6 @@ Provide users with one intelligent workspace for managing multiple communication
 
 
 Additional communication providers may be supported in future versions through an extensible connector architecture.
-
-
-
-## AI Role
-
-
-
-AI acts as an assistive capability. It may summarize content, prioritize information, and suggest replies, but it must not autonomously perform irreversible external actions.
 
 
 

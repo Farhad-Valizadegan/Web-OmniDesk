@@ -1,12 +1,11 @@
-﻿# Stakeholders and External Systems
+# Stakeholders and External Systems
 > Status: Draft
 ## Stakeholders
 | Stakeholder | Role | Main Interest |
 |---|---|---|
-| Primary User | Uses OmniDesk AI to manage communication | Efficient and consistent communication management |
+| Primary User | Uses OmniDesk to manage communication | Efficient and consistent communication management |
 | Project Owner and Developer | Defines, designs, implements, tests, and maintains the system | Successful product development and portfolio demonstration |
 | External Service Providers | Provide APIs and authentication services | Correct API usage and compliance with platform policies |
-| AI Service Provider | Provides AI-processing capabilities | Secure and controlled use of AI services |
 | Technical Reviewers | Evaluate the project technically | Evidence of professional engineering practices |
 | Recruiters and Employers | Assess the developer's capabilities | Clear evidence of practical Software Engineering skills |
 ## Primary Stakeholder
@@ -16,21 +15,19 @@ The system should prioritize this user's security, privacy, usability, and contr
 Secondary stakeholders include:
 - The project owner and developer
 - External communication-platform providers
-- AI service providers
 - Technical reviewers
 - Recruiters and potential employers
 ## External Systems
-| External System | Relationship with OmniDesk AI |
+| External System | Relationship with OmniDesk |
 |---|---|
 | Gmail and Google APIs | Provide email access, message data, and Gmail-related operations |
 | Telegram API | Provides access to supported Telegram communication capabilities |
-| AI Provider API | Processes permitted content for summaries and reply suggestions |
 | Identity and OAuth Services | Support authentication and authorization for external accounts |
 | Email or Notification Services | May support system notifications in future versions |
 ## External-System Constraints
-OmniDesk AI depends on the capabilities, availability, authentication requirements, quotas, rate limits, and policies of external systems.
+OmniDesk depends on the capabilities, availability, authentication requirements, quotas, rate limits, and policies of external systems.
 The system must not depend on undocumented scraping or browser automation for its core integrations.
-External systems remain authoritative for their original communication data. OmniDesk AI maintains its own local representation for unified viewing, search, organization, and synchronization.
+External systems remain authoritative for their original communication data. OmniDesk maintains its own local representation for unified viewing, search, organization, and synchronization.
 ## Stakeholder Priorities
 The following priorities guide the project:
 1. User privacy and security

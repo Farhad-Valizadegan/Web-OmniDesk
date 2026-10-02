@@ -322,13 +322,12 @@ function App() {
       <section className={user ? 'hero hero-authenticated' : 'hero hero-authentication'}>
         {!user && (
           <div className="hero-copy">
-            <p className="eyebrow">OmniDesk AI</p>
+            <p className="eyebrow">OmniDesk</p>
 
             <h1>All your conversations, one focused workspace.</h1>
 
             <p className="description">
               Bring Gmail and Telegram together in a secure, calm inbox with
-              user-controlled AI assistance.
             </p>
           </div>
         )}
@@ -407,7 +406,7 @@ function App() {
 
                 <p>
                   {authMode === 'login'
-                    ? 'Use your OmniDesk AI account to continue.'
+                    ? 'Use your OmniDesk account to continue.'
                     : 'Create a secure account to get started.'}
                 </p>
               </div>

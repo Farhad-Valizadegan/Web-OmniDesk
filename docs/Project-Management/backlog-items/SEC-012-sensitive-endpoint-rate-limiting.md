@@ -15,7 +15,6 @@ Prevent brute force, provider quota exhaustion, synchronization abuse, and resou
 
 ## Assets Protected
 
-Authentication workflows; provider quotas; synchronization capacity; mail delivery; AI capacity.
 
 ## Threats Addressed
 
@@ -28,7 +27,6 @@ Endpoint inventory; SEC-004/005 as those flows are added.
 ## Acceptance Criteria
 
 - Define per-user, per-IP, provider-aware, and global limits where appropriate.
-- Protect MFA/OTP, password reset, provider connection, provider disconnect, synchronization, and future AI endpoints.
 - Implement retry/backoff behavior for provider rate limits.
 - Return safe, predictable throttling responses.
 

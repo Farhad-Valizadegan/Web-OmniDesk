@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Milestone, Sprint, and Release Relationship
+title OmniDesk Milestone, Sprint, and Release Relationship
 
 left to right direction
 skinparam componentStyle rectangle
@@ -13,8 +13,7 @@ package "Milestones" {
   rectangle "M2\nGmail Integration" as M2
   rectangle "M3\nUnified Inbox" as M3
   rectangle "M4\nTelegram Integration" as M4
-  rectangle "M5\nAI-Assisted Communication" as M5
-  rectangle "M6\nProduction Hardening" as M6
+  rectangle "M5\nProduction Hardening" as M5
 }
 
 package "Sprints" {
@@ -52,7 +51,6 @@ S06 --> M3 : primary milestone
 
 SF ..> M4 : allocation TBD
 SF ..> M5 : allocation TBD
-SF ..> M6 : allocation TBD
 
 M0 --> Review : outcome review
 M1 --> Review : outcome review
@@ -60,7 +58,6 @@ M2 --> Review : outcome review
 M3 --> Review : outcome review
 M4 --> Review : outcome review
 M5 --> Review : outcome review
-M6 --> Review : outcome review
 
 Review --> Release : release criteria pass
 

@@ -2,7 +2,7 @@
 title Provider Synchronization Sequence Diagram
 
 actor "Primary User" as User
-participant "OmniDesk AI" as System
+participant "OmniDesk" as System
 participant "Synchronization Service" as Sync
 participant "Provider Connector" as Connector
 participant "Gmail or Telegram API" as Provider

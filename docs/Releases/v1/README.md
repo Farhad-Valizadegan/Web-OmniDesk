@@ -18,12 +18,14 @@ A Version 1 release may use files such as:
 - `v1.0.1.md` — patch release
 - `v1.1.0.md` — backward-compatible feature release within the Version 1 product line, if applicable
 
+The current planned pre-release is [`v1.0.0-mvp.1`](./v1.0.0-mvp.1.md). It remains documentation only until a tag and GitHub pre-release are explicitly created.
+
 Do not create a release note for functionality that has not been completed and verified.
 
 ## Release Note Template
 
 ```md
-# OmniDesk AI vX.Y.Z
+# OmniDesk vX.Y.Z
 
 Release date: YYYY-MM-DD
 Status: Stable | Beta | Alpha | Release Candidate
@@ -57,10 +59,6 @@ Brief description of the release and its purpose.
 ### Telegram
 
 - Relevant Telegram integration changes.
-
-## AI Assistance
-
-- Summarization, reply-assistance, or related AI changes included in the release.
 
 ## Testing and Quality
 

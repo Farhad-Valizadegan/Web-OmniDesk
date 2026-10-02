@@ -1,12 +1,13 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import Workspace from './Workspace'
-import { getTelegramSample, type TelegramChat } from '../lib/api'
+import { connectTelegram, getTelegramSample, getTelegramStatus, submitTelegramCode, type TelegramChat } from '../lib/api'
 import { getConversations, getConversationMessages, getGmailStatus, type Conversation, type Message, type PaginatedResponse } from '../lib/api'
 
 vi.mock('../lib/api', () => ({
   getConversations: vi.fn(), getConversationMessages: vi.fn(), getGmailStatus: vi.fn(),
   getTelegramSample: vi.fn(), syncGmailPage: vi.fn(), disconnectGmail: vi.fn(),
+  getTelegramStatus: vi.fn(), connectTelegram: vi.fn(), submitTelegramCode: vi.fn(), submitTelegramPassword: vi.fn(), disconnectTelegram: vi.fn(),
   startGmailAuthorization: vi.fn(), syncGmail: vi.fn(),
 }))
 
@@ -37,6 +38,7 @@ function showWorkspace() {
 }
 
 beforeEach(() => {
+  vi.mocked(getTelegramStatus).mockResolvedValue({ connected: true, status: 'connected', phone: '+49123456789' })
   vi.mocked(getGmailStatus).mockResolvedValue({ connected: false, connection: null })
   vi.mocked(getConversations).mockResolvedValue(page([conversation(1), conversation(2)]))
   vi.mocked(getConversationMessages).mockResolvedValue(page([]))
@@ -70,6 +72,32 @@ test('renders a Telegram profile photo when the adapter supplies one', async () 
   expect(await screen.findByAltText('Photo chat profile')).toHaveAttribute(
     'src', 'data:image/jpeg;base64,/9j/AA==',
   )
+})
+
+test('connects a user Telegram account through the phone and code steps', async () => {
+  vi.mocked(getTelegramStatus).mockResolvedValue({ connected: false, status: 'disconnected', phone: null })
+  vi.mocked(connectTelegram).mockResolvedValue({ status: 'awaiting_code' })
+  showWorkspace()
+  fireEvent.click(screen.getByRole('tab', { name: 'Telegram' }))
+
+  fireEvent.change(await screen.findByLabelText('Phone number'), { target: { value: '0049123456789' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send Telegram code' }))
+
+  await waitFor(() => expect(connectTelegram).toHaveBeenCalledWith('+49123456789'))
+  expect(await screen.findByLabelText('Telegram code')).toBeInTheDocument()
+})
+
+test('shows an authorization error beside the Telegram code form', async () => {
+  vi.mocked(getTelegramStatus).mockResolvedValue({ connected: false, status: 'awaiting_code', phone: '+49••••111' })
+  vi.mocked(submitTelegramCode).mockRejectedValue(new Error('The Telegram code is invalid or expired.'))
+  showWorkspace()
+  fireEvent.click(screen.getByRole('tab', { name: 'Telegram' }))
+
+  fireEvent.change(await screen.findByLabelText('Telegram code'), { target: { value: '12345' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('The Telegram code is invalid or expired.')
+  expect(screen.getByRole('button', { name: 'Start over with phone number' })).toBeInTheDocument()
 })
 
 test('ignores an older conversation message response after selecting another thread', async () => {

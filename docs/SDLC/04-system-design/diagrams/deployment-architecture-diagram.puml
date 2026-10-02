@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Deployment Architecture
+title OmniDesk Deployment Architecture
 
 left to right direction
 skinparam nodeStyle rectangle
@@ -17,6 +17,8 @@ node "Application Host" as Host {
   node "Application Runtime" as Runtime {
     artifact "Laravel REST API" as API
     artifact "Background Worker" as Worker
+    artifact "TDLib Adapter" as TDLib
+    folder "Private per-user Telegram runtimes" as TelegramSessions
   }
 }
 
@@ -28,7 +30,6 @@ node "Data Services" as Data {
 cloud "External Services" as External {
   component "Gmail API" as Gmail
   component "Telegram API" as Telegram
-  component "Selected AI Provider" as AI
 }
 
 Browser --> Client : HTTPS
@@ -40,17 +41,19 @@ Worker --> Redis : queue processing
 Worker --> DB : synchronization and audit data
 Worker --> Gmail : provider requests
 Worker --> Telegram : provider requests
-API --> AI : approved AI request
-Worker --> AI : asynchronous AI request
+API --> TDLib : owner-scoped authorization and reads
+TDLib --> TelegramSessions : isolated encrypted session state
+TDLib --> Telegram : MTProto / TDLib requests
 
 note right of DB
 Stores application data and protected
-connection information.
+connection information, including encrypted
+Telegram phone values and database keys.
 end note
 
 note right of External
 External services remain outside the
-OmniDesk AI deployment boundary.
+OmniDesk deployment boundary.
 end note
 
 note bottom of Host

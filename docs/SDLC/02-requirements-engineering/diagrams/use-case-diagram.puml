@@ -6,18 +6,15 @@ skinparam shadowing false
 actor "Primary User" as User
 actor "Gmail Provider" as Gmail
 actor "Telegram Provider" as Telegram
-actor "AI Service" as AI
 actor "Background Sync Trigger" as Sync
 
-rectangle "OmniDesk AI" {
+rectangle "OmniDesk" {
   usecase "Create and authenticate account" as UC1
   usecase "Connect Gmail account" as UC2
   usecase "Connect Telegram account" as UC3
   usecase "Browse unified workspace" as UC4
   usecase "Search and filter communication" as UC5
   usecase "Synchronize provider communication" as UC6
-  usecase "Request conversation summary" as UC7
-  usecase "Generate editable reply suggestion" as UC8
   usecase "Disconnect external account" as UC9
 }
 
@@ -26,23 +23,13 @@ User --> UC2
 User --> UC3
 User --> UC4
 User --> UC5
-User --> UC7
-User --> UC8
 User --> UC9
 
 Gmail --> UC2
 Gmail --> UC6
 Telegram --> UC3
 Telegram --> UC6
-AI --> UC7
-AI --> UC8
 Sync --> UC6
-
-note right of UC8
-AI-generated content requires
-user review and approval.
-AI never sends content autonomously.
-end note
 
 note right of UC6
 Synchronization failures are handled

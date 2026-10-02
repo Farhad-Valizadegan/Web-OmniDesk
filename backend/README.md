@@ -1,4 +1,4 @@
-# OmniDesk AI Backend
+# OmniDesk Backend
 
 Laravel REST API for authentication, unified conversations, provider connections, and Gmail synchronization.
 
@@ -57,21 +57,26 @@ Backend address:
 
     http://127.0.0.1:8000
 
-## Local Telegram validation
+## Telegram connection
 
-The Telegram sample endpoint is a single-account development spike, not a
-multi-user connector. It is unavailable outside `APP_ENV=local` and disabled
-unless `TELEGRAM_SAMPLE_OWNER_USER_ID` names the application user who owns the
-configured TDLib session. Only that user can access the sample. Set this value
-in your local `.env` after verifying session ownership; never share one session
-across users. Use an absolute `TELEGRAM_TDLIB_RUNTIME` path outside `public/`.
-Multi-user Telegram support still requires separate authenticated sessions.
+Configure one application-level `TELEGRAM_API_ID` and `TELEGRAM_API_HASH` on the
+server. An authenticated OmniDesk user connects their own Telegram account with
+their phone number, Telegram code, and optional Telegram two-step password. The
+API credentials are never requested in the browser.
 
-Telegram photo/video previews use the same authenticated owner check. Media is
-downloaded into the private TDLib runtime and streamed through the API; no local
-file paths or bearer tokens are placed in media URLs. Photos load when visible,
-and videos download when requested. Previews are limited to 100 MB per file;
-unsupported codecs and larger files can be opened in Telegram.
+Each provider connection receives its own private TDLib runtime, lock, encrypted
+phone value, and encrypted database key. Chat, history, and media requests resolve
+the current user's connection before opening that runtime. Set
+`TELEGRAM_TDLIB_RUNTIME` to a private writable directory outside `public/`.
+During interactive authorization, a per-connection Python worker keeps TDLib
+alive across the phone, code, and optional password steps. Laravel exchanges
+short-lived commands through that runtime; command files are removed after
+consumption, and the authorization worker exits once the session is ready.
+
+Telegram media is downloaded into that user's private TDLib runtime and streamed
+through the authenticated API. Local file paths and bearer tokens are not placed
+in media URLs. Previews are limited to 100 MB per file; unsupported codecs and
+larger files can be opened in Telegram.
 
 ## Local CAPTCHA settings
 

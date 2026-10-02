@@ -4,15 +4,15 @@
 
 ## Purpose
 
-This document provides an overview of Project Definition for OmniDesk AI.
+This document provides an overview of Project Definition for OmniDesk.
 
 It summarizes the project's purpose, problem, goals, scope, stakeholders, assumptions, constraints, risks, and success criteria.
 
 ## Relationship to the SDLC
 
-Project Definition is maintained separately from the numbered SDLC documentation sequence. It establishes why OmniDesk AI should be developed, what problem it intends to address, what outcomes are expected, and which boundaries and constraints must guide later engineering activities.
+Project Definition is maintained separately from the numbered SDLC documentation sequence. It establishes why OmniDesk should be developed, what problem it intends to address, what outcomes are expected, and which boundaries and constraints must guide later engineering activities.
 
-Its outputs are foundational inputs to [Project Planning](../SDLC/01-project-planning/project-planning-overview.md), which is the first numbered SDLC activity documented for OmniDesk AI.
+Its outputs are foundational inputs to [Project Planning](../SDLC/01-project-planning/project-planning-overview.md), which is the first numbered SDLC activity documented for OmniDesk.
 
 The decisions established here subsequently inform:
 
@@ -31,7 +31,7 @@ Project Definition does not prescribe the project's Agile execution workflow and
 
 | Document | Purpose |
 |---|---|
-| Project Overview | Defines what OmniDesk AI is |
+| Project Overview | Defines what OmniDesk is |
 | Project Problem Statement | Describes the problem the project addresses |
 | Project Goals and Objectives | Defines desired outcomes and concrete objectives |
 | Project Scope | Defines what is included and excluded |

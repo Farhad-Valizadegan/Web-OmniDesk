@@ -16,6 +16,7 @@ import {
   getCurrentUser,
   getHealth,
   getTelegramSample,
+  getTelegramStatus,
   loginUser,
   logoutUser,
   registerUser,
@@ -36,6 +37,11 @@ vi.mock('./lib/api', () => ({
   getCurrentUser: vi.fn(),
   getHealth: vi.fn(),
   getTelegramSample: vi.fn(),
+  getTelegramStatus: vi.fn(),
+  connectTelegram: vi.fn(),
+  submitTelegramCode: vi.fn(),
+  submitTelegramPassword: vi.fn(),
+  disconnectTelegram: vi.fn(),
   loginUser: vi.fn(),
   logoutUser: vi.fn(),
   registerUser: vi.fn(),
@@ -50,6 +56,7 @@ const getConversationsMock = vi.mocked(getConversations)
 const getGmailStatusMock = vi.mocked(getGmailStatus)
 const getHealthMock = vi.mocked(getHealth)
 const getTelegramSampleMock = vi.mocked(getTelegramSample)
+const getTelegramStatusMock = vi.mocked(getTelegramStatus)
 const getCurrentUserMock = vi.mocked(getCurrentUser)
 const loginUserMock = vi.mocked(loginUser)
 const logoutUserMock = vi.mocked(logoutUser)
@@ -106,6 +113,12 @@ describe('App', () => {
     getGmailStatusMock.mockResolvedValue({
       connected: false,
       connection: null,
+    })
+
+    getTelegramStatusMock.mockResolvedValue({
+      connected: true,
+      status: 'connected',
+      phone: '+49123456789',
     })
 
     getConversationMessagesMock.mockResolvedValue(

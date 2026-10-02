@@ -8,7 +8,7 @@
 
 ## Sprint Goal
 
-Implement the secure Gmail provider connection foundation for OmniDesk AI.
+Implement the secure Gmail provider connection foundation for OmniDesk.
 
 Sprint 04 covers Gmail authorization, secure credential storage, provider isolation, account identity retrieval, and provider error handling. Gmail synchronization belongs to Sprint 05.
 
@@ -51,7 +51,6 @@ Sprint 04 shall:
 - Add frontend Gmail connection states.
 - Never store Gmail tokens or client secrets in the frontend.
 - Keep Gmail synchronization outside this sprint.
-- Keep Telegram and AI functionality outside this sprint.
 - Preserve existing authentication and inbox functionality.
 
 ## API Scope
@@ -126,7 +125,6 @@ Sprint 04 shall:
 - Incremental synchronization
 - Gmail push notifications
 - Telegram integration
-- AI assistance
 - Autonomous message sending
 - Production deployment
 

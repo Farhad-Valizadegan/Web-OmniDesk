@@ -5,6 +5,11 @@ import {
   getConversationMessages,
   getConversations,
   getGmailStatus,
+  getTelegramStatus,
+  connectTelegram,
+  submitTelegramCode,
+  submitTelegramPassword,
+  disconnectTelegram,
   getTelegramSample,
   syncGmailPage,
   type AuthUser,
@@ -12,6 +17,7 @@ import {
   type Message,
   type TelegramChat,
   type TelegramMessage,
+  type TelegramConnectionStatus,
 } from '../lib/api'
 
 type WorkspaceProps = {
@@ -275,6 +281,9 @@ function Workspace({
   const [gmailHasMore, setGmailHasMore] = useState(false)
 
   const [telegramSearch, setTelegramSearch] = useState('')
+  const [telegramConnection, setTelegramConnection] = useState<TelegramConnectionStatus>({ connected: false, status: 'disconnected', phone: null })
+  const [telegramCredential, setTelegramCredential] = useState('')
+  const [telegramConnectionLoading, setTelegramConnectionLoading] = useState(false)
   const [telegramChats, setTelegramChats] = useState<
     TelegramChat[]
   >([])
@@ -318,6 +327,47 @@ function Workspace({
     telegramAbortController.current = null
     telegramRequestInFlight.current = false
   }, [activeProvider])
+
+  const handleTelegramConnection = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setTelegramConnectionLoading(true)
+    setTelegramError(null)
+    try {
+      const isPhoneStep = telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone'
+      const credential = isPhoneStep
+        ? telegramCredential.trim().replace(/^00/, '+')
+        : telegramCredential.trim()
+      const result = telegramConnection.status === 'awaiting_code'
+        ? await submitTelegramCode(credential)
+        : telegramConnection.status === 'awaiting_password'
+          ? await submitTelegramPassword(credential)
+          : await connectTelegram(credential)
+      const next = { connected: result.status === 'connected', status: result.status, phone: isPhoneStep ? credential : telegramConnection.phone }
+      setTelegramConnection(next)
+      setTelegramCredential('')
+      if (next.connected) await handleTelegramLoad()
+    } catch (error) {
+      setTelegramError(error instanceof Error ? error.message : 'Telegram connection failed.')
+    } finally {
+      setTelegramConnectionLoading(false)
+    }
+  }
+
+  const handleTelegramDisconnect = async () => {
+    setTelegramConnectionLoading(true)
+    setTelegramError(null)
+    try {
+      await disconnectTelegram()
+      setTelegramConnection({ connected: false, status: 'disconnected', phone: null })
+      setTelegramCredential('')
+      setTelegramChats([])
+      setTelegramMessages([])
+    } catch (error) {
+      setTelegramError(error instanceof Error ? error.message : 'Telegram could not be disconnected.')
+    } finally {
+      setTelegramConnectionLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (
@@ -641,6 +691,19 @@ function Workspace({
     }
   }
 
+  useEffect(() => {
+    if (activeProvider !== 'telegram') return
+    void getTelegramStatus().then((status) => {
+      setTelegramConnection(status)
+      if (status.connected && !telegramRequestInFlight.current) {
+        void handleTelegramLoad()
+      }
+    }).catch(() => setTelegramError('Telegram connection status could not be loaded.'))
+    // Re-run only when the user opens the Telegram provider. The loader itself
+    // updates state and is intentionally not an effect dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProvider])
+
   const handleTelegramLoadMore = async () => {
     if (
       selectedTelegramChatId === null ||
@@ -798,9 +861,9 @@ function Workspace({
     >
       <header className="workspace-header">
         <div>
-          <p className="workspace-brand">OmniDesk AI</p>
+          <p className="workspace-brand">OmniDesk</p>
           <p className="workspace-subtitle">
-            AI-Powered Unified Communication Workplace
+            Unified Communication Workspace
           </p>
         </div>
 
@@ -857,12 +920,6 @@ function Workspace({
               className={activeProvider === 'telegram' ? 'provider-tab active' : 'provider-tab'}
               onClick={() => {
                 setActiveProvider('telegram')
-                if (
-                  telegramChats.length === 0 &&
-                  !telegramRequestInFlight.current
-                ) {
-                  void handleTelegramLoad()
-                }
               }}
             >
               Telegram
@@ -891,6 +948,46 @@ function Workspace({
               role="tabpanel"
               aria-label="Telegram provider"
             >
+              {!telegramConnection.connected && (
+                <form className="telegram-connect-card" onSubmit={handleTelegramConnection}>
+                  <div>
+                    <h3>Connect your Telegram account</h3>
+                    <p>Your Telegram session is stored separately from every other OmniDesk user.</p>
+                  </div>
+                  <label>
+                    {telegramConnection.status === 'awaiting_code' ? 'Telegram code' : telegramConnection.status === 'awaiting_password' ? 'Telegram two-step password' : 'Phone number'}
+                    <input
+                      type={telegramConnection.status === 'awaiting_password' ? 'password' : 'text'}
+                      inputMode={telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone' ? 'tel' : 'numeric'}
+                      placeholder={telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone' ? '+491234567890' : ''}
+                      value={telegramCredential}
+                      onChange={(event) => setTelegramCredential(event.target.value)}
+                      autoComplete="off"
+                      required
+                    />
+                  </label>
+                  <button type="submit" className="primary-button" disabled={telegramConnectionLoading}>
+                    {telegramConnectionLoading ? 'Connecting…' : telegramConnection.status === 'disconnected' || telegramConnection.status === 'awaiting_phone' ? 'Send Telegram code' : 'Continue'}
+                  </button>
+                  {telegramConnection.status !== 'disconnected' && (
+                    <button type="button" className="secondary-button" onClick={() => void handleTelegramDisconnect()} disabled={telegramConnectionLoading}>
+                      Start over with phone number
+                    </button>
+                  )}
+                </form>
+              )}
+              {telegramError && (
+                <p className="inbox-error" role="alert">
+                  {telegramError}
+                </p>
+              )}
+              {telegramConnection.connected && (
+                <div className="telegram-connection-summary">
+                  <span>Telegram connected{telegramConnection.phone ? ` · ${telegramConnection.phone}` : ''}</span>
+                  <button type="button" className="secondary-button" onClick={() => void handleTelegramDisconnect()} disabled={telegramConnectionLoading}>Disconnect</button>
+                </div>
+              )}
+              {telegramConnection.connected && <>
               <div className="telegram-toolbar">
                 <input
                   type="search"
@@ -908,12 +1005,6 @@ function Workspace({
                   {isTelegramLoading ? 'Loading...' : 'Refresh'}
                 </button>
               </div>
-
-              {telegramError && (
-                <p className="inbox-error" role="alert">
-                  {telegramError}
-                </p>
-              )}
 
               {isTelegramLoading && telegramChats.length === 0 && !telegramError && (
                 <div className="telegram-loading-state" role="status">
@@ -1101,6 +1192,7 @@ function Workspace({
                   </aside>
                 </div>
               )}
+              </>}
             </section>
           )}
 

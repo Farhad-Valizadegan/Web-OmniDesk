@@ -6,7 +6,7 @@
 
 ## Sprint Goal
 
-Implement the secure user foundation for OmniDesk AI.
+Implement the secure user foundation for OmniDesk.
 
 Sprint 02 establishes user registration, authentication, sessions, authorization, and ownership boundaries for the backend and frontend.
 
@@ -184,7 +184,6 @@ Sprint 02 is complete when:
 - Telegram authorization
 - Provider synchronization
 - Unified inbox implementation
-- AI assistance
 - Production deployment
 
 ## Traceability

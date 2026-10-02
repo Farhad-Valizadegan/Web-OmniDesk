@@ -2,7 +2,7 @@
 
 > Status: Directional
 >
-> This roadmap describes a possible evolution path for OmniDesk AI. It is not a release promise, fixed schedule, or scope expansion for Version 1.
+> This roadmap describes a possible evolution path for OmniDesk. It is not a release promise, fixed schedule, or scope expansion for Version 1.
 
 ## Roadmap Principles
 
@@ -21,10 +21,6 @@ Primary direction:
 - Provider attribution
 - Search and filtering within the Version 1 data model
 - Synchronization and duplicate prevention
-- Conversation-level AI assistance
-- Conversation summarization
-- Reply suggestions
-- Explicit user review before AI-assisted external actions
 - Core reliability, security, testing, and deployment preparation
 
 Version 1 is the baseline product. Existing scope and sprint documentation remain authoritative for what is actually committed.
@@ -41,24 +37,8 @@ Potential direction:
 - Unified result presentation with provider and account attribution
 - Search filters for source, account, sender, date, and conversation
 
-This version would focus on broadening how users connect and discover communication data without yet introducing a full AI retrieval architecture.
 
-## Version 3 — AI Retrieval and Advanced Analysis
-
-Potential direction:
-
-- Retrieval layer across connected sources
-- Relevance ranking before AI context construction
-- Source-aware context assembly
-- Provenance links from AI output back to source messages
-- Cross-conversation summarization
-- Cross-provider comparison
-- Topic extraction and clustering
-- More advanced analytical workflows
-
-The emphasis would shift from AI operating on one conversation to AI operating on carefully retrieved, traceable subsets of a larger communication corpus.
-
-## Version 4 — Channel Intelligence and Thematic Reporting
+## Version 3 — Channel Indexing and Advanced Search
 
 Potential direction:
 
@@ -66,14 +46,11 @@ Potential direction:
 - Full-text search over indexed channel data
 - Topic discovery and trend analysis
 - Entity and keyword extraction
-- Thematic reports across selected sources
-- Time-bounded topic reports
-- Cross-channel or cross-provider thematic comparison
-- Recurring-topic and decision analysis
+- Cross-channel search and comparison tools
 
 This version would depend on the quality and maturity of indexing, retrieval, provenance, and data-governance capabilities developed earlier.
 
-## Version 5+ — Provider Ecosystem Expansion
+## Version 4+ — Provider Ecosystem Expansion
 
 Potential direction:
 

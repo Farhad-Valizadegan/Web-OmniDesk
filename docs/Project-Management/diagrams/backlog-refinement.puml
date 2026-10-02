@@ -1,5 +1,5 @@
 @startuml
-title OmniDesk AI Backlog Refinement Workflow
+title OmniDesk Backlog Refinement Workflow
 
 left to right direction
 skinparam componentStyle rectangle

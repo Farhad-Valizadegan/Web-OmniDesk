@@ -99,7 +99,6 @@ These values must not be:
 - committed to the repository;
 - included in exception messages;
 - included in analytics or telemetry;
-- sent to an AI provider.
 
 ## Credential Storage
 
@@ -234,20 +233,6 @@ The normalized mapping is:
 
 Provider identifiers must be used for duplicate prevention.
 
-## AI Boundary
-
-Telegram-derived content must not automatically enter the AI pipeline.
-
-Before enabling summaries, reply suggestions, embeddings, inference, training, or fine-tuning over Telegram content:
-
-- applicable Telegram terms must be reviewed;
-- privacy requirements must be documented;
-- user consent and product controls must be defined;
-- data minimization must be applied;
-- the exact AI provider data flow must be approved.
-
-Retrieval and display are separate from AI processing.
-
 ## Security Tests
 
 The implementation must provide tests for:
@@ -277,10 +262,13 @@ The validation probe remains test tooling and must not be reused as the producti
 
 ## Gate
 
-PB-024 cannot begin until:
+This gate was satisfied on 2026-10-01. The completed controls include:
 
-- this design is approved;
-- SEC-019 acceptance criteria are satisfied;
-- session storage and deletion tests exist;
-- the Laravel-to-adapter authentication mechanism is selected;
-- the production adapter lifecycle is documented.
+- approved owner-scoped runtime and trust-boundary design;
+- SEC-019 acceptance criteria and isolation tests;
+- encrypted database keys and private per-connection runtime storage;
+- durable disconnect cleanup with retry after an interrupted request;
+- stale authorization-command removal before worker restart;
+- documented Laravel-to-adapter lifecycle and safe error behavior.
+
+PB-024 may proceed using this boundary. Production infrastructure hardening, backups, and key rotation remain governed by their separate security backlog items.

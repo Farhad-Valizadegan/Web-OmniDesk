@@ -15,7 +15,6 @@ Translate privacy obligations and user-control expectations into concrete techni
 
 ## Assets Protected
 
-All personal data; communication content; metadata; identifiers; AI context; logs; backups.
 
 ## Threats Addressed
 
@@ -23,7 +22,6 @@ Excess processing; opaque third-party disclosure; failure to delete/export; inse
 
 ## Dependencies
 
-SEC-002; provider/AI architecture decisions.
 
 ## Acceptance Criteria
 
@@ -32,7 +30,6 @@ SEC-002; provider/AI architecture decisions.
 - Define retention, deletion, access/export, and user-control behavior.
 - Inventory processors/third parties and international-transfer considerations.
 - Document breach-handling requirements and perform DPIA screening.
-- Define privacy notices/disclosures required by implemented provider and AI flows.
 
 ## Security Tests
 

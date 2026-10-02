@@ -1,7 +1,7 @@
-﻿# System Analysis Overview
+# System Analysis Overview
 > Status: Draft
 ## Purpose
-This document defines the purpose, activities, outputs, and boundaries of the System Analysis phase for OmniDesk AI.
+This document defines the purpose, activities, outputs, and boundaries of the System Analysis phase for OmniDesk.
 System Analysis transforms approved requirements into a structured understanding of the system's actors, processes, data, interactions, states, and responsibilities.
 ## Role in the SDLC
 System Analysis follows Requirements Engineering and precedes System Design.
@@ -46,7 +46,6 @@ The following analysis artifacts have been created:
 - [Synchronization Workflow](synchronization-workflow.md)
 - [Provider Connection State Diagram](provider-connection-state-diagram.md)
 - [Provider Synchronization Sequence Diagram](provider-synchronization-sequence-diagram.md)
-- [AI Assistance Sequence Diagram](ai-assistance-sequence-diagram.md)
 - [Business Rules Catalog](business-rules-catalog.md)
 - [Analysis Decisions and Open Questions](analysis-decisions-and-open-questions.md)
 All diagrams are created in PlantUML format, with editable source files stored in the diagrams directory.
@@ -58,9 +57,6 @@ The initial analysis focuses on:
 - Local search and filtering
 - Provider synchronization
 - Synchronization failure handling
-- AI-generated summaries
-- Editable AI-generated reply suggestions
-- User control over AI output
 - Provider-independent communication concepts
 - Security and privacy boundaries
 ## Analysis Boundaries
@@ -71,7 +67,6 @@ The following topics belong primarily to System Design and are not finalized in 
 - Framework-specific implementation
 - Deployment infrastructure
 - Production configuration
-- Final AI provider selection
 - Final message-sending implementation
 System Analysis may identify constraints or questions related to these topics without making final design decisions.
 ## Cross-Cutting Concerns
@@ -81,7 +76,6 @@ The analysis shall consider:
 - Data ownership
 - Provider failures
 - Synchronization consistency
-- AI service unavailability
 - Data minimization
 - Extensibility
 - Accessibility

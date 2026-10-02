@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document defines the purpose, activities, outputs, and boundaries of Requirements Engineering for OmniDesk AI.
+This document defines the purpose, activities, outputs, and boundaries of Requirements Engineering for OmniDesk.
 
 ## Role in the SDLC
 

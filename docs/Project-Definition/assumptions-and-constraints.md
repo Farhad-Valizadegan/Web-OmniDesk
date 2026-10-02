@@ -1,4 +1,4 @@
-﻿# Assumptions and Constraints
+# Assumptions and Constraints
 
 
 
@@ -10,7 +10,7 @@
 
 
 
-This document records the initial assumptions and constraints that influence the definition and development of OmniDesk AI.
+This document records the initial assumptions and constraints that influence the definition and development of OmniDesk.
 
 
 
@@ -24,7 +24,7 @@ Assumptions are conditions that are expected to be true but must be validated la
 
 - The primary user manages communication across multiple platforms.
 
-- Users will explicitly authorize OmniDesk AI to access supported external accounts.
+- Users will explicitly authorize OmniDesk to access supported external accounts.
 
 - Gmail and Telegram provide official integration mechanisms suitable for the intended use cases.
 
@@ -34,9 +34,7 @@ Assumptions are conditions that are expected to be true but must be validated la
 
 - Synchronization may require background processing.
 
-- AI capabilities will be optional and user initiated.
 
-- Users will review AI-generated content before using it externally.
 
 - The initial system will be developed as a web application.
 
@@ -58,7 +56,6 @@ Assumptions are conditions that are expected to be true but must be validated la
 
 - Authentication tokens and other secrets must not be exposed to the frontend or application logs.
 
-- AI provider credentials must remain in trusted backend configuration.
 
 - The system must support reliable synchronization and duplicate prevention.
 
@@ -78,9 +75,7 @@ Assumptions are conditions that are expected to be true but must be validated la
 
 - Sensitive tokens must be protected at rest when stored.
 
-- Communication content must not be sent to an AI provider unless required by the requested feature.
 
-- AI-generated content must be treated as untrusted output.
 
 - The system must not send messages autonomously.
 
@@ -118,7 +113,6 @@ The following assumptions must be validated before related implementation begins
 
 - The selected Telegram integration mode supports the intended communication use case.
 
-- The chosen AI provider supports the required privacy, latency, and usage constraints.
 
 - The normalized data model can represent the required provider concepts without losing important information.
 
