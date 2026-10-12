@@ -1,6 +1,7 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import GmailConnectionPanel from './GmailConnectionPanel'
 import TelegramMedia from './TelegramMedia'
+import { BrandMark, HudIcon, InboxTelemetry, MotionToggle } from './HudGraphics'
 import {
   getConversationMessages,
   getConversations,
@@ -261,6 +262,7 @@ function Workspace({
   const [statusFilter, setStatusFilter] =
     useState<StatusFilter>('all')
   const [labelFilter, setLabelFilter] = useState('')
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [page, setPage] = useState(1)
 
   const [pagination, setPagination] =
@@ -281,6 +283,7 @@ function Workspace({
   const [gmailHasMore, setGmailHasMore] = useState(false)
 
   const [telegramSearch, setTelegramSearch] = useState('')
+  const [telegramWarnings, setTelegramWarnings] = useState<string[]>([])
   const [telegramConnection, setTelegramConnection] = useState<TelegramConnectionStatus>({ connected: false, status: 'disconnected', phone: null })
   const [telegramCredential, setTelegramCredential] = useState('')
   const [telegramConnectionLoading, setTelegramConnectionLoading] = useState(false)
@@ -360,6 +363,7 @@ function Workspace({
       await disconnectTelegram()
       setTelegramConnection({ connected: false, status: 'disconnected', phone: null })
       setTelegramCredential('')
+      setTelegramWarnings([])
       setTelegramChats([])
       setTelegramMessages([])
     } catch (error) {
@@ -586,6 +590,7 @@ function Workspace({
     try {
       setIsTelegramLoading(true)
       setIsTelegramMoreLoading(false)
+      setTelegramWarnings([])
       setTelegramError(null)
       setTelegramMessages([])
       setTelegramChatTitle(null)
@@ -614,6 +619,7 @@ function Workspace({
           response.data.messages.length,
       }
 
+      setTelegramWarnings(response.data.warnings ?? [])
       setTelegramChats(
         response.data.chats.map((chat) =>
           chat.id === initialSelectedChat.id
@@ -782,6 +788,7 @@ function Workspace({
     try {
       setIsTelegramLoading(true)
       setIsTelegramMoreLoading(false)
+      setTelegramWarnings([])
       setTelegramError(null)
 
       const response = await getTelegramSample(
@@ -860,16 +867,17 @@ function Workspace({
       aria-label="Authenticated workspace"
     >
       <header className="workspace-header">
-        <div>
-          <p className="workspace-brand">OmniDesk</p>
-          <p className="workspace-subtitle">
-            Unified Communication Workspace
-          </p>
+        <div className="brand-lockup">
+          <BrandMark />
+          <div>
+            <p className="workspace-brand">OmniDesk</p>
+            <p className="workspace-subtitle">Unified Communication Workspace</p>
+          </div>
         </div>
 
         <div className="workspace-user">
           <span>{user.name}</span>
-
+          <MotionToggle />
           <button
             type="button"
             className="theme-toggle"
@@ -884,6 +892,7 @@ function Workspace({
                 : 'Switch to light mode'
             }
           >
+            <HudIcon kind={theme === 'light' ? 'moon' : 'sun'} />
             {theme === 'light' ? 'Dark mode' : 'Light mode'}
           </button>
 
@@ -899,19 +908,19 @@ function Workspace({
       </header>
 
       <div className="workspace-body">
-        <main className="workspace-content">
+        <div className="workspace-content">
           <div className="content-heading">
             <div>
-              <p className="eyebrow">Unified Inbox</p>
               <h2>Welcome, {user.name}</h2>
+              <p>Your conversations, in focus.</p>
             </div>
 
-            <span className="workspace-status">Ready</span>
+            <span className="workspace-status">Read-only workspace</span>
           </div>
 
           <div className="provider-tabs" role="tablist" aria-label="Communication providers">
             <button type="button" role="tab" aria-selected={activeProvider === 'gmail'} className={activeProvider === 'gmail' ? 'provider-tab active' : 'provider-tab'} onClick={() => setActiveProvider('gmail')}>
-              Gmail
+              <HudIcon kind="mail" />Gmail
             </button>
             <button
               type="button"
@@ -922,10 +931,17 @@ function Workspace({
                 setActiveProvider('telegram')
               }}
             >
-              Telegram
+              <HudIcon kind="telegram" />Telegram
             </button>
           </div>
 
+          <InboxTelemetry
+            provider={activeProvider}
+            total={activeProvider === 'gmail' ? conversations.length : telegramChats.length}
+            unread={activeProvider === 'gmail' ? conversations.filter((item) => !item.is_read).length : telegramChats.filter((chat) => chat.unread_count > 0).length}
+            loading={activeProvider === 'gmail' ? isInboxLoading || isLazySyncLoading : isTelegramLoading || telegramConnectionLoading}
+            failed={activeProvider === 'gmail' ? Boolean(inboxError) : Boolean(telegramError)}
+          />
           {activeProvider === 'gmail' && (
             <section role="tabpanel" aria-label="Gmail provider">
           <GmailConnectionPanel
@@ -1006,6 +1022,7 @@ function Workspace({
                 </button>
               </div>
 
+              {telegramWarnings.map((warning) => <p key={warning} role="status">{warning}</p>)}
               {isTelegramLoading && telegramChats.length === 0 && !telegramError && (
                 <div className="telegram-loading-state" role="status">
                   <span className="telegram-loading-dot" aria-hidden="true" />
@@ -1080,7 +1097,7 @@ function Workspace({
                   <section className="telegram-conversation" aria-label="Selected Telegram chat">
                     <header className="telegram-conversation-header">
                       <div>
-                        <p className="eyebrow">Telegram</p>
+
                         <h3>{telegramChatTitle ?? 'Selected chat'}</h3>
                         <span>
                           {selectedTelegramChat?.type === 'channel'
@@ -1229,6 +1246,11 @@ function Workspace({
               </div>
             </form>
 
+            <div className={`inbox-filters${filtersExpanded ? ' expanded' : ''}`}>
+              <button type="button" className="filter-toggle" aria-expanded={filtersExpanded} aria-controls="inbox-filter-fields" onClick={() => setFiltersExpanded(current => !current)}>
+                {filtersExpanded ? 'Hide filters' : 'Show filters'}<span>Read state · Status · Label</span>
+              </button>
+              <div className="filter-fields" id="inbox-filter-fields">
             <label
               className="read-filter"
               htmlFor="read-filter"
@@ -1297,6 +1319,8 @@ function Workspace({
                 ))}
               </select>
             </label>
+              </div>
+            </div>
           </div>
 
           {inboxError && (
@@ -1410,9 +1434,7 @@ function Workspace({
                   <>
                     <div className="detail-heading">
                       <div>
-                        <p className="eyebrow">
-                          {selectedConversation.provider}
-                        </p>
+
 
                         <h3>
                           {selectedConversation.subject ??
@@ -1600,8 +1622,13 @@ function Workspace({
             </nav>
           )}
             </div>
-        </main>
+        </div>
       </div>
+      <footer className="hud-footer">
+        <span><HudIcon kind={activeProvider === 'gmail' ? 'mail' : 'telegram'} />{activeProvider === 'gmail' ? 'GMAIL' : 'TELEGRAM'} VIEW</span>
+        <span>MESSAGE SENDING IS DISABLED</span>
+        <span>OMNIDESK / MVP</span>
+      </footer>
     </section>
   )
 }

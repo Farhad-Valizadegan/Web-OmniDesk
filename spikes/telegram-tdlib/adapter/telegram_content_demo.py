@@ -17,6 +17,7 @@ sys.path.insert(0, str(SPIKE_DIR))
 
 from tdlib_probe import (  # noqa: E402
     TdJsonClient,
+    TdLibResponseTimeout,
     _authorization_loop,
     _get_chat,
     _get_history,
@@ -236,9 +237,10 @@ def main() -> int:
 
     client = TdJsonClient()
     requested_chat: JsonObject | None = None
+    warnings: list[str] = []
 
     with contextlib.redirect_stdout(io.StringIO()):
-        _authorization_loop(client, api_id, api_hash, db_dir)
+        _authorization_loop(client, api_id, api_hash, db_dir, interactive=False)
 
         media_message_id = int(os.getenv("TELEGRAM_MEDIA_MESSAGE_ID", "0") or "0")
         if media_message_id:
@@ -251,7 +253,12 @@ def main() -> int:
         if media_result is not None:
             pass
         elif requested_chat_id is None:
-            _load_main_chats(client)
+            try:
+                _load_main_chats(client)
+            except TdLibResponseTimeout:
+                if not client.chats:
+                    raise
+                warnings.append("Chat discovery took too long. Showing the chats loaded so far.")
         else:
             requested_chat = _get_chat(client, requested_chat_id)
 
@@ -369,7 +376,7 @@ def main() -> int:
         "messages": message_summaries,
         "has_more": next_before_message_id is not None,
         "next_before_message_id": next_before_message_id,
-        "warnings": [],
+        "warnings": warnings,
     }
 
     print(json.dumps(result, indent=2, ensure_ascii=False))

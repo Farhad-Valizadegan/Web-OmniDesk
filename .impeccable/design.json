@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T16:01:45Z",
+  "title": "Design System: OmniDesk",
+  "extensions": {
+    "colorMeta": {
+      "action": { "role": "primary", "displayName": "Signal Lime" },
+      "light-accent": { "role": "secondary", "displayName": "Deep Teal" },
+      "dark-accent": { "role": "secondary", "displayName": "HUD Cyan" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Authentication display", "purpose": "Authentication introduction." },
+      "message": { "displayName": "Email prose", "purpose": "Opaque message reading surfaces; maximum 72ch." },
+      "label": { "displayName": "Control label", "purpose": "Dense operational controls." }
+    },
+    "shadows": [
+      { "name": "workspace", "value": "6px 6px 0 var(--shadow), 0 10px 40px var(--glow)", "purpose": "Structural frame with ambient HUD glow." },
+      { "name": "authentication", "value": "8px 8px 0 var(--shadow), 0 10px 40px var(--glow)", "purpose": "Authentication panel." },
+      { "name": "action-rest", "value": "3px 3px 0 var(--shadow)", "purpose": "Primary action at rest." },
+      { "name": "action-hover", "value": "5px 5px 0 var(--shadow), 0 5px 20px var(--glow)", "purpose": "Raised primary action." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(.16, 1, .3, 1)", "purpose": "Interface state easing." },
+      { "name": "control-transition", "value": "180ms", "purpose": "Transform, shadow, and color state transitions." },
+      { "name": "chart-transition", "value": "transform 400ms var(--ease)", "purpose": "Unread chart uses scaleX, not width animation." },
+      { "name": "signal-travel", "value": "7s linear infinite", "purpose": "Illustrative provider route stroke-dashoffset movement." },
+      { "name": "signal-breathe", "value": "1.6s ease-in-out infinite", "purpose": "Waiting signal glow." },
+      { "name": "telegram-spin", "value": ".9s linear infinite", "purpose": "Loading indicator rotation." }
+    ],
+    "breakpoints": [
+      { "name": "telegram-two-column", "value": "1200px" },
+      { "name": "sticky-workspace-header-min", "value": "1100px" },
+      { "name": "stack-authentication", "value": "900px" },
+      { "name": "mobile-disclosures", "value": "720px" },
+      { "name": "narrow-controls", "value": "480px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Lime action with a hard shadow, lift, and visible focus.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Synchronize</button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:9px 15px;border:2px solid var(--edge);border-radius:2px;font-family:'Space Grotesk','Segoe UI',sans-serif;font-size:13px;font-weight:700;line-height:1.35;background:var(--action);color:var(--action-ink);box-shadow:3px 3px 0 var(--shadow);cursor:pointer;transition:transform 180ms var(--ease),box-shadow 180ms var(--ease),background-color 180ms var(--ease)}.ds-primary:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--shadow),0 5px 20px var(--glow)}.ds-primary:focus-visible{outline:3px solid var(--accent-color);outline-offset:4px}.ds-primary:active:not(:disabled){transform:translate(1px,1px);box-shadow:none}.ds-primary:disabled{color:var(--text-muted);background:var(--surface-muted);border-color:var(--border-color);box-shadow:none;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}:host-context([data-motion='reduced']) .ds-primary{transition:none}"
+    },
+    {
+      "name": "Reading surface",
+      "kind": "card",
+      "description": "Opaque email prose surface with a readable measure.",
+      "html": "<article class=\"ds-message\"><p>Message content stays readable within the operational workspace.</p></article>",
+      "css": ".ds-message{padding:20px;background:var(--surface-color);color:var(--text-primary);border:1px solid var(--border-color)}.ds-message p{max-width:72ch;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Segoe UI',sans-serif;font-size:15px;line-height:1.8}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Dense sci-fi control room",
+    "overview": "Neo-brutalist frames, hard offset shadows, lime actions, and cyan instrumentation establish a tactile communication workspace. Stronger glow and animated provider routes express the user's chosen HUD direction; readable communication stays central in both light and dark themes. The implementation is code-first React/CSS/SVG.",
+    "keyCharacteristics": ["Dense operational controls", "Angular structure", "Transparent header and status surfaces", "Opaque reading surfaces", "Explicit state labels", "Optional motion"],
+    "rules": [
+      { "name": "Readable communication", "body": "Message surfaces remain opaque; use theme-specific readable semantic text with labels.", "section": "colors" },
+      { "name": "Motion preference", "body": "Persist the interface preference under omni_desk_motion. OS reduced-motion always suppresses motion; the visible control must describe effective motion.", "section": "elevation" },
+      { "name": "Loaded-view evidence", "body": "Overview counts describe loaded conversations or chats; provider routes are illustrative and do not assert provider health.", "section": "colors" }
+    ],
+    "dos": ["Do preserve real authentication and provider behavior.", "Do retain mobile overview and filters disclosures.", "Do ship the self-hosted Space Grotesk font with its OFL license.", "Do use transform-based chart animation and honor OS reduced motion."],
+    "donts": ["Don't invent activity or operational measurements.", "Don't apply glass transparency to message prose.", "Don't imply message sending or AI generation beyond the implemented MVP."]
+  }
+}
+

@@ -14,7 +14,7 @@ The current V1 baseline includes:
 
 Provider message sending is outside the current MVP scope.
 
-The current released milestone is [`v1.0.0-mvp.1`](./docs/Releases/v1/v1.0.0-mvp.1.md), released on 2026-10-02. It is a pre-release and does not claim production readiness.
+The current released milestone is [`v1.0.0-mvp.2`](./docs/Releases/v1/v1.0.0-mvp.2.md), released on 2026-10-12. It is a pre-release and does not claim production readiness.
 
 Additional communication providers and advanced capabilities are future-scope ideas and are **not** part of V1 unless the authoritative scope is explicitly changed.
 

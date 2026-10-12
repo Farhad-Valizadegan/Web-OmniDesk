@@ -3,6 +3,7 @@ import './App.css'
 import GoogleCaptcha from './components/GoogleCaptcha'
 import LoginVerification from './components/LoginVerification'
 import Workspace from './components/Workspace'
+import { BrandMark, ConnectionDiagram, HudIcon, MotionToggle } from './components/HudGraphics'
 import {
   getCaptchaChallenge,
   getCurrentUser,
@@ -309,31 +310,37 @@ function App() {
   return (
     <main className="app">
       {!user && (
+        <div className="auth-controls">
+        <MotionToggle />
         <button
           type="button"
           className="app-theme-toggle"
           onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
           aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
         >
+          <HudIcon kind={theme === 'light' ? 'moon' : 'sun'} />
           {theme === 'light' ? 'Dark mode' : 'Light mode'}
         </button>
+        </div>
       )}
 
       <section className={user ? 'hero hero-authenticated' : 'hero hero-authentication'}>
         {!user && (
           <div className="hero-copy">
-            <p className="eyebrow">OmniDesk</p>
+            <div className="auth-brand"><BrandMark /><strong>OmniDesk</strong><span>Gmail + Telegram</span></div>
 
             <h1>All your conversations, one focused workspace.</h1>
 
             <p className="description">
-              Bring Gmail and Telegram together in a secure, calm inbox with
+              Bring Gmail and Telegram into one workspace. Connect your accounts,
+              find what matters, and give every conversation your full attention.
             </p>
+            <ConnectionDiagram />
           </div>
         )}
 
         {!user && (
-          <div className="status-card" aria-live="polite">
+          <div className="status-card" data-status={isHealthLoading ? 'loading' : healthError ? 'error' : 'connected'} aria-live="polite">
             <span className="status-indicator" aria-hidden="true" />
 
             {isHealthLoading && (
@@ -514,9 +521,12 @@ function App() {
                 )}
 
                 {isCaptchaEnabled && captchaError && (
-                  <p className="captcha-error" role="alert">
-                    {captchaError}
-                  </p>
+                  <div className="captcha-recovery">
+                    <p className="captcha-error" role="alert">{captchaError}</p>
+                    <button type="button" className="secondary-button" onClick={() => setCaptchaNonce(current => current + 1)} disabled={authLoading}>
+                      Retry security check
+                    </button>
+                  </div>
                 )}
 
                 {authError && (
@@ -541,6 +551,7 @@ function App() {
                       : 'Create account'}
                 </button>
               </form>
+              <p className="auth-card-footer"><HudIcon kind="mail" />Your accounts. Your conversations. One workspace.</p>
             </>
           )}
         </div>

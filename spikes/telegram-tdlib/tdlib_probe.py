@@ -187,6 +187,7 @@ def _authorization_loop(
     api_id: int,
     api_hash: str,
     db_dir: Path,
+    *, interactive: bool = True, timeout: float = 30.0,
 ) -> None:
     client.send(
         {
@@ -196,7 +197,8 @@ def _authorization_loop(
         tag="bootstrap",
     )
 
-    while True:
+    deadline = time.monotonic() + timeout
+    while interactive or time.monotonic() < deadline:
         event = client.receive(1.0)
 
         if not event:
@@ -214,6 +216,12 @@ def _authorization_loop(
 
         state = event.get("authorization_state", {})
         state_type = state.get("@type")
+        if not interactive and state_type in {
+            "authorizationStateWaitPhoneNumber", "authorizationStateWaitEmailAddress",
+            "authorizationStateWaitEmailCode", "authorizationStateWaitCode",
+            "authorizationStateWaitPassword", "authorizationStateWaitRegistration",
+        }:
+            raise RuntimeError("Telegram session requires authorization. Reconnect Telegram in the workspace.")
         print(f"Authorization state: {state_type}", flush=True)
         if state_type == "authorizationStateWaitTdlibParameters":
             client.send(
@@ -327,6 +335,7 @@ def _authorization_loop(
                 f"{state_type}"
             )
 
+    raise TimeoutError("Telegram session initialization timed out.")
 
 def _drain_updates(
     client: TdJsonClient,
@@ -354,10 +363,13 @@ def _load_chat_list(
     client: TdJsonClient,
     chat_list: JsonObject,
     max_pages: int,
+    deadline: float | None = None,
 ) -> None:
     list_type = str(chat_list.get("@type") or "unknown")
 
     for page in range(1, max_pages + 1):
+        if deadline is not None and time.monotonic() >= deadline:
+            raise TdLibResponseTimeout("chat_discovery", "discovery-budget")
         tag = client.send(
             {
                 "@type": "loadChats",
@@ -370,7 +382,7 @@ def _load_chat_list(
         try:
             client.wait_for_response(
                 tag,
-                timeout=15.0,
+                timeout=15.0 if deadline is None else min(15.0, max(0.0, deadline - time.monotonic())),
                 operation=f"chat_discovery:{list_type}",
             )
         except TdLibRequestError as exc:
@@ -382,10 +394,10 @@ def _load_chat_list(
         # loadChats returns before all updateNewChat updates have necessarily
         # been observed. Drain a short quiet window before requesting the next
         # bounded page, without using an idle count as a false end condition.
-        _drain_updates(client)
+        _drain_updates(client, max_wait=1.5 if deadline is None else min(1.5, max(0.0, deadline - time.monotonic())))
 
 
-def _load_main_chats(client: TdJsonClient) -> None:
+def _load_main_chats(client: TdJsonClient, budget_seconds: float = 25.0) -> None:
     """Load Main, Archive, and discovered Telegram folders incrementally."""
     try:
         max_pages = int(
@@ -397,16 +409,19 @@ def _load_main_chats(client: TdJsonClient) -> None:
         ) from exc
 
     max_pages = max(1, min(max_pages, 100))
+    deadline = time.monotonic() + budget_seconds
 
     _load_chat_list(
         client,
         {"@type": "chatListMain"},
         max_pages,
+        deadline=deadline,
     )
     _load_chat_list(
         client,
         {"@type": "chatListArchive"},
         max_pages,
+        deadline=deadline,
     )
 
     folder_lists = sorted(
@@ -426,6 +441,7 @@ def _load_main_chats(client: TdJsonClient) -> None:
                 "chat_folder_id": folder_id,
             },
             max_pages,
+            deadline=deadline,
         )
 
 

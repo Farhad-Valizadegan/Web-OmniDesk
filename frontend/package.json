@@ -2,7 +2,7 @@
   "name": "frontend",
   "private": true,
   "license": "UNLICENSED",
-  "version": "1.0.0-mvp.1",
+  "version": "1.0.0-mvp.2",
   "type": "module",
   "scripts": {
     "dev": "vite",

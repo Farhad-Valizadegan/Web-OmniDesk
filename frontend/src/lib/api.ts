@@ -156,6 +156,7 @@ export type TelegramSampleResponse = {
   message: string
   data: {
     provider: 'telegram'
+    warnings?: string[]
     chats: TelegramChat[]
     selected_chat: TelegramChat
     messages: TelegramMessage[]
@@ -212,44 +213,44 @@ async function getErrorMessage(response: Response): Promise<string> {
 async function request<T>(
   input: RequestInfo | URL,
   init?: RequestInit,
+  timeoutMs?: number,
 ): Promise<T> {
   const token = getStoredToken()
-
   const headers = new Headers(init?.headers)
   headers.set('Accept', 'application/json')
   headers.set('Content-Type', 'application/json')
+  if (token) headers.set('Authorization', `Bearer ${token}`)
 
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
+  // Bound authentication requests; provider operations retain their own cancellation.
+  const controller = timeoutMs ? new AbortController() : null
+  const timer = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null
+  try {
+    const response = await fetch(input, {
+      ...init,
+      headers,
+      credentials: 'same-origin',
+      signal: controller?.signal ?? init?.signal,
+    })
+    if (response.status === 401) invalidateAuthentication()
+    if (!response.ok) throw new Error(await getErrorMessage(response))
+    if (response.status === 204) return undefined as T
+    return await response.json() as T
+  } catch (error) {
+    if (controller?.signal.aborted) {
+      throw new Error('The server did not respond in time. Please try again shortly.', { cause: error })
+    }
+    throw error
+  } finally {
+    if (timer !== null) window.clearTimeout(timer)
   }
-
-  const response = await fetch(input, {
-    ...init,
-    headers,
-    credentials: 'same-origin',
-  })
-
-  if (response.status === 401) {
-    invalidateAuthentication()
-  }
-
-  if (!response.ok) {
-    throw new Error(await getErrorMessage(response))
-  }
-
-  if (response.status === 204) {
-    return undefined as T
-  }
-
-  return (await response.json()) as T
 }
 
 export async function getHealth(): Promise<HealthResponse> {
-  return request<HealthResponse>('/api/health')
+  return request<HealthResponse>('/api/health', undefined, 10000)
 }
 
 export async function getCaptchaChallenge(): Promise<CaptchaChallenge> {
-  return request<CaptchaChallenge>('/api/captcha')
+  return request<CaptchaChallenge>('/api/captcha', undefined, 10000)
 }
 
 export async function registerUser(data: {
@@ -264,7 +265,7 @@ export async function registerUser(data: {
   const response = await request<AuthResponse>('/api/register', {
     method: 'POST',
     body: JSON.stringify(data),
-  })
+  }, 30000)
 
   storeToken(response.token)
 
@@ -281,13 +282,13 @@ export async function loginUser(data: {
   return request<LoginChallenge>('/api/login', {
     method: 'POST',
     body: JSON.stringify(data),
-  })
+  }, 30000)
 }
 
 export async function verifyLoginCode(challenge: string, code: string): Promise<AuthResponse> {
   const response = await request<AuthResponse>('/api/login/verify', {
     method: 'POST', body: JSON.stringify({ challenge, code }),
-  })
+  }, 30000)
   storeToken(response.token)
   return response
 }
@@ -295,11 +296,11 @@ export async function verifyLoginCode(challenge: string, code: string): Promise<
 export function resendLoginCode(challenge: string): Promise<LoginChallenge> {
   return request<LoginChallenge>('/api/login/resend', {
     method: 'POST', body: JSON.stringify({ challenge }),
-  })
+  }, 30000)
 }
 
 export async function getCurrentUser(): Promise<CurrentUserResponse> {
-  return request<CurrentUserResponse>('/api/user')
+  return request<CurrentUserResponse>('/api/user', undefined, 10000)
 }
 
 export async function logoutUser(): Promise<void> {
