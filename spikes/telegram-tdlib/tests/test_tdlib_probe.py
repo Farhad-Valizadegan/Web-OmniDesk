@@ -36,6 +36,35 @@ class FakeClient:
 
 
 class TdLibProbeTests(unittest.TestCase):
+    def test_reader_never_prompts_for_expired_session_credentials(self):
+        client = FakeClient()
+        client.receive = MagicMock(return_value={"@type": "updateAuthorizationState",
+            "authorization_state": {"@type": "authorizationStateWaitCode"}})
+        with patch.object(tdlib_probe, "getpass") as prompt:
+            with self.assertRaisesRegex(RuntimeError, "requires authorization"):
+                tdlib_probe._authorization_loop(client, 1, "test", Path("test"), interactive=False)
+            prompt.assert_not_called()
+
+    def test_reader_session_initialization_has_a_deadline(self):
+        client = FakeClient()
+        with self.assertRaisesRegex(TimeoutError, "initialization timed out"):
+            tdlib_probe._authorization_loop(client, 1, "test", Path("test"), interactive=False, timeout=0)
+
+    def test_discovery_stops_before_request_when_shared_budget_expires(self):
+        client = FakeClient()
+        with self.assertRaises(tdlib_probe.TdLibResponseTimeout):
+            tdlib_probe._load_chat_list(client, {"@type": "chatListMain"}, 50, deadline=0)
+        self.assertEqual(client.calls, [])
+
+    def test_all_discovery_lists_share_the_same_deadline(self):
+        client = FakeClient()
+        client.chat_lists = {("chatListFolder", 1)}
+        with patch.object(tdlib_probe, "_load_chat_list") as load:
+            tdlib_probe._load_main_chats(client)
+        self.assertEqual(load.call_count, 3)
+        deadlines = [call.kwargs["deadline"] for call in load.call_args_list]
+        self.assertEqual(len(set(deadlines)), 1)
+
     def test_only_chat_discovery_404_is_end_of_list(self):
         client = FakeClient(
             error=tdlib_probe.TdLibRequestError(

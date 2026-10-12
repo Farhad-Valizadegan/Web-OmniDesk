@@ -6,6 +6,8 @@ use App\Exceptions\ProviderErrorType;
 use App\Exceptions\ProviderException;
 use App\Models\ProviderConnection;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 class TelegramAdapterService
@@ -87,10 +89,9 @@ class TelegramAdapterService
             );
         }
 
-        $command = $this->buildCommand(
-            $pythonBinary,
-            $script
-        );
+        // Pass executable arguments separately; Symfony manages platform process cleanup.
+        $command = [$pythonBinary, $script];
+        set_time_limit($timeoutSeconds + 15);
 
         // Preserve OS networking/runtime settings (notably SystemRoot on Windows).
         $environment = array_merge(getenv(), [
@@ -113,21 +114,6 @@ class TelegramAdapterService
             $environment['TELEGRAM_CHAT_ID'] = (string) $chatId;
         }
 
-        $descriptors = [
-            0 => [
-                'pipe',
-                'r',
-            ],
-            1 => [
-                'pipe',
-                'w',
-            ],
-            2 => [
-                'pipe',
-                'w',
-            ],
-        ];
-
         $lockHandle = null;
 
         try {
@@ -136,31 +122,23 @@ class TelegramAdapterService
                 $operation,
             );
 
-            $process = proc_open(
-                $command,
-                $descriptors,
-                $pipes,
-                base_path(),
-                $environment
-            );
+            // Symfony uses safe Windows output handling and enforces the deadline
+            // even when the child produces no output.
+            $process = new Process($command, base_path(), $environment, null, $timeoutSeconds);
+            $timedOut = false;
 
-            if (is_resource($process) === false) {
-                throw new ProviderException(
-                    'telegram',
-                    ProviderErrorType::Temporary,
-                    'Telegram adapter process could not be started.',
-                    null,
-                    $operation,
-                );
+            try {
+                $process->run();
+            } catch (ProcessTimedOutException) {
+                $timedOut = true;
             }
 
-            fclose($pipes[0]);
-
-            $result = $this->collectProcessOutput(
-                $process,
-                $pipes,
-                $timeoutSeconds,
-            );
+            $result = [
+                'stdout' => $process->getOutput(),
+                'stderr' => $process->getErrorOutput(),
+                'exit_code' => $process->getExitCode() ?? -1,
+                'timed_out' => $timedOut,
+            ];
 
             if ($result['timed_out']) {
                 Log::channel('telegram')->error(
@@ -198,10 +176,18 @@ class TelegramAdapterService
                     ],
                 );
 
+                $requiresAuthorization = str_contains($diagnostic, 'Telegram session requires authorization.');
+                $initializationTimedOut = str_contains($diagnostic, 'Telegram session initialization timed out.');
+                $message = $requiresAuthorization
+                    ? 'Telegram session requires authorization. Disconnect and reconnect Telegram in the workspace.'
+                    : ($initializationTimedOut
+                        ? 'Telegram session could not initialize. Check your connection and retry.'
+                        : 'Telegram adapter request failed.');
+
                 throw new ProviderException(
                     'telegram',
-                    ProviderErrorType::Temporary,
-                    'Telegram adapter request failed.',
+                    $requiresAuthorization ? ProviderErrorType::Authorization : ProviderErrorType::Temporary,
+                    $message,
                     null,
                     $operation,
                 );
@@ -439,83 +425,6 @@ class TelegramAdapterService
         $root = rtrim((string) config('telegram.runtime_directory'), DIRECTORY_SEPARATOR);
 
         return $root.DIRECTORY_SEPARATOR.'connection-'.$connection->getKey();
-    }
-
-    /**
-     * @return array{stdout: string, stderr: string, exit_code: int, timed_out: bool}
-     */
-    private function collectProcessOutput(
-        mixed $process,
-        array $pipes,
-        int $timeoutSeconds,
-    ): array {
-        stream_set_blocking($pipes[1], false);
-        stream_set_blocking($pipes[2], false);
-
-        $stdout = '';
-        $stderr = '';
-        $timedOut = false;
-        $exitCode = -1;
-        $deadline = microtime(true) + $timeoutSeconds;
-
-        while (true) {
-            $stdout .= $this->readPipe($pipes[1]);
-            $stderr .= $this->readPipe($pipes[2]);
-
-            $status = proc_get_status($process);
-
-            if (($status['running'] ?? false) === false) {
-                $exitCode = (int) ($status['exitcode'] ?? -1);
-                break;
-            }
-
-            if (microtime(true) >= $deadline) {
-                $timedOut = true;
-                proc_terminate($process);
-                break;
-            }
-
-            usleep(50000);
-        }
-
-        $drainDeadline = microtime(true) + 0.75;
-
-        do {
-            $stdout .= $this->readPipe($pipes[1]);
-            $stderr .= $this->readPipe($pipes[2]);
-
-            if (
-                feof($pipes[1])
-                && feof($pipes[2])
-            ) {
-                break;
-            }
-
-            usleep(25000);
-        } while (microtime(true) < $drainDeadline);
-
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-
-        $closedExitCode = (int) proc_close($process);
-
-        if ($exitCode < 0) {
-            $exitCode = $closedExitCode;
-        }
-
-        return [
-            'stdout' => $stdout,
-            'stderr' => $stderr,
-            'exit_code' => $exitCode,
-            'timed_out' => $timedOut,
-        ];
-    }
-
-    private function readPipe(mixed $pipe): string
-    {
-        $content = stream_get_contents($pipe);
-
-        return is_string($content) ? $content : '';
     }
 
     /**

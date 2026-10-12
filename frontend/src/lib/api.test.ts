@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   authenticationInvalidatedEvent,
   getCurrentUser,
+  getCaptchaChallenge,
   logoutUser,
   getConversationMessages,
   getTelegramMedia,
@@ -118,5 +119,39 @@ describe('API authentication handling', () => {
     vi.stubGlobal('fetch', fetchMock)
     await getConversationMessages(17, 50, 2)
     expect(fetchMock).toHaveBeenCalledWith('/api/conversations/17/messages?per_page=50&page=2', expect.any(Object))
+  })
+})
+
+
+describe('authentication request deadlines', () => {
+  afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); sessionStorage.clear() })
+
+  function stalledFetch() {
+    return vi.fn((_input: RequestInfo | URL, options?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      options?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true })
+    }))
+  }
+
+  test('aborts a stalled login and reports a recoverable error without creating a session', async () => {
+    vi.useFakeTimers()
+    const fetchMock = stalledFetch()
+    vi.stubGlobal('fetch', fetchMock)
+    const outcome = loginUser({ email: 'test@example.com', password: 'test-password' }).catch(error => error.message)
+    await vi.advanceTimersByTimeAsync(30000)
+    expect(fetchMock.mock.calls[0][1]?.signal?.aborted).toBe(true)
+    expect(await outcome).toBe('The server did not respond in time. Please try again shortly.')
+    expect(sessionStorage.getItem(tokenStorageKey)).toBeNull()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  test('ends a stalled CAPTCHA load so the UI can offer a retry', async () => {
+    vi.useFakeTimers()
+    const fetchMock = stalledFetch()
+    vi.stubGlobal('fetch', fetchMock)
+    const outcome = getCaptchaChallenge().catch(error => error.message)
+    await vi.advanceTimersByTimeAsync(10000)
+    expect(fetchMock.mock.calls[0][1]?.signal?.aborted).toBe(true)
+    expect(await outcome).toBe('The server did not respond in time. Please try again shortly.')
+    expect(vi.getTimerCount()).toBe(0)
   })
 })

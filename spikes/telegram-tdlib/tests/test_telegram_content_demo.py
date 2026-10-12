@@ -1,3 +1,7 @@
+import io
+import json
+import tempfile
+from contextlib import redirect_stdout
 import sys
 import base64
 import unittest
@@ -10,6 +14,23 @@ import telegram_content_demo as adapter
 
 
 class ContentHistoryTests(unittest.TestCase):
+    def test_discovery_timeout_preserves_loaded_chats_with_warning(self):
+        client = MagicMock()
+        client.chats = {1: {"id": 1, "title": "Test chat", "type": {"@type": "chatTypePrivate"}}}
+        output = io.StringIO()
+        with tempfile.TemporaryDirectory() as runtime:
+            with patch.dict(adapter.os.environ, {"TELEGRAM_API_ID": "1", "TELEGRAM_API_HASH": "test",
+                    "TELEGRAM_TDLIB_RUNTIME": runtime, "TELEGRAM_CHAT_ID": "",
+                    "TELEGRAM_MEDIA_MESSAGE_ID": "", "TELEGRAM_BEFORE_MESSAGE_ID": ""}):
+                with patch.object(adapter, "TdJsonClient", return_value=client), \
+                     patch.object(adapter, "_authorization_loop"), \
+                     patch.object(adapter, "_load_main_chats", side_effect=adapter.TdLibResponseTimeout("chat_discovery", "test")), \
+                     redirect_stdout(output):
+                    self.assertEqual(adapter.main(), 0)
+        result = json.loads(output.getvalue())
+        self.assertEqual(len(result["chats"]), 1)
+        self.assertEqual(len(result["warnings"]), 1)
+
     def test_chat_summary_exposes_only_a_valid_profile_thumbnail(self):
         encoded = base64.b64encode(b"\xff\xd8\xffthumbnail").decode()
         chat = {"id": 1, "title": "Photo chat", "type": {"@type": "chatTypePrivate"},

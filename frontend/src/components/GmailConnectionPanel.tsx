@@ -113,7 +113,7 @@ function GmailConnectionPanel({
     <section className="gmail-panel" aria-label="Gmail connection">
       <div className="gmail-panel-heading">
         <div>
-          <p className="eyebrow">Provider connection</p>
+
           <h3>Gmail</h3>
         </div>
 
