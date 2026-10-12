@@ -6,7 +6,7 @@ These instructions apply to automated coding assistants working in the `backend`
 
 OmniDesk is a Laravel-based backend for a provider-neutral unified communication workspace.
 
-Current Version 1 providers are Gmail and Telegram. Gmail is implemented; Telegram work remains subject to backlog prioritization and provider validation.
+Current Version 1 providers are Gmail and Telegram. Gmail integration and read-only Telegram integration through the local TDLib adapter are implemented in `v1.0.0-mvp.1`. Telegram uses isolated per-user runtimes for authorization, chat/message access, and supported media. Provider message sending remains outside the current MVP scope. See `../docs/Releases/v1/v1.0.0-mvp.1.md` for the released scope and known limitations.
 
 ## Required Working Rules
 
